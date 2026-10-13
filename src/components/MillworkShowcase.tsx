@@ -16,7 +16,7 @@ export default function MillworkShowcase({ lang, onOpenRFQ }: MillworkShowcasePr
         vi: 'Chế tác module bàn quầy, vách ốp trang trí, hệ tủ pantry và quầy bar thương mại chuẩn kích thước fit-out khắt khe.',
         en: 'Custom commercial service counters, branded wall systems, banquettes, and heavy-use joinery built to architectural specifications.',
       },
-      image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80',
+      image: '/images/profile/architectural-millwork.jpg',
     },
     {
       title: { vi: 'Ốp Tường Kiến Trúc & Vách Gỗ Tiêu Âm', en: 'Architectural Wall Systems & Acoustical Paneling' },
@@ -25,7 +25,7 @@ export default function MillworkShowcase({ lang, onOpenRFQ }: MillworkShowcasePr
         vi: 'Hệ thống vách nan gỗ sồi cong, tủ kệ âm tường tích hợp ánh sáng LED giấu rãnh và cửa giấu khuôn hiện đại.',
         en: 'Precision fluted oak tambour wall systems, integrated concealed LED channel shelving, and flush-mount hidden door assemblies.',
       },
-      image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80',
+      image: '/images/profile/hospitality-project.jpg',
     },
     {
       title: { vi: 'Bàn Chậu Rửa Lavabo Mặt Đá May Đo', en: 'Custom Hospitality Vanities & Millwork' },
@@ -34,7 +34,7 @@ export default function MillworkShowcase({ lang, onOpenRFQ }: MillworkShowcasePr
         vi: 'Tủ lavabo kết hợp đá tự nhiên chống thấm 100%, khung gỗ chịu ẩm cao cấp và phụ kiện đồng mạ chống rỉ sét.',
         en: 'Heavy natural stone integrated basin tops, moisture-sealed marine-grade subframes, and precision plumbing chases.',
       },
-      image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1200&q=80',
+      image: '/images/profile/manufacturing-floor.jpg',
     },
   ];
 

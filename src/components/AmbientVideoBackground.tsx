@@ -1,47 +1,83 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 interface AmbientVideoBackgroundProps {
   className?: string;
   overlayOpacity?: number;
 }
 
-const LUXURY_VIDEOS = [
-  // High-resolution architectural woodworking and craftsmanship loops
-  'https://assets.mixkit.co/videos/preview/mixkit-carpenter-measuring-a-piece-of-wood-40439-large.mp4',
-  'https://assets.mixkit.co/videos/preview/mixkit-modern-hotel-room-with-comfortable-bed-41847-large.mp4',
-];
+const VIDEO_SRC =
+  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260715_090628_7052d8a6-a094-4341-a4a2-ad58493a67a9.mp4';
 
+/**
+ * Dual-video crossfade loop: two <video> elements alternate.
+ * When the active video nears its end (~0.8s before), the standby video
+ * starts playing and fades in while the active fades out → seamless loop
+ * with no stutter at the join point.
+ */
 export default function AmbientVideoBackground({
   className = '',
-  overlayOpacity = 0.65,
+  overlayOpacity = 0.45,
 }: AmbientVideoBackgroundProps) {
-  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const videoARef = useRef<HTMLVideoElement | null>(null);
+  const videoBRef = useRef<HTMLVideoElement | null>(null);
+  const [activeSlot, setActiveSlot] = useState<'A' | 'B'>('A');
   const [isPlaying, setIsPlaying] = useState(true);
-  const [videoLoaded, setVideoLoaded] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const crossfading = useRef(false);
 
+  const CROSSFADE_LEAD = 0.8; // seconds before end to start crossfade
+
+  const getActive = useCallback(() =>
+    activeSlot === 'A' ? videoARef.current : videoBRef.current
+  , [activeSlot]);
+
+  const getStandby = useCallback(() =>
+    activeSlot === 'A' ? videoBRef.current : videoARef.current
+  , [activeSlot]);
+
+  // Initial autoplay
   useEffect(() => {
-    const video = videoRef.current;
+    const video = videoARef.current;
     if (!video) return;
-
     video.muted = true;
-    video.defaultMuted = true;
     video.playsInline = true;
-    video.loop = true;
-
-    const playPromise = video.play();
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => {
-          setIsPlaying(true);
-        })
-        .catch(() => {
-          setIsPlaying(false);
-        });
-    }
+    video.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
   }, []);
 
+  // Crossfade logic on timeupdate
+  useEffect(() => {
+    const active = getActive();
+    if (!active) return;
+
+    const onTimeUpdate = () => {
+      if (crossfading.current) return;
+      const remaining = active.duration - active.currentTime;
+      if (!isFinite(remaining) || remaining > CROSSFADE_LEAD) return;
+
+      crossfading.current = true;
+      const standby = getStandby();
+      if (!standby) return;
+
+      // Reset standby and start playing
+      standby.currentTime = 0;
+      standby.play().catch(() => {});
+
+      // After the crossfade duration, swap roles
+      setTimeout(() => {
+        setActiveSlot((prev) => (prev === 'A' ? 'B' : 'A'));
+        // Pause the old active after swap completes
+        active.pause();
+        active.currentTime = 0;
+        crossfading.current = false;
+      }, CROSSFADE_LEAD * 1000);
+    };
+
+    active.addEventListener('timeupdate', onTimeUpdate);
+    return () => active.removeEventListener('timeupdate', onTimeUpdate);
+  }, [activeSlot, getActive, getStandby]);
+
   const togglePlay = () => {
-    const video = videoRef.current;
+    const video = getActive();
     if (!video) return;
     if (video.paused) {
       video.play().then(() => setIsPlaying(true)).catch(() => {});
@@ -51,58 +87,78 @@ export default function AmbientVideoBackground({
     }
   };
 
+  const videoClasses = 'absolute inset-0 w-full h-full object-cover object-center';
+
   return (
     <div
       className={`absolute inset-0 overflow-hidden pointer-events-none select-none z-0 ${className}`}
       aria-hidden="true"
     >
-      {/* High-fidelity background video */}
+      {/* Dual crossfade video elements */}
       <video
-        ref={videoRef}
-        src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260715_090628_7052d8a6-a094-4341-a4a2-ad58493a67a9.mp4"
+        ref={videoARef}
+        src={VIDEO_SRC}
         muted
         playsInline
-        autoPlay
-        loop
         preload="auto"
-        onLoadedData={() => setVideoLoaded(true)}
-        className={`w-full h-full object-cover object-center scale-105 transition-opacity duration-1000 ${
-          videoLoaded ? 'opacity-90' : 'opacity-40'
+        onLoadedData={() => setLoaded(true)}
+        className={`${videoClasses} transition-opacity duration-700 ${
+          activeSlot === 'A' ? 'opacity-100 z-[1]' : 'opacity-0 z-0'
+        }`}
+      />
+      <video
+        ref={videoBRef}
+        src={VIDEO_SRC}
+        muted
+        playsInline
+        preload="auto"
+        className={`${videoClasses} transition-opacity duration-700 ${
+          activeSlot === 'B' ? 'opacity-100 z-[1]' : 'opacity-0 z-0'
         }`}
       />
 
-      {/* Fallback & luxury tone grading overlay */}
+      {/* Fade-in reveal from poster/placeholder */}
+      {!loaded && (
+        <div className="absolute inset-0 z-[2] bg-gradient-to-br from-[#2a2520] to-[#1a1815]" />
+      )}
+
+      {/* Balanced overlay: brighter than original but readable */}
       <div
-        className="absolute inset-0 bg-linear-to-b from-black/80 via-black/60 to-[#121212]/95"
+        className="absolute inset-0 z-[3] bg-gradient-to-b from-black/50 via-black/35 to-[#1a1815]/70"
         style={{ opacity: overlayOpacity }}
       />
 
-      {/* Warm golden light radial subtle glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#C5A880]/15 via-transparent to-transparent pointer-events-none" />
+      {/* Left-side text protection gradient */}
+      <div className="absolute inset-0 z-[3] bg-gradient-to-r from-black/40 via-black/15 to-transparent pointer-events-none" />
 
-      {/* Micro-texture grain pattern for tactile furniture feel */}
+      {/* Warm highlight radial for vibrancy */}
+      <div className="absolute inset-0 z-[3] bg-[radial-gradient(ellipse_at_30%_30%,_var(--tw-gradient-stops))] from-[#C5A880]/15 via-transparent to-transparent pointer-events-none" />
+
+      {/* Micro grain texture */}
       <div
-        className="absolute inset-0 opacity-[0.035] pointer-events-none mix-blend-overlay"
+        className="absolute inset-0 z-[4] opacity-[0.025] pointer-events-none mix-blend-overlay"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
         }}
       />
 
-      {/* Interactive playback toggle (pointer-events-auto) */}
+      {/* Playback toggle */}
       <div className="absolute bottom-6 right-6 z-20 pointer-events-auto hidden sm:flex items-center gap-2">
         <button
           onClick={togglePlay}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/15 text-white/80 hover:text-white text-xs hover:bg-black/60 transition-all duration-200 cursor-pointer"
-          title={isPlaying ? 'Pause Background Video' : 'Play Background Video'}
+          className="w-9 h-9 rounded-full bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/25 transition-colors cursor-pointer"
+          aria-label={isPlaying ? 'Pause background' : 'Play background'}
         >
-          <span
-            className={`w-2 h-2 rounded-full ${
-              isPlaying ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
-            }`}
-          />
-          <span className="text-[11px] font-sans tracking-wider uppercase">
-            {isPlaying ? 'Video Motion' : 'Paused'}
-          </span>
+          {isPlaying ? (
+            <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <rect x="6" y="4" width="4" height="16" rx="1" />
+              <rect x="14" y="4" width="4" height="16" rx="1" />
+            </svg>
+          ) : (
+            <svg className="w-3.5 h-3.5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          )}
         </button>
       </div>
     </div>

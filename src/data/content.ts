@@ -5,7 +5,7 @@ export const COMPANY_INFO = {
     officialName: 'CÔNG TY TNHH NỘI THẤT TOP LINE HOSPITALITY',
     internationalName: 'TOP LINE HOSPITALITY FURNITURE COMPANY LIMITED',
     shortName: 'TOP LINE HOSPITALITY FURNITURE CO., LTD',
-    brandName: 'TopLine Furniture',
+    brandName: 'TOPLINE FURNITURE',
     taxId: '3703519683',
     registrationDate: '09/10/2026',
     charterCapital: '1.000.000.000 VNĐ (Một tỷ đồng)',
@@ -18,19 +18,26 @@ export const COMPANY_INFO = {
     factoryFacility: 'Xưởng Sản Xuất Nội Thất Xuất Khẩu TopLine – Việt Nam',
     hotline: '0977 429 979',
     phoneDisplay: '0977.429.979',
-    email: 'duongtran.wooden80@gmail.com',
+    email: 'info@toplinefurniture.vn',
+    salesEmail: 'sales@toplinefurniture.vn',
+    techEmail: 'tech@toplinefurniture.vn',
+    supportEmail: 'support@toplinefurniture.vn',
+    accountingEmail: 'accounting@toplinefurniture.vn',
     tagline: 'NỘI THẤT MAY ĐO, CHUẨN MỰC CHO MỌI QUY MÔ',
     subTagline: 'CUSTOM FURNITURE, MADE TO SCALE.',
+    heritageYear: '2013',
+    incorporationDate: '09/10/2026',
+    heritageNote: 'Thương hiệu TopLine được Don Winston khởi xướng từ năm 2013. Pháp nhân điều hành sản xuất tại Việt Nam thành lập ngày 09/10/2026.',
     foundingStory:
-      'Được khởi xướng bởi Don Winston từ năm 2013, TopLine Furniture được thành lập với tầm nhìn rõ ràng: hiện thực hóa năng lực sản xuất nội thất may đo theo quy mô lớn mà không làm mất đi tính thủ công tinh xảo, sự linh hoạt và giá trị vượt trội.',
+      'Được khởi xướng bởi Don Winston từ năm 2013, TopLine Furniture phát triển với tầm nhìn: hiện thực hóa năng lực sản xuất nội thất may đo theo quy mô lớn mà không làm mất đi tính thủ công tinh xảo, sự linh hoạt và giá trị vượt trội. Pháp nhân chính thức tại Việt Nam (CÔNG TY TNHH NỘI THẤT TOP LINE HOSPITALITY) được đăng ký ngày 09/10/2026.',
     foundingSub:
-      'Từ Việt Nam, TopLine phát triển và chế tác nội thất cao cấp cho các chuỗi khách sạn, khu nghỉ dưỡng, dự án kiến trúc ốp gỗ (millwork) và các bộ sưu tập bán lẻ độc quyền cho khách hàng quốc tế.',
+      'Từ cơ sở sản xuất tại Việt Nam, TopLine chế tác nội thất cao cấp cho các chuỗi khách sạn, khu nghỉ dưỡng, dự án kiến trúc ốp gỗ (millwork) và các bộ sưu tập bán lẻ độc quyền cho khách hàng quốc tế.',
   },
   en: {
     officialName: 'TOP LINE HOSPITALITY FURNITURE COMPANY LIMITED',
     internationalName: 'TOP LINE HOSPITALITY FURNITURE COMPANY LIMITED',
     shortName: 'TOP LINE HOSPITALITY FURNITURE CO., LTD',
-    brandName: 'TopLine Furniture',
+    brandName: 'TOPLINE FURNITURE',
     taxId: '3703519683',
     registrationDate: 'October 09, 2026',
     charterCapital: '1,000,000,000 VND (1 Billion VND)',
@@ -43,13 +50,20 @@ export const COMPANY_INFO = {
     factoryFacility: 'TopLine Furniture Manufacturing Facility - Vietnam',
     hotline: '+84 977 429 979',
     phoneDisplay: '0977.429.979',
-    email: 'duongtran.wooden80@gmail.com',
+    email: 'info@toplinefurniture.vn',
+    salesEmail: 'sales@toplinefurniture.vn',
+    techEmail: 'tech@toplinefurniture.vn',
+    supportEmail: 'support@toplinefurniture.vn',
+    accountingEmail: 'accounting@toplinefurniture.vn',
     tagline: 'CUSTOM FURNITURE, MADE TO SCALE.',
     subTagline: 'HOSPITALITY | ARCHITECTURAL MILLWORK | RETAIL',
+    heritageYear: '2013',
+    incorporationDate: 'October 09, 2026',
+    heritageNote: 'Brand heritage initiated by Don Winston in 2013. The operating legal entity in Vietnam was incorporated on October 09, 2026.',
     foundingStory:
-      'Founded by Don Winston in 2013, TopLine Furniture was established with a clear vision: to make custom furniture scalable without losing the craftsmanship, flexibility, and great value that define truly well-made furniture.',
+      'Initiated by Don Winston in 2013, TopLine Furniture was built with a clear vision: to make custom furniture scalable without losing craftsmanship, flexibility, and architectural integrity. The operating company in Vietnam (TOP LINE HOSPITALITY FURNITURE CO., LTD) was registered on October 09, 2026.',
     foundingSub:
-      'From Vietnam, TopLine develops and manufactures custom hospitality furniture, architectural millwork, and design-led retail collections for international clients.',
+      'From our manufacturing facility in Vietnam, TopLine engineers and produces custom hospitality furniture, architectural millwork, and design-led retail collections for international clients.',
   },
 };
 
@@ -127,7 +141,7 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
     },
     finish: { vi: 'Sơn PU mờ bảo tồn tom gỗ sồi ấm', en: 'Warm matte oak finish with exposed grain' },
     hardware: { vi: 'Tay nắm tròn kim loại Antique Brass', en: 'Circular antique brass metal pulls' },
-    image: 'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=1200&q=80',
+    image: '/images/profile/collection-01-warm-wood.png',
     description: {
       vi: 'Tủ credenza bo góc cong mềm mại kết hợp mặt đá cẩm thạch tối màu sang trọng và nan sọc fluted thủ công tinh tế.',
       en: 'Rounded case profile credenza featuring dark natural stone top, fluted vertical detailing, and antique-brass circular hardware.',
@@ -146,7 +160,7 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
     },
     finish: { vi: 'Gỗ sồi ấm tự nhiên mộc mạc', en: 'Natural warm oak veneer' },
     hardware: { vi: 'Tay nắm thanh dài Antique Brass', en: 'Linear antique-brass bar pulls' },
-    image: 'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=1200&q=80',
+    image: '/images/profile/collection-01-warm-wood.png',
     description: {
       vi: 'Tủ 6 ngăn kéo đối xứng với tay kéo đồng nguyên khối, mặt đá cẩm thạch chống trầy xước và chân gỗ vuốt nhã nhặn.',
       en: 'Refined 6-drawer dresser pairing natural stone surface with warm oak joinery and solid brass hardware.',
@@ -164,7 +178,7 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
       en: 'Contoured natural stone slab, oak veneer casing, antique brass pulls',
     },
     finish: { vi: 'Veneer gỗ sồi cao cấp', en: 'Hand-rubbed warm oak finish' },
-    image: 'https://images.unsplash.com/photo-1540518614846-7ede433c4ef4?auto=format&fit=crop&w=1200&q=80',
+    image: '/images/profile/cover-furniture.png',
     description: {
       vi: 'Kích thước lý tưởng cho phòng suite khách sạn 5 sao, bề mặt đá chịu nhiệt và chống bám bẩn.',
       en: 'Compact luxury bedside cabinet with durable natural stone surface for 5-star hospitality guestrooms.',
@@ -182,7 +196,7 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
       en: 'Solid natural stone slab top, dual fluted architectural oak pillar base',
     },
     finish: { vi: 'Sơn mờ bảo vệ chống tia UV', en: 'Low-sheen protective architectural lacquer' },
-    image: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=80',
+    image: '/images/profile/collection-01-warm-wood.png',
     description: {
       vi: 'Chiếc bàn console ấn tượng cho sảnh đón khách sạn hoặc hành lang cao cấp với chân trụ dạng thức cột Hy Lạp hiện đại.',
       en: 'Architectural foyer console with tactile fluted wood columns anchoring a substantial marble slab.',
@@ -200,7 +214,7 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
       en: 'Continuous 30mm natural stone slab, internal steel truss, dual fluted oak pedestal legs',
     },
     finish: { vi: 'Đá đánh bóng satin chống thấm, gỗ sồi xử lý độ ẩm 10%', en: 'Honed satin marble, kiln-dried oak base' },
-    image: 'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=1200&q=80',
+    image: '/images/profile/collection-01-warm-wood.png',
     description: {
       vi: 'Bàn ăn 8–10 chỗ ngồi đẳng cấp quốc tế, kết hợp sự vững chãi của đá tự nhiên và sự ấm áp của chất gỗ gia công tỉ mỉ.',
       en: 'Substantial 8-10 seater dining table designed for private dining suites and penthouse residences.',
@@ -220,7 +234,7 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
       en: 'Kiln-dried solid ash & oak frame, architectural matte black lacquer, reinforced slats',
     },
     finish: { vi: 'Đen mờ sâu thẳm lộ tom gỗ tự nhiên', en: 'Deep matte black open-pore architectural finish' },
-    image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80',
+    image: '/images/profile/collection-02-black-contemporary.png',
     description: {
       vi: 'Tỷ lệ hình học mạnh mẽ, đầu giường nguyên khối tối giản thể hiện sự sang trọng điềm tĩnh của phong cách đương đại.',
       en: 'Bold architectural proportions and restrained detailing crafted for high-end contemporary hospitality suites.',
@@ -238,7 +252,7 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
       en: 'Ebonized oak veneer, soft-closing drawer glides, concealed wire management channels',
     },
     finish: { vi: 'Sơn đen mờ 5% cao cấp', en: '5% low-sheen ebonized matte lacquer' },
-    image: 'https://images.unsplash.com/photo-1594026112284-02bb6f3352fe?auto=format&fit=crop&w=1200&q=80',
+    image: '/images/profile/collection-02-black-contemporary.png',
     description: {
       vi: 'Thiết kế cân xứng có hộc mở trung tâm cho thiết bị nghe nhìn và các ngăn kéo kín lưu trữ gọn gàng.',
       en: 'Clean linear silhouette with central AV open bay and seamless touch-latch storage drawers.',
@@ -256,7 +270,7 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
       en: 'Solid wood joinery, ebonized oak veneer, integrated beveled finger-pull detail',
     },
     finish: { vi: 'Đen mờ kiến trúc', en: 'Architectural matte black' },
-    image: 'https://images.unsplash.com/photo-1595515106969-1ce29566ff1c?auto=format&fit=crop&w=1200&q=80',
+    image: '/images/profile/collection-02-black-contemporary.png',
     description: {
       vi: 'Tủ cao tiết kiệm diện tích sàn mà vẫn tối đa hóa không gian lưu trữ cho phòng ngủ khách sạn.',
       en: 'Vertical chest engineered for efficient suite floorplates without sacrificing drawer volume.',
@@ -276,7 +290,7 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
       en: 'Expressive Calacatta marble slab, curved tambour oak cabinetry with solid wood ribs',
     },
     finish: { vi: 'Mặt đá đánh bóng thủ công, gỗ sồi màu tự nhiên ấm', en: 'Honed organic stone, natural golden oak finish' },
-    image: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=80',
+    image: '/images/profile/collection-03-sculptural-stone.png',
     description: {
       vi: 'Tác phẩm điểm nhấn với mặt đá uốn theo dáng nan gỗ, thể hiện đỉnh cao kỹ thuật cơ khí chính xác và tay nghề thợ mộc TopLine.',
       en: 'Statement storage credenza combining expressive stone surfaces with sculptural oak forms and flowing radii.',
@@ -294,7 +308,7 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
       en: 'Freeform sculpted natural stone top, dual undulating solid oak sculpted bases',
     },
     finish: { vi: 'Đá mài cạnh tròn Bullnose, gỗ sồi tự nhiên', en: 'Bullnose bull-edged marble, silky tactile oak base' },
-    image: 'https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&w=1200&q=80',
+    image: '/images/profile/collection-04-approved.png',
     description: {
       vi: 'Dáng hình lấy cảm hứng từ thiên nhiên, tạo điểm nhấn nghệ thuật phóng khoáng cho phòng khách và sảnh VIP.',
       en: 'Nature-inspired organic silhouette designed as a functional centerpiece for luxury hospitality lobbies.',
@@ -315,7 +329,7 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
     },
     finish: { vi: 'Đánh bóng sâu làm nổi bật từng đốm vân nu tự nhiên', en: 'Deep multi-step hand-rubbed finish revealing burled grain' },
     hardware: { vi: 'Núm kéo tròn kim loại đồng tiện thủ công', en: 'Turned solid brass traditional knob hardware' },
-    image: 'https://images.unsplash.com/photo-1540518614846-7ede433c4ef4?auto=format&fit=crop&w=1200&q=80',
+    image: '/images/profile/stanley-burl-oak.jpg',
     description: {
       vi: 'Dòng sản phẩm gia công hoàn thiện cho thương hiệu nội thất quốc tế danh tiếng, kết hợp tinh hoa cổ điển và độ bền vượt trội.',
       en: 'Finished Stanley Furniture pieces grouped as the Burl Oak Dark bedroom collection for presidential hospitality suites.',
@@ -333,12 +347,30 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
       en: 'Select Marlow oak timber, commercial-grade fire-retardant upholstered headboard panel',
     },
     finish: { vi: 'Sơn mờ màu nâu mộc tự nhiên', en: 'Hand-wiped medium oak natural finish' },
-    image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80',
+    image: '/images/profile/stanley-marlow-01.jpg',
     description: {
       vi: 'Sự kết hợp hoàn hảo giữa khung sồi khỏe khoắn và nệm êm ái, mang lại trải nghiệm nghỉ ngơi thư thái tối đa.',
       en: 'Marlow and Arbor coordinated bedroom set combining solid timber framing with bespoke upholstery.',
     },
     tags: ['Marlow Oak', 'Upholstered', 'Hospitality Standard'],
+  },
+  {
+    id: 'stanley-marlow-nightstand',
+    name: { vi: 'Tủ Đầu Giường Stanley Marlow Cao Cấp', en: 'Stanley - Marlow Oak Nightstand' },
+    category: 'stanley',
+    categoryLabel: { vi: 'Dòng Sản Phẩm Stanley: Marlow Oak', en: 'Stanley Collection: Marlow Oak' },
+    dimensions: 'W650 x D450 x H600 mm',
+    materials: {
+      vi: 'Gỗ sồi Marlow tự nhiên, tay nắm đồng tiện thủ công, ray trượt giảm chấn cao cấp',
+      en: 'Solid Marlow oak timber, custom turned brass pulls, soft-closing undermount slides',
+    },
+    finish: { vi: 'Sơn mờ màu nâu sồi mộc tự nhiên', en: 'Hand-wiped medium oak natural finish' },
+    image: '/images/profile/stanley-marlow-02.jpg',
+    description: {
+      vi: 'Tủ đầu giường đồng bộ thuộc bộ sưu tập Stanley Marlow, gia công chuẩn chỉ từng đường nét mộng gỗ cổ điển.',
+      en: 'Coordinated bedside cabinet from the Stanley Marlow collection, finished to export architectural standards.',
+    },
+    tags: ['Stanley', 'Nightstand', 'Hospitality Standard'],
   },
 ];
 

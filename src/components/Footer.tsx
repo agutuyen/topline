@@ -5,9 +5,11 @@ import TopLineLogo from './TopLineLogo';
 interface FooterProps {
   lang: Language;
   onOpenRFQ: () => void;
+  onOpenPrivacy?: () => void;
+  onOpenTerms?: () => void;
 }
 
-export default function Footer({ lang, onOpenRFQ }: FooterProps) {
+export default function Footer({ lang, onOpenRFQ, onOpenPrivacy, onOpenTerms }: FooterProps) {
   const info = COMPANY_INFO[lang];
 
   return (
@@ -68,14 +70,28 @@ export default function Footer({ lang, onOpenRFQ }: FooterProps) {
 
             <div className="flex items-start gap-3 text-white/80 pt-2">
               <span className="text-[#C5A880] text-sm">✉️</span>
-              <div>
-                <span className="text-white font-medium block">Email:</span>
-                <a
-                  href="mailto:duongtran.wooden80@gmail.com"
-                  className="text-white/90 text-xs hover:text-[#C5A880] transition-colors mt-0.5 block"
-                >
-                  {info.email}
-                </a>
+              <div className="space-y-1">
+                <span className="text-white font-medium block">
+                  {lang === 'vi' ? 'Hộp Thư Doanh Nghiệp:' : 'Official Corporate Emails:'}
+                </span>
+                <div className="text-xs text-white/70">
+                  <span className="text-white/40">General:</span>{' '}
+                  <a href={`mailto:${info.email}`} className="text-white/90 hover:text-[#C5A880] transition-colors">
+                    {info.email}
+                  </a>
+                </div>
+                <div className="text-xs text-white/70">
+                  <span className="text-white/40">Sales / RFQ:</span>{' '}
+                  <a href={`mailto:${info.salesEmail}`} className="text-[#C5A880] hover:underline">
+                    {info.salesEmail}
+                  </a>
+                </div>
+                <div className="text-xs text-white/70">
+                  <span className="text-white/40">Technical / API:</span>{' '}
+                  <a href={`mailto:${info.techEmail}`} className="text-white/90 hover:text-[#C5A880] transition-colors">
+                    {info.techEmail}
+                  </a>
+                </div>
               </div>
             </div>
           </div>
@@ -131,8 +147,20 @@ export default function Footer({ lang, onOpenRFQ }: FooterProps) {
           <div>
             © {new Date().getFullYear()} {info.officialName}. All rights reserved.
           </div>
-          <div className="flex items-center gap-6">
-            <span>{lang === 'vi' ? 'Đăng ký KD số: 3703519683' : 'Registration No: 3703519683'}</span>
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+            <button
+              onClick={onOpenPrivacy}
+              className="hover:text-white transition-colors cursor-pointer underline text-[11px]"
+            >
+              {lang === 'vi' ? 'Chính Sách Bảo Mật' : 'Privacy Policy'}
+            </button>
+            <button
+              onClick={onOpenTerms}
+              className="hover:text-white transition-colors cursor-pointer underline text-[11px]"
+            >
+              {lang === 'vi' ? 'Điều Khoản Dịch Vụ' : 'Terms of Use'}
+            </button>
+            <span>{lang === 'vi' ? 'ĐKKD: 3703519683 (09/10/2026)' : 'Registration: 3703519683 (Oct 09, 2026)'}</span>
             <span>{lang === 'vi' ? 'Xuất xứ: Việt Nam' : 'Origin: Vietnam'}</span>
           </div>
         </div>

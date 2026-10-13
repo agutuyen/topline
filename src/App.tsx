@@ -13,6 +13,8 @@ import WorkflowSection from './components/WorkflowSection';
 import Footer from './components/Footer';
 import ProductDetailModal from './components/ProductDetailModal';
 import RFQModal from './components/RFQModal';
+import PrivacyPolicyModal from './components/PrivacyPolicyModal';
+import TermsModal from './components/TermsModal';
 import { Language, ProductItem } from './types';
 
 export default function App() {
@@ -22,6 +24,8 @@ export default function App() {
     useState<ProductItem | null>(null);
   const [rfqProducts, setRfqProducts] = useState<ProductItem[]>([]);
 
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
   // Add product to RFQ list and open modal
   const handleOpenRFQWithProduct = (product: ProductItem) => {
     setRfqProducts((prev) => {
@@ -88,7 +92,12 @@ export default function App() {
       <WorkflowSection lang={lang} />
 
       {/* Footer with Business Registration MST 3703519683 & Contacts */}
-      <Footer lang={lang} onOpenRFQ={() => setIsRFQOpen(true)} />
+      <Footer
+        lang={lang}
+        onOpenRFQ={() => setIsRFQOpen(true)}
+        onOpenPrivacy={() => setIsPrivacyOpen(true)}
+        onOpenTerms={() => setIsTermsOpen(true)}
+      />
 
       {/* Product Detail Modal */}
       <ProductDetailModal
@@ -105,6 +114,21 @@ export default function App() {
         selectedProducts={rfqProducts}
         onClose={() => setIsRFQOpen(false)}
         onRemoveProduct={handleRemoveProductFromRFQ}
+        onOpenPrivacy={() => setIsPrivacyOpen(true)}
+      />
+
+      {/* Privacy Policy Modal */}
+      <PrivacyPolicyModal
+        isOpen={isPrivacyOpen}
+        lang={lang}
+        onClose={() => setIsPrivacyOpen(false)}
+      />
+
+      {/* Terms of Service Modal */}
+      <TermsModal
+        isOpen={isTermsOpen}
+        lang={lang}
+        onClose={() => setIsTermsOpen(false)}
       />
 
       {/* Floating Quick Action Contacts (Hotline & Zalo) */}

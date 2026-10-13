@@ -31,7 +31,7 @@ export default function AboutSection({ lang, onOpenRFQ }: AboutSectionProps) {
           {/* Factory Image & Badge (7 cols) */}
           <div className="lg:col-span-7 relative group overflow-hidden rounded-2xl shadow-md border border-gray-200/80 bg-white">
             <img
-              src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1400&q=80"
+              src="/images/profile/factory-overview.png"
               alt="TopLine Furniture Factory Vietnam"
               className="w-full h-80 sm:h-96 md:h-110 object-cover object-center group-hover:scale-103 transition-transform duration-700"
             />
@@ -74,6 +74,10 @@ export default function AboutSection({ lang, onOpenRFQ }: AboutSectionProps) {
 
             <div className="space-y-3.5 text-xs sm:text-sm text-[#191919]/80 divide-y divide-gray-100">
               <div className="pt-2 flex justify-between">
+                <span className="text-[#191919]/60">{lang === 'vi' ? 'Ngày cấp ĐKKD:' : 'Registration Date:'}</span>
+                <span className="font-semibold text-[#191919]">{info.registrationDate}</span>
+              </div>
+              <div className="pt-3 flex justify-between">
                 <span className="text-[#191919]/60">{lang === 'vi' ? 'Đại diện pháp luật:' : 'Director / Legal Rep:'}</span>
                 <span className="font-semibold text-[#191919]">{info.legalRepresentative}</span>
               </div>
@@ -91,6 +95,14 @@ export default function AboutSection({ lang, onOpenRFQ }: AboutSectionProps) {
                 <span className="text-[#191919]/60">{lang === 'vi' ? 'Địa chỉ nhà máy & trụ sở:' : 'Factory & HQ Address:'}</span>
                 <span className="font-medium text-[#191919] text-xs leading-relaxed">
                   {info.address}
+                </span>
+              </div>
+              <div className="pt-3 flex flex-col gap-1 bg-[#FAF9F6] p-3 rounded-lg border border-gray-100">
+                <span className="text-[11px] font-semibold text-[#A68A56] uppercase tracking-wider">
+                  {lang === 'vi' ? 'Lịch sử & Pháp lý:' : 'Brand Heritage & Legal Entity:'}
+                </span>
+                <span className="text-[11px] text-[#191919]/70 leading-relaxed">
+                  {info.heritageNote}
                 </span>
               </div>
             </div>
