@@ -6,3 +6,15 @@ coverage/
 .env*
 !.env.example
 *.pdf
+
+# Database binaries (prevent leaking client RFQ records and admin hashes)
+data/*.db
+data/*.db-journal
+data/*.sqlite*
+!data/.gitkeep
+
+# User uploaded files (protect confidential drawings & client BOQ documents)
+uploads/rfq/*
+!uploads/rfq/.gitkeep
+uploads/products/*
+!uploads/products/.gitkeep

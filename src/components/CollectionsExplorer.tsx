@@ -1,8 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { ArrowRight, Search } from 'lucide-react';
 import { PRODUCTS_CATALOG, COLLECTIONS_OVERVIEW } from '../data/content';
 import { Language, ProductItem } from '../types';
 import { Reveal } from './common/Reveal';
+import { fetchProducts } from '../services/api';
 interface CollectionsExplorerProps {
   lang: Language;
   onSelectProduct: (product: ProductItem) => void;
@@ -16,7 +17,19 @@ export default function CollectionsExplorer({
 }: CollectionsExplorerProps) {
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [products, setProducts] = useState<ProductItem[]>(PRODUCTS_CATALOG);
 
+  useEffect(() => {
+    fetchProducts()
+      .then((data) => {
+        if (data && data.length > 0) {
+          setProducts(data);
+        }
+      })
+      .catch(() => {
+        // Fallback defaults to PRODUCTS_CATALOG
+      });
+  }, []);
   const categories = [
     { id: 'all', label: { vi: 'Tất Cả Sản Phẩm (29)', en: 'All Collections (29)' } },
     { id: 'warm-wood', label: { vi: '01. Gỗ Ấm + Đá Đen (6)', en: '01. Warm Wood + Dark Stone (6)' } },
@@ -27,7 +40,7 @@ export default function CollectionsExplorer({
     { id: 'burl-oak', label: { vi: '06. Stanley Burl Oak Dark (4)', en: '06. Stanley Burl Oak Dark (4)' } },
   ];
 
-  const filteredProducts = PRODUCTS_CATALOG.filter((product) => {
+  const filteredProducts = products.filter((product) => {
     const matchesCategory =
       activeCategory === 'all' || product.category === activeCategory;
     const query = searchQuery.toLowerCase().trim();

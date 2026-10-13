@@ -1365,12 +1365,12 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
       "vi": "Bàn Ăn Chữ Nhật 8 Chỗ Chân Ghép Đá & Gỗ Sang Trọng",
       "en": "Dining Table with Stone Top and Inset Column Legs"
     },
-    "category": "other",
+    "category": "dining-accent",
     "categoryLabel": {
       "vi": "Dining & Accent Collection",
       "en": "Dining & Accent Collection"
     },
-    "collectionId": "other",
+    "collectionId": "dining-accent",
     "collectionName": {
       "vi": "Dining & Accent Collection",
       "en": "Dining & Accent Collection"
@@ -1425,12 +1425,12 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
       "vi": "Tủ Búp-Phê Cao 4 Cánh Nan Phẳng Mặt Đá",
       "en": "High Sideboard / Credenza 4-Door with Marble Top"
     },
-    "category": "other",
+    "category": "dining-accent",
     "categoryLabel": {
       "vi": "Dining & Accent Collection",
       "en": "Dining & Accent Collection"
     },
-    "collectionId": "other",
+    "collectionId": "dining-accent",
     "collectionName": {
       "vi": "Dining & Accent Collection",
       "en": "Dining & Accent Collection"
@@ -1485,12 +1485,12 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
       "vi": "Bàn Trà Chữ Nhật Hai Tầng Mặt Đá Đế Bục Gỗ",
       "en": "Tiered Platform Coffee Table with Marble Top"
     },
-    "category": "other",
+    "category": "dining-accent",
     "categoryLabel": {
       "vi": "Dining & Accent Collection",
       "en": "Dining & Accent Collection"
     },
-    "collectionId": "other",
+    "collectionId": "dining-accent",
     "collectionName": {
       "vi": "Dining & Accent Collection",
       "en": "Dining & Accent Collection"
@@ -1544,12 +1544,12 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
       "vi": "Bàn Trà Oval Hữu Cơ Chân Lam Gỗ Dệt Mặt Đá Viền Mộc",
       "en": "Organic Oval Coffee Table with Texturized Base"
     },
-    "category": "other",
+    "category": "dining-accent",
     "categoryLabel": {
       "vi": "Dining & Accent Collection",
       "en": "Dining & Accent Collection"
     },
-    "collectionId": "other",
+    "collectionId": "dining-accent",
     "collectionName": {
       "vi": "Dining & Accent Collection",
       "en": "Dining & Accent Collection"
@@ -1603,12 +1603,12 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
       "vi": "Tủ Kệ Thấp 4 Cánh Dáng Dài Mặt Đá Marble",
       "en": "Low Cabinet / Sideboard with Marble Top"
     },
-    "category": "other",
+    "category": "dining-accent",
     "categoryLabel": {
       "vi": "Dining & Accent Collection",
       "en": "Dining & Accent Collection"
     },
-    "collectionId": "other",
+    "collectionId": "dining-accent",
     "collectionName": {
       "vi": "Dining & Accent Collection",
       "en": "Dining & Accent Collection"
@@ -1662,12 +1662,12 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
       "vi": "Bàn Tab Góc Khối Hộp Giật Cấp Bậc Thang",
       "en": "Geometric Stepped Architectural Side Table"
     },
-    "category": "other",
+    "category": "dining-accent",
     "categoryLabel": {
       "vi": "Dining & Accent Collection",
       "en": "Dining & Accent Collection"
     },
-    "collectionId": "other",
+    "collectionId": "dining-accent",
     "collectionName": {
       "vi": "Dining & Accent Collection",
       "en": "Dining & Accent Collection"

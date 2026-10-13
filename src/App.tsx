@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
 import AboutSection from './components/AboutSection';
@@ -18,6 +18,7 @@ import PrivacyPolicyModal from './components/PrivacyPolicyModal';
 import TermsModal from './components/TermsModal';
 import ProjectGalleryModal from './components/ProjectGalleryModal';
 import { useSmoothScroll } from './components/3d/useSmoothScroll';
+import AdminPortal from './components/admin/AdminPortal';
 import { Language, ProductItem, ProjectItem } from './types';
 
 export default function App() {
@@ -31,7 +32,32 @@ export default function App() {
 
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
   useSmoothScroll();
+
+  // Detect #admin in URL and Ctrl+Shift+A shortcut
+  useEffect(() => {
+    const checkHash = () => {
+      if (window.location.hash === '#admin') {
+        setIsAdminOpen(true);
+      }
+    };
+    checkHash();
+    window.addEventListener('hashchange', checkHash);
+
+    const handleKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'a') {
+        e.preventDefault();
+        setIsAdminOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+
+    return () => {
+      window.removeEventListener('hashchange', checkHash);
+      window.removeEventListener('keydown', handleKey);
+    };
+  }, []);
   // Add product to RFQ list and open modal
   const handleOpenRFQWithProduct = (product: ProductItem) => {
     setRfqProducts((prev) => {
@@ -112,6 +138,7 @@ export default function App() {
         onOpenRFQ={() => setIsRFQOpen(true)}
         onOpenPrivacy={() => setIsPrivacyOpen(true)}
         onOpenTerms={() => setIsTermsOpen(true)}
+        onOpenAdmin={() => setIsAdminOpen(true)}
       />
 
       {/* Product Detail Modal */}
@@ -151,6 +178,18 @@ export default function App() {
         isOpen={isTermsOpen}
         lang={lang}
         onClose={() => setIsTermsOpen(false)}
+      />
+
+      {/* TopLine ECC Admin Portal Modal */}
+      <AdminPortal
+        isOpen={isAdminOpen}
+        lang={lang}
+        onClose={() => {
+          setIsAdminOpen(false);
+          if (window.location.hash === '#admin') {
+            window.history.replaceState(null, '', window.location.pathname);
+          }
+        }}
       />
 
       {/* Floating Quick Action Contacts (Hotline & Zalo) */}

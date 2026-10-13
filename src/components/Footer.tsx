@@ -5,11 +5,18 @@ import TopLineLogo from './TopLineLogo';
 interface FooterProps {
   lang: Language;
   onOpenRFQ: () => void;
-  onOpenPrivacy?: () => void;
-  onOpenTerms?: () => void;
+  onOpenPrivacy: () => void;
+  onOpenTerms: () => void;
+  onOpenAdmin?: () => void;
 }
 
-export default function Footer({ lang, onOpenRFQ, onOpenPrivacy, onOpenTerms }: FooterProps) {
+export default function Footer({
+  lang,
+  onOpenRFQ,
+  onOpenPrivacy,
+  onOpenTerms,
+  onOpenAdmin,
+}: FooterProps) {
   const info = COMPANY_INFO[lang];
 
   return (
@@ -161,6 +168,14 @@ export default function Footer({ lang, onOpenRFQ, onOpenPrivacy, onOpenTerms }: 
             </button>
             <span>{lang === 'vi' ? 'ĐKKD: 3703519683 (09/10/2026)' : 'Registration: 3703519683 (Oct 09, 2026)'}</span>
             <span>{lang === 'vi' ? 'Xuất xứ: Việt Nam' : 'Origin: Vietnam'}</span>
+            {onOpenAdmin && (
+              <button
+                onClick={onOpenAdmin}
+                className="hover:text-[#C5A880] transition-colors cursor-pointer font-mono text-[10px] text-white/50 border-l border-white/20 pl-4"
+              >
+                Admin Portal
+              </button>
+            )}
           </div>
         </div>
       </div>

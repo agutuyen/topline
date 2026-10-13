@@ -31,6 +31,7 @@ export interface ProductItem {
   description: { vi: string; en: string };
   tags: string[];
   seoKeywords?: string;
+  isPublished?: boolean;
 }
 
 export interface CollectionGroup {
