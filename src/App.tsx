@@ -15,7 +15,6 @@ import ProductDetailModal from './components/ProductDetailModal';
 import RFQModal from './components/RFQModal';
 import PrivacyPolicyModal from './components/PrivacyPolicyModal';
 import TermsModal from './components/TermsModal';
-import Scene3D from './components/3d/Scene3D';
 import { useSmoothScroll } from './components/3d/useSmoothScroll';
 import { Language, ProductItem } from './types';
 
@@ -64,9 +63,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#FAF9F6] text-[#191919] font-sans antialiased overflow-x-hidden selection:bg-[#C5A880] selection:text-[#191919]">
-      {/* Single Persistent Full-Screen WebGL Canvas */}
-      <Scene3D />
-
       {/* Fixed Navigation Bar */}
       <Navbar
         lang={lang}

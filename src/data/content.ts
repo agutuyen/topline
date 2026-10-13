@@ -23,15 +23,15 @@ export const COMPANY_INFO = {
     techEmail: 'tech@toplinefurniture.vn',
     supportEmail: 'support@toplinefurniture.vn',
     accountingEmail: 'accounting@toplinefurniture.vn',
-    tagline: 'NỘI THẤT MAY ĐO, CHUẨN MỰC CHO MỌI QUY MÔ',
-    subTagline: 'CUSTOM FURNITURE, MADE TO SCALE.',
+    tagline: 'NỘI THẤT MAY ĐO THEO BẢN VẼ KIẾN TRÚC',
+    subTagline: 'BESPOKE ARCHITECTURAL FURNITURE, MADE TO SCALE.',
     heritageYear: '2013',
     incorporationDate: '09/10/2026',
-    heritageNote: 'Thương hiệu TopLine được Don Winston khởi xướng từ năm 2013. Pháp nhân điều hành sản xuất tại Việt Nam thành lập ngày 09/10/2026.',
+    heritageNote: 'Thương hiệu TopLine được Don Winston khởi xướng từ năm 2013. Pháp nhân sản xuất tại Việt Nam thành lập ngày 09/10/2026.',
     foundingStory:
-      'Được khởi xướng bởi Don Winston từ năm 2013, TopLine Furniture phát triển với tầm nhìn: hiện thực hóa năng lực sản xuất nội thất may đo theo quy mô lớn mà không làm mất đi tính thủ công tinh xảo, sự linh hoạt và giá trị vượt trội. Pháp nhân chính thức tại Việt Nam (CÔNG TY TNHH NỘI THẤT TOP LINE HOSPITALITY) được đăng ký ngày 09/10/2026.',
+      'Được khởi xướng bởi Don Winston từ năm 2013, TopLine Furniture vận hành như một đối tác sản xuất chiến lược: kết hợp sự tỉ mỉ của tay nghề mộc truyền thống với quy trình gia công chính xác trên quy mô lớn. Pháp nhân sản xuất tại Việt Nam (CÔNG TY TNHH NỘI THẤT TOP LINE HOSPITALITY) được đăng ký chính thức ngày 09/10/2026.',
     foundingSub:
-      'Từ cơ sở sản xuất tại Việt Nam, TopLine chế tác nội thất cao cấp cho các chuỗi khách sạn, khu nghỉ dưỡng, dự án kiến trúc ốp gỗ (millwork) và các bộ sưu tập bán lẻ độc quyền cho khách hàng quốc tế.',
+      'Xưởng chế tác chuyên sâu về đồ gỗ buồng phòng khách sạn, vách ốp mộc kiến trúc (millwork) và các bộ sưu tập nội thất xuất khẩu theo tiêu chuẩn khắt khe của các nhà thiết kế và chủ đầu tư quốc tế.',
   },
   en: {
     officialName: 'TOP LINE HOSPITALITY FURNITURE COMPANY LIMITED',
@@ -55,15 +55,15 @@ export const COMPANY_INFO = {
     techEmail: 'tech@toplinefurniture.vn',
     supportEmail: 'support@toplinefurniture.vn',
     accountingEmail: 'accounting@toplinefurniture.vn',
-    tagline: 'CUSTOM FURNITURE, MADE TO SCALE.',
-    subTagline: 'HOSPITALITY | ARCHITECTURAL MILLWORK | RETAIL',
+    tagline: 'BESPOKE ARCHITECTURAL FURNITURE, MADE TO SCALE.',
+    subTagline: 'HOSPITALITY | ARCHITECTURAL MILLWORK | RETAIL FAMILIES',
     heritageYear: '2013',
     incorporationDate: 'October 09, 2026',
     heritageNote: 'Brand heritage initiated by Don Winston in 2013. The operating legal entity in Vietnam was incorporated on October 09, 2026.',
     foundingStory:
-      'Initiated by Don Winston in 2013, TopLine Furniture was built with a clear vision: to make custom furniture scalable without losing craftsmanship, flexibility, and architectural integrity. The operating company in Vietnam (TOP LINE HOSPITALITY FURNITURE CO., LTD) was registered on October 09, 2026.',
+      'Initiated by Don Winston in 2013, TopLine Furniture was built on a foundational principle: to make custom furniture truly scalable without sacrificing the bench-made craftsmanship, material honesty, and exacting tolerances that define heirloom contract joinery. Our dedicated manufacturing entity in Vietnam (TOP LINE HOSPITALITY FURNITURE CO., LTD) was incorporated on October 09, 2026.',
     foundingSub:
-      'From our manufacturing facility in Vietnam, TopLine engineers and produces custom hospitality furniture, architectural millwork, and design-led retail collections for international clients.',
+      'From our manufacturing facility in Vietnam, TopLine develops and crafts bespoke guestroom casegoods, complex architectural millwork, and coordinated retail collections for premier hospitality developers and designers worldwide.',
   },
 };
 
@@ -76,8 +76,8 @@ export const CORE_SECTORS = [
       en: 'Guestrooms, Suites & Public Areas',
     },
     desc: {
-      vi: 'Chế tác nội thất may đo theo bản vẽ kiến trúc, thông số kỹ thuật nghiêm ngặt và mẫu mã được phê duyệt. Casegoods cao cấp, tủ lavabo độc bản, nội thất đa chất liệu.',
-      en: 'Project-specific furniture developed around drawings, specifications, approved samples, material schedules, and site requirements.',
+      vi: 'Chế tác đồ gỗ buồng phòng và không gian công cộng dựa trên hồ sơ bản vẽ kiến trúc, bảng chỉ định vật liệu (Spec Sheet) và quy trình duyệt mẫu golden sample nghiêm ngặt.',
+      en: 'Turnkey guestroom casegoods, suites, and public area loose furniture manufactured to exact architectural drawings, finish schedules, and approved physical golden samples.',
     },
     capabilities: [
       { vi: 'Guestroom Casegoods (Giường, bàn trang điểm, tủ quần áo)', en: 'Guestroom Casegoods' },
@@ -95,8 +95,8 @@ export const CORE_SECTORS = [
       en: 'Built-in & Fitted Elements to Dimension',
     },
     desc: {
-      vi: 'Các chi tiết may đo vừa vặn chuẩn kích thước hiện trạng công trình, đồng nhất màu sơn hoàn thiện và phối hợp lắp đặt mượt mà. Đã thi công các chuỗi quốc tế như Taco Bell, Five Guys, KFC.',
-      en: 'Built-in and fitted elements developed around site dimensions, finish consistency, and seamless installation coordination.',
+      vi: 'Các cấu kiện mộc liền tường may đo theo kích thước hiện trạng thực tế: hệ vách ốp tiêu âm, tủ kệ âm tường, quầy bar thương mại với lớp sơn đồng nhất và giải pháp lắp đặt hiện trường thuận tiện.',
+      en: 'Site-measured architectural cabinetry, acoustic wall paneling, banquettes, and fitted commercial casework engineered with finish consistency and efficient on-site installation detailing.',
     },
     capabilities: [
       { vi: 'Cabinetry & Hệ tủ âm tường', en: 'Architectural Cabinetry' },
@@ -114,8 +114,8 @@ export const CORE_SECTORS = [
       en: 'Coordinated Families & Design Language',
     },
     desc: {
-      vi: 'Phát triển theo từng họ sản phẩm hoàn chỉnh: thống nhất về chất liệu, tỷ lệ kiến trúc, lớp hoàn thiện, phụ kiện kim khí và cá tính thẩm mỹ.',
-      en: 'Retail development organized as coordinated families — consistent in material, proportion, finish, hardware, and design language.',
+      vi: 'Phát triển trọn bộ gia đình sản phẩm đồng bộ: nhất quán từ tỷ lệ hình học, chất liệu gỗ sồi tự nhiên, mặt đá cẩm thạch hoàn thiện satin đến phụ kiện kim khí đồng thau gia công riêng.',
+      en: 'Coordinated furniture families developed for design-led hospitality and retail brands — consistent in timber selection, marble profiling, custom hardware, and architectural proportion.',
     },
     capabilities: [
       { vi: 'Accent & Occasional (Bàn trà, bàn console, tủ cạnh)', en: 'Accent & Occasional' },

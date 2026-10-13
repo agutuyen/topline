@@ -61,7 +61,7 @@ export default function MillworkShowcase({ lang, onOpenRFQ }: MillworkShowcasePr
             onClick={onOpenRFQ}
             className="px-6 py-3 bg-[#C5A880] text-[#191919] text-xs font-semibold uppercase tracking-wider rounded-lg hover:bg-white transition-all duration-200 cursor-pointer self-start md:self-auto flex items-center gap-2"
           >
-            <span>{lang === 'vi' ? 'Đấu Thầu Dự Án' : 'Inquire Commercial Fit-Out'}</span>
+            <span>{lang === 'vi' ? 'Yêu Cầu Báo Giá Thi Công' : 'Submit Millwork Drawings'}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>

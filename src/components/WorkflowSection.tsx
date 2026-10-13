@@ -19,8 +19,8 @@ export default function WorkflowSection({ lang }: WorkflowSectionProps) {
           </h2>
           <p className="mt-4 text-sm sm:text-base text-[#191919]/75 font-light leading-relaxed">
             {lang === 'vi'
-              ? 'Quy trình kiểm soát khép kín nhằm bảo vệ ý đồ thiết kế ban đầu và chuẩn bị hoàn hảo cho sản xuất hàng loạt lặp lại với độ đồng đều tuyệt đối.'
-              : 'A controlled workflow designed to protect design intent and prepare products for repeatable, defect-free production.'}
+              ? 'Quy trình 5 bước kiểm soát từ bản vẽ kỹ thuật đến khi đóng kiện xuất xưởng: đảm bảo độ chính xác của mộng gỗ, độ khít mối ghép và độ phẳng mặt đá trước khi bàn giao.'
+              : 'A structured 5-stage contract manufacturing protocol: ensuring joinery precision, moisture stability, and stone surface alignment prior to export dispatch.'}
           </p>
         </div>
 

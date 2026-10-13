@@ -47,8 +47,8 @@ export default function AboutSection({ lang, onOpenRFQ }: AboutSectionProps) {
               </h3>
               <p className="mt-2 text-xs sm:text-sm text-white/80 max-w-xl">
                 {lang === 'vi'
-                  ? 'Hiện thực hóa ý đồ thiết kế thành sản phẩm nội thất hoàn thiện thông qua sự am hiểu vật liệu, kỹ thuật tạo mẫu và quy trình kiểm soát kỷ luật.'
-                  : 'Translating design intent into production-ready furniture through material knowledge, engineering, sampling and disciplined execution.'}
+                  ? 'Quy trình sản xuất khép kín tại nhà xưởng: từ bản vẽ kiến trúc, làm mẫu thử (mock-up), chọn lọc tom gỗ sồi và đá tự nhiên đến công đoạn hoàn thiện và đóng kiện xuất khẩu.'
+                  : 'Direct manufacturing execution: CAD shop drawings, golden mock-ups, hand-selected timber and stone, precision assembly, and export-grade crating.'}
               </p>
             </div>
           </div>

@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import Lenis from 'lenis';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 export function useSmoothScroll() {
   useEffect(() => {
@@ -16,7 +15,6 @@ export function useSmoothScroll() {
       smoothWheel: true,
     });
 
-    lenis.on('scroll', ScrollTrigger.update);
 
     const updateLenis = (time: number) => {
       lenis.raf(time);

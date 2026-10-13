@@ -115,19 +115,20 @@ export default function Navbar({ lang, onToggleLang, onOpenRFQ }: NavbarProps) {
             <span>0977.429.979</span>
           </a>
 
-          {/* RFQ CTA */}
+          {/* RFQ CTA — Nested Pill Button */}
           <button
             onClick={onOpenRFQ}
-            className={`hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-md text-[11px] font-semibold uppercase tracking-wider whitespace-nowrap transition-all duration-200 cursor-pointer ${
+            className={`hidden sm:flex items-center gap-2 pl-4 pr-1.5 py-1.5 rounded-full text-[11px] font-semibold uppercase tracking-wider whitespace-nowrap transition-all duration-300 cursor-pointer shadow-sm group ${
               scrolled
                 ? 'bg-[#191919] text-white hover:bg-[#C5A880] hover:text-[#191919]'
                 : 'bg-[#C5A880] text-[#191919] hover:bg-white'
             }`}
           >
             <span>{lang === 'vi' ? 'Báo Giá' : 'Get Quote'}</span>
-            <ArrowRight className="w-3 h-3" />
+            <span className="w-5 h-5 rounded-full bg-black/10 flex items-center justify-center transition-transform group-hover:translate-x-0.5">
+              <ArrowRight className="w-2.5 h-2.5" />
+            </span>
           </button>
-
           {/* Mobile Menu Toggle */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
