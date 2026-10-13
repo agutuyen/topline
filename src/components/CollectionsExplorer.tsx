@@ -18,11 +18,13 @@ export default function CollectionsExplorer({
   const [searchQuery, setSearchQuery] = useState('');
 
   const categories = [
-    { id: 'all', label: { vi: 'Tất Cả Sản Phẩm', en: 'All Collections' } },
-    { id: 'warm-wood', label: { vi: '01. Gỗ Ấm + Đá Đen', en: '01. Warm Wood + Dark Stone' } },
-    { id: 'black-contemporary', label: { vi: '02. Đen Kiến Trúc', en: '02. Black Contemporary' } },
-    { id: 'sculptural', label: { vi: '03. Điêu Khắc Đá & Gỗ', en: '03. Sculptural Stone + Wood' } },
-    { id: 'stanley', label: { vi: 'Dòng Stanley Luxury', en: 'Stanley Collections' } },
+    { id: 'all', label: { vi: 'Tất Cả Sản Phẩm (29)', en: 'All Collections (29)' } },
+    { id: 'warm-wood', label: { vi: '01. Gỗ Ấm + Đá Đen (6)', en: '01. Warm Wood + Dark Stone (6)' } },
+    { id: 'black-contemporary', label: { vi: '02. Đen Kiến Trúc (6)', en: '02. Black Contemporary (6)' } },
+    { id: 'sculptural', label: { vi: '03. Điêu Khắc Đá & Gỗ (4)', en: '03. Sculptural Stone + Wood (4)' } },
+    { id: 'dining-accent', label: { vi: '04. Bàn Ăn & Tạo Điểm Nhấn (6)', en: '04. Dining & Accent (6)' } },
+    { id: 'marlow-oak', label: { vi: '05. Stanley Marlow Oak (3)', en: '05. Stanley Marlow Oak (3)' } },
+    { id: 'burl-oak', label: { vi: '06. Stanley Burl Oak Dark (4)', en: '06. Stanley Burl Oak Dark (4)' } },
   ];
 
   const filteredProducts = PRODUCTS_CATALOG.filter((product) => {
@@ -32,7 +34,9 @@ export default function CollectionsExplorer({
     const matchesSearch =
       query === '' ||
       product.name[lang].toLowerCase().includes(query) ||
+      (product.sku && product.sku.toLowerCase().includes(query)) ||
       product.materials[lang].toLowerCase().includes(query) ||
+      (product.dimensions && product.dimensions.toLowerCase().includes(query)) ||
       product.tags.some((t) => t.toLowerCase().includes(query));
     return matchesCategory && matchesSearch;
   });
@@ -139,21 +143,25 @@ export default function CollectionsExplorer({
                 {/* Product Image Stage */}
                 {/* Product Image Stage — Clean object containment with white background */}
                 <div
-                  className="relative aspect-4/3 bg-white p-3 sm:p-4 border-b border-gray-100 overflow-hidden cursor-pointer flex items-center justify-center"
+                  className="relative aspect-square bg-[#FAFAFA] p-4 sm:p-5 border-b border-gray-100 overflow-hidden cursor-pointer flex items-center justify-center group/img"
                   onClick={() => onSelectProduct(product)}
                 >
                   <img
                     src={product.image}
                     alt={product.name[lang]}
-                    className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300"
+                    className="max-h-full max-w-full object-contain group-hover/img:scale-105 transition-transform duration-500"
                     loading="lazy"
                   />
-                  <div className="absolute top-3 left-3 bg-black/65 backdrop-blur-md px-2.5 py-1 rounded-sm text-[10px] font-mono uppercase tracking-wider text-white">
+                  <div className="absolute top-3 left-3 bg-black/75 backdrop-blur-md px-2 py-0.5 rounded-sm text-[10px] font-mono uppercase tracking-wider text-[#C5A880] border border-white/10">
+                    {product.sku || product.id.toUpperCase()}
+                  </div>
+                  <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-2 py-0.5 rounded-sm text-[10px] font-mono text-gray-700 shadow-xs">
                     {product.dimensions}
                   </div>
                   <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <span className="px-4 py-2 rounded-lg bg-white/95 text-[#191919] text-xs font-semibold shadow-md tracking-wider uppercase">
-                      {lang === 'vi' ? 'Xem Chi Tiết Từng Đối Tượng' : 'Inspect Object Details'}
+                    <span className="px-4 py-2 rounded-full bg-white text-[#191919] text-xs font-semibold shadow-md tracking-wider uppercase flex items-center gap-1.5">
+                      <span>{lang === 'vi' ? 'Xem Thông Số' : 'Inspect Specs'}</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
                     </span>
                   </div>
                 </div>
