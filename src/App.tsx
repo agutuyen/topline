@@ -7,6 +7,7 @@ import { useState } from 'react';
 import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
 import AboutSection from './components/AboutSection';
+import CapabilitiesSection from './components/CapabilitiesSection';
 import CollectionsExplorer from './components/CollectionsExplorer';
 import MillworkShowcase from './components/MillworkShowcase';
 import WorkflowSection from './components/WorkflowSection';
@@ -16,6 +17,7 @@ import RFQModal from './components/RFQModal';
 import PrivacyPolicyModal from './components/PrivacyPolicyModal';
 import TermsModal from './components/TermsModal';
 import { useSmoothScroll } from './components/3d/useSmoothScroll';
+import SectionTransition3D from './components/3d/SectionTransition3D';
 import { Language, ProductItem } from './types';
 
 export default function App() {
@@ -63,6 +65,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#FAF9F6] text-[#191919] font-sans antialiased overflow-x-hidden selection:bg-[#C5A880] selection:text-[#191919]">
+      {/* Three.js Spatial 3D Section Transitions */}
+      <SectionTransition3D />
+
       {/* Fixed Navigation Bar */}
       <Navbar
         lang={lang}
@@ -70,30 +75,34 @@ export default function App() {
         onOpenRFQ={() => setIsRFQOpen(true)}
       />
 
-      {/* Hero Section with Luxury Video Background */}
-      <HeroSection
-        lang={lang}
-        onOpenRFQ={() => setIsRFQOpen(true)}
-        onExploreCollections={scrollToCollections}
-      />
+      {/* Main Content Container */}
+      <main className="relative z-10">
+        {/* Hero Section with Luxury Video Background */}
+        <HeroSection
+          lang={lang}
+          onOpenRFQ={() => setIsRFQOpen(true)}
+          onExploreCollections={scrollToCollections}
+        />
 
-      {/* About Section: Manufacturing Base & Corporate Legal Profile */}
-      <AboutSection lang={lang} onOpenRFQ={() => setIsRFQOpen(true)} />
+        {/* About Section: Manufacturing Base & Corporate Legal Profile */}
+        <AboutSection lang={lang} onOpenRFQ={() => setIsRFQOpen(true)} />
 
-      {/* Curated Furniture Collections Explorer */}
-      <CollectionsExplorer
-        lang={lang}
-        onSelectProduct={(product) => setSelectedProductForDetail(product)}
-        onOpenRFQWithProduct={handleOpenRFQWithProduct}
-      />
+        {/* Capabilities Section: 3 Core Sectors Solutions */}
+        <CapabilitiesSection lang={lang} onOpenRFQ={() => setIsRFQOpen(true)} />
 
-      {/* Architectural Millwork & Commercial Clients (Taco Bell, Five Guys, KFC) */}
-      <MillworkShowcase lang={lang} onOpenRFQ={() => setIsRFQOpen(true)} />
+        {/* Curated Furniture Collections Explorer */}
+        <CollectionsExplorer
+          lang={lang}
+          onSelectProduct={(product) => setSelectedProductForDetail(product)}
+          onOpenRFQWithProduct={handleOpenRFQWithProduct}
+        />
 
-      {/* 5-Step Controlled Workflow: Review, Develop, Produce, Inspect, Pack */}
-      <WorkflowSection lang={lang} />
+        {/* Architectural Millwork & Commercial Clients (Taco Bell, Five Guys, KFC) */}
+        <MillworkShowcase lang={lang} onOpenRFQ={() => setIsRFQOpen(true)} />
 
-      {/* Footer with Business Registration MST 3703519683 & Contacts */}
+        {/* 5-Step Controlled Workflow: Review, Develop, Produce, Inspect, Pack */}
+        <WorkflowSection lang={lang} />
+      </main>
       <Footer
         lang={lang}
         onOpenRFQ={() => setIsRFQOpen(true)}
