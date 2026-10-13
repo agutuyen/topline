@@ -77,9 +77,8 @@ export default function AmbientVideoBackground({
         }}
       />
 
-      {/* Left editorial text shield — soft warm vignette */}
-      <div className="absolute inset-0 z-[2] bg-gradient-to-r from-black/60 via-black/25 to-transparent pointer-events-none" />
-
+      {/* Left editorial text shield — soft warm vignette ensuring 100% legibility */}
+      <div className="absolute inset-0 z-[2] bg-gradient-to-r from-black/85 via-black/55 to-black/20 pointer-events-none" />
       {/* Top navbar protection tint */}
       <div className="absolute inset-x-0 top-0 h-40 z-[2] bg-gradient-to-b from-black/65 via-black/25 to-transparent pointer-events-none" />
 

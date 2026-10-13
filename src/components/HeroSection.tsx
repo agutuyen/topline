@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2, PhoneCall, Sparkles, ShieldCheck } from 'lucide-react';
 import { COMPANY_INFO } from '../data/content';
 import { Language } from '../types';
 import AmbientVideoBackground from './AmbientVideoBackground';
@@ -23,40 +23,49 @@ export default function HeroSection({
   const tabData = {
     casegoods: {
       badge: lang === 'vi' ? 'HẠNG MỤC BUỒNG PHÒNG' : 'GUESTROOM CASEGOODS',
+      standardTag: lang === 'vi' ? 'Chuẩn Khách Sạn 5 Sao' : '5-Star Hospitality Grade',
       title: lang === 'vi' ? 'Đồ Gỗ Buồng Phòng Khách Sạn & Resort' : 'Luxury Hospitality Casegoods',
       subtitle: lang === 'vi' ? 'Tiêu chuẩn 5 sao · Khách sạn & Biệt thự cao cấp' : 'Five-Star Standard · Turnkey Guestrooms & Suites',
       image: '/images/profile/collection-01-warm-wood.png',
       spec: [
-        { label: lang === 'vi' ? 'Vật liệu chính' : 'Primary Material', value: 'White Oak & Natural Marble' },
-        { label: lang === 'vi' ? 'Dung sai BOM' : 'BOM Tolerance', value: '±1.0 mm' },
-        { label: lang === 'vi' ? 'Tiêu chuẩn kiểm thử' : 'Testing Standards', value: 'BIFMA X5.5 & Drop Test' },
+        { label: lang === 'vi' ? 'VẬT LIỆU CHÍNH' : 'PRIMARY MATERIAL', value: 'White Oak & Natural Marble' },
+        { label: lang === 'vi' ? 'DUNG SAI BOM' : 'BOM TOLERANCE', value: '±1.0 mm (CNC Precision)' },
+        { label: lang === 'vi' ? 'TIÊU CHUẨN KIỂM THỬ' : 'TESTING STANDARDS', value: 'BIFMA X5.5 & Drop Test' },
       ],
     },
     millwork: {
-      badge: lang === 'vi' ? 'MỘC KIẾN TRÚC' : 'ARCHITECTURAL MILLWORK',
+      badge: lang === 'vi' ? 'MỘC KIẾN TRÚC & FIT-OUT' : 'ARCHITECTURAL MILLWORK',
+      standardTag: lang === 'vi' ? 'Gia Công Chuẩn Khắt Khe' : 'Precision Fit-Out Standard',
       title: lang === 'vi' ? 'Hệ Ốp Mộc Kiến Trúc & Sảnh Đón' : 'Architectural Millwork & Joinery',
-      subtitle: lang === 'vi' ? 'Vách tiêu âm, quầy lễ tân & lam sóng CNC' : 'Acoustic Paneling, Receptions & Curved CNC Joinery',
+      subtitle: lang === 'vi' ? 'Vách tiêu âm nan gỗ, quầy bar & lam sóng CNC' : 'Acoustic Paneling, Receptions & Curved CNC Joinery',
       image: '/images/profile/architectural-millwork.jpg',
       spec: [
-        { label: lang === 'vi' ? 'Gia công kỹ thuật' : 'Fabrication', value: '5-Axis CNC Precision Joinery' },
-        { label: lang === 'vi' ? 'Độ ẩm sấy' : 'Kiln Moisture', value: '< 10–12% (Export-Ready)' },
-        { label: lang === 'vi' ? 'Khung liên kết' : 'Sub-Structure', value: 'Concealed Heavy-Duty Aluminum' },
+        { label: lang === 'vi' ? 'GIA CÔNG KỸ THUẬT' : 'FABRICATION', value: '5-Axis CNC Precision Joinery' },
+        { label: lang === 'vi' ? 'ĐỘ ẨM SẤY GỖ' : 'KILN MOISTURE', value: '< 10–12% (Export-Ready)' },
+        { label: lang === 'vi' ? 'KHUNG LIÊN KẾT' : 'SUB-STRUCTURE', value: 'Concealed Heavy Aluminum' },
       ],
     },
     materials: {
-      badge: lang === 'vi' ? 'THƯ VIỆN VẬT LIỆU' : 'MATERIAL PALETTE',
+      badge: lang === 'vi' ? 'THƯ VIỆN VẬT LIỆU CAO CẤP' : 'FINE MATERIAL PALETTE',
+      standardTag: lang === 'vi' ? 'Chứng Chỉ FSC & An Toàn' : 'FSC-Certified & Low-VOC',
       title: lang === 'vi' ? 'Bề Mặt Gỗ Quý & Chi Tiết Kim Khí' : 'Fine Hardwoods & Metal Trims',
-      subtitle: lang === 'vi' ? 'Vân gỗ Burl tự nhiên & đồng thau satin' : 'Select Burl Grains & Brushed Satin Brass',
+      subtitle: lang === 'vi' ? 'Vân gỗ Burl tự nhiên, sơn mờ & đồng thau satin' : 'Select Burl Grains & Brushed Satin Brass',
       image: '/images/profile/stanley-burl-oak.jpg',
       spec: [
-        { label: lang === 'vi' ? 'Gỗ tuyển chọn' : 'Timber Selection', value: 'FSC-Certified Burl Oak & Walnut' },
-        { label: lang === 'vi' ? 'Kim khí điểm xuyết' : 'Hardware Accents', value: 'Brushed Brass & PVD Coating' },
-        { label: lang === 'vi' ? 'Hệ sơn phủ' : 'Finish System', value: 'Low-VOC Ultra-Matte Polyurethane' },
+        { label: lang === 'vi' ? 'GỖ TUYỂN CHỌN' : 'TIMBER SELECTION', value: 'FSC Burl Oak & Walnut' },
+        { label: lang === 'vi' ? 'KIM KHÍ ĐIỂM XUYẾT' : 'HARDWARE ACCENTS', value: 'Brushed Brass & PVD' },
+        { label: lang === 'vi' ? 'HỆ SƠN PHỦ' : 'FINISH SYSTEM', value: 'Low-VOC Ultra-Matte PU' },
       ],
     },
   };
 
   const currentTab = tabData[activeTab];
+
+  const tabButtons: { id: ShowcaseTab; num: string; label: { vi: string; en: string } }[] = [
+    { id: 'casegoods', num: '01', label: { vi: 'Casegoods', en: 'Casegoods' } },
+    { id: 'millwork', num: '02', label: { vi: 'Millwork', en: 'Millwork' } },
+    { id: 'materials', num: '03', label: { vi: 'Materials', en: 'Materials' } },
+  ];
 
   return (
     <section id="hero" className="relative min-h-[100dvh] flex flex-col justify-between overflow-hidden text-white">
@@ -79,7 +88,7 @@ export default function HeroSection({
             </div>
 
             {/* Grand Headline with Cormorant Garamond Serif */}
-            <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl xl:text-[3.85rem] font-normal tracking-tight leading-[1.12] text-white">
+            <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl xl:text-[3.85rem] font-normal tracking-tight leading-[1.12] text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.65)]">
               {lang === 'vi' ? (
                 <>
                   Từ Bản Vẽ Đến Thành Phẩm, <br />
@@ -96,13 +105,12 @@ export default function HeroSection({
                 </>
               )}
             </h1>
-
             {/* Editorial Lead Narrative — 65ch measure */}
-            <p className="max-w-2xl text-base sm:text-lg text-white/90 font-sans font-light leading-relaxed">
+            <p className="max-w-2xl text-base sm:text-lg text-white/90 font-sans font-light leading-relaxed drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)]">
               {content.foundingSub}
             </p>
 
-            {/* Core Values / Giá Trị Cốt Lõi Replacing Image #1 */}
+            {/* Core Values / Giá Trị Cốt Lõi */}
             <div className="flex flex-wrap items-center gap-2.5 pt-2">
               <div className="px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/95 text-xs font-sans font-medium flex items-center gap-2 shadow-sm">
                 <CheckCircle2 className="w-3.5 h-3.5 text-[#C5A880]" />
@@ -139,99 +147,120 @@ export default function HeroSection({
             </div>
           </div>
 
-          {/* Right Column: Architectural Craft & Material Stage */}
+          {/* Right Column: Architectural Craft & Material Stage (Modernized Luxury Glassmorphism) */}
           <div className="lg:col-span-5 xl:col-span-5">
-            <div className="luxury-card luxury-card-dark w-full max-w-lg mx-auto">
-              <div className="luxury-card-inner p-1 relative flex flex-col justify-between">
-                {/* Blueprint Corner Accents */}
-                <div className="absolute top-2 left-2 text-[#C5A880]/50 font-mono text-[9px] pointer-events-none z-10">+</div>
-                <div className="absolute top-2 right-2 text-[#C5A880]/50 font-mono text-[9px] pointer-events-none z-10">+</div>
-                <div className="absolute bottom-2 left-2 text-[#C5A880]/50 font-mono text-[9px] pointer-events-none z-10">+</div>
-                <div className="absolute bottom-2 right-2 text-[#C5A880]/50 font-mono text-[9px] pointer-events-none z-10">+</div>
+            {/* Outer Bezel: Frosted Glass Shell with Soft Ambient Warm Glow */}
+            <div className="relative w-full max-w-xl mx-auto rounded-[2rem] p-2 sm:p-2.5 bg-gradient-to-b from-white/20 via-white/10 to-black/35 backdrop-blur-2xl border border-white/25 shadow-[0_30px_70px_-15px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.3)] ring-1 ring-white/10">
+              {/* Subtle ambient warm light reflection */}
+              <div className="absolute -top-12 -right-12 w-48 h-48 bg-[#C5A880]/15 rounded-full blur-3xl pointer-events-none" />
 
-                {/* Tab Switcher Header */}
-                <div className="p-3 bg-black/40 backdrop-blur-xl border-b border-white/10 flex items-center justify-between gap-1.5 rounded-t-[1.15rem]">
-                  <button
-                    onClick={() => setActiveTab('casegoods')}
-                    className={`flex-1 py-1.5 px-2 rounded-lg text-[10px] font-mono uppercase tracking-wider transition-all duration-200 cursor-pointer text-center ${
-                      activeTab === 'casegoods'
-                        ? 'bg-[#C5A880] text-[#191919] font-bold shadow-sm'
-                        : 'text-white/70 hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    01. Casegoods
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('millwork')}
-                    className={`flex-1 py-1.5 px-2 rounded-lg text-[10px] font-mono uppercase tracking-wider transition-all duration-200 cursor-pointer text-center ${
-                      activeTab === 'millwork'
-                        ? 'bg-[#C5A880] text-[#191919] font-bold shadow-sm'
-                        : 'text-white/70 hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    02. Millwork
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('materials')}
-                    className={`flex-1 py-1.5 px-2 rounded-lg text-[10px] font-mono uppercase tracking-wider transition-all duration-200 cursor-pointer text-center ${
-                      activeTab === 'materials'
-                        ? 'bg-[#C5A880] text-[#191919] font-bold shadow-sm'
-                        : 'text-white/70 hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    03. Materials
-                  </button>
+              {/* Inner Core: Concentric Architectural Container */}
+              <div className="relative z-10 rounded-[calc(2rem-0.625rem)] overflow-hidden bg-[#161514]/80 backdrop-blur-xl border border-white/15 flex flex-col shadow-inner">
+                {/* Modern Segmented Tab Switcher */}
+                <div className="p-2 sm:p-2.5 bg-black/40 backdrop-blur-md border-b border-white/10 flex items-center justify-between gap-1.5 sm:gap-2">
+                  {tabButtons.map((tab) => {
+                    const isActive = activeTab === tab.id;
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`flex-1 py-2 px-2.5 sm:px-3 rounded-full text-xs font-sans transition-all duration-300 cursor-pointer text-center flex items-center justify-center gap-1.5 ${
+                          isActive
+                            ? 'bg-gradient-to-r from-[#C5A880] to-[#DFC8A4] text-[#191919] font-bold shadow-[0_2px_12px_rgba(197,168,128,0.35)]'
+                            : 'text-white/70 hover:text-white hover:bg-white/10 font-medium'
+                        }`}
+                      >
+                        <span className={`text-[10px] font-mono ${isActive ? 'text-[#191919]/70 font-semibold' : 'text-white/40'}`}>
+                          {tab.num}
+                        </span>
+                        <span className="tracking-wide">
+                          {tab.label[lang]}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
 
-                {/* Visual Specimen Window */}
-                <div className="relative aspect-16/10 bg-black/60 overflow-hidden group">
-                  <img
-                    key={activeTab}
-                    src={currentTab.image}
-                    alt={currentTab.title}
-                    className="w-full h-full object-cover object-center transition-all duration-700 group-hover:scale-105 animate-fadeIn"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+                {/* High-Definition Visual Specimen Window */}
+                <div className="p-2 sm:p-2.5 pb-0">
+                  <div className="relative aspect-[16/10] bg-black/60 rounded-xl overflow-hidden group border border-white/10">
+                    <img
+                      key={activeTab}
+                      src={currentTab.image}
+                      alt={currentTab.title}
+                      className="w-full h-full object-cover object-center transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-105 animate-fadeIn"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent pointer-events-none" />
 
-                  {/* Visual Specimen Tag */}
-                  <div className="absolute top-3 left-3 bg-black/75 backdrop-blur-md px-2.5 py-1 rounded-sm text-[10px] font-mono uppercase tracking-widest text-[#C5A880] border border-white/10">
-                    {currentTab.badge}
-                  </div>
+                    {/* Top Floating Badges */}
+                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 pointer-events-none">
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/70 backdrop-blur-md border border-[#C5A880]/40 text-[#C5A880] text-[10px] font-sans font-medium uppercase tracking-[0.18em] shadow-sm">
+                        <Sparkles className="w-3 h-3 text-[#C5A880]" />
+                        <span>{currentTab.badge}</span>
+                      </div>
 
-                  {/* Title overlay */}
-                  <div className="absolute bottom-3 left-4 right-4">
-                    <h3 className="font-serif text-lg sm:text-xl font-normal text-white">
-                      {currentTab.title}
-                    </h3>
-                    <p className="text-xs text-white/75 font-light mt-0.5">
-                      {currentTab.subtitle}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Technical Dossier Parameters */}
-                <div className="p-4 sm:p-5 bg-black/50 backdrop-blur-xl space-y-3 rounded-b-[1.15rem]">
-                  {currentTab.spec.map((item, idx) => (
-                    <div key={idx} className="flex items-center justify-between text-xs pb-2 border-b border-white/10 last:border-b-0 last:pb-0">
-                      <span className="text-white/60 font-light">{item.label}:</span>
-                      <span className="text-[#C5A880] font-mono font-medium">{item.value}</span>
+                      <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white/95 text-[10px] font-sans font-normal shadow-sm">
+                        <ShieldCheck className="w-3 h-3 text-[#C5A880]" />
+                        <span>{currentTab.standardTag}</span>
+                      </div>
                     </div>
-                  ))}
 
-                  {/* Direct Contact Hotline Strip */}
-                  <div className="pt-2 flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                      <span className="text-white/70 font-light">
-                        {lang === 'vi' ? 'Hỗ trợ kỹ thuật xưởng:' : 'Factory Direct Line:'}
+                    {/* Bottom Title Overlay */}
+                    <div className="absolute bottom-3.5 left-4 right-4 pointer-events-none">
+                      <h3 className="font-serif text-xl sm:text-2xl font-normal text-white drop-shadow-md leading-tight">
+                        {currentTab.title}
+                      </h3>
+                      <p className="text-xs text-white/85 font-light mt-1 drop-shadow-sm">
+                        {currentTab.subtitle}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Editorial Parameter Tiles (Replaces Plain Table) */}
+                <div className="p-3 sm:p-3.5 grid grid-cols-1 sm:grid-cols-3 gap-2 bg-black/30 backdrop-blur-md">
+                  {currentTab.spec.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="group/item p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#C5A880]/35 transition-all duration-300 flex flex-col justify-between"
+                    >
+                      <span className="text-[10px] uppercase font-sans tracking-[0.16em] text-white/50 group-hover/item:text-[#C5A880] transition-colors flex items-center gap-1.5">
+                        <span className="w-1 h-1 rounded-full bg-[#C5A880]" />
+                        {item.label}
+                      </span>
+                      <span className="mt-1 font-sans text-xs font-medium text-white/95 leading-snug">
+                        {item.value}
                       </span>
                     </div>
+                  ))}
+                </div>
+
+                {/* Concierge & Direct Action Footer */}
+                <div className="px-4 py-3 bg-black/50 backdrop-blur-xl border-t border-white/10 flex flex-wrap items-center justify-between gap-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span className="text-[11px] font-sans text-white/75 font-light">
+                      {lang === 'vi' ? 'Kỹ sư xưởng trực tuyến:' : 'Engineering Desk:'}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
                     <a
                       href="tel:0977429979"
-                      className="font-mono text-sm font-semibold text-[#C5A880] hover:text-white transition-colors"
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 hover:bg-[#C5A880] text-[#C5A880] hover:text-[#191919] border border-[#C5A880]/30 text-xs font-mono font-semibold transition-all duration-300"
                     >
-                      {content.phoneDisplay}
+                      <PhoneCall className="w-3 h-3" />
+                      <span>{content.phoneDisplay}</span>
                     </a>
+                    <button
+                      onClick={onOpenRFQ}
+                      className="px-3 py-1 rounded-full bg-[#C5A880] hover:bg-white text-[#191919] text-[11px] font-sans font-semibold uppercase tracking-wider transition-all duration-300 shadow-sm cursor-pointer"
+                    >
+                      {lang === 'vi' ? 'Báo giá nhanh' : 'Quick RFQ'}
+                    </button>
                   </div>
                 </div>
               </div>
