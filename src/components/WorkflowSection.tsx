@@ -1,0 +1,87 @@
+import { WORKFLOW_STEPS } from '../data/content';
+import { Language } from '../types';
+
+interface WorkflowSectionProps {
+  lang: Language;
+}
+
+export default function WorkflowSection({ lang }: WorkflowSectionProps) {
+  return (
+    <section id="workflow" className="py-20 md:py-28 bg-[#F4F3F0] text-[#191919]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
+        {/* Section Header */}
+        <div className="text-center max-w-3xl mx-auto">
+          <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.22em] text-[#A68A56]">
+            05 / {lang === 'vi' ? 'QUY TRÌNH KIỂM SOÁT 5 BƯỚC' : 'CONTROLLED WORKFLOW'}
+          </span>
+          <h2 className="mt-3 font-serif text-3xl sm:text-4xl md:text-5xl font-normal tracking-tight text-[#191919]">
+            {lang === 'vi' ? 'Từ Bản Vẽ Thiết Kế Đến Bàn Giao' : 'From Development to Delivery'}
+          </h2>
+          <p className="mt-4 text-sm sm:text-base text-[#191919]/75 font-light leading-relaxed">
+            {lang === 'vi'
+              ? 'Quy trình kiểm soát khép kín nhằm bảo vệ ý đồ thiết kế ban đầu và chuẩn bị hoàn hảo cho sản xuất hàng loạt lặp lại với độ đồng đều tuyệt đối.'
+              : 'A controlled workflow designed to protect design intent and prepare products for repeatable, defect-free production.'}
+          </p>
+        </div>
+
+        {/* 5-Step Process Timeline */}
+        <div className="mt-16 grid grid-cols-1 md:grid-cols-5 gap-6 relative">
+          {/* Connector Line behind steps on desktop */}
+          <div className="hidden md:block absolute top-12 left-10 right-10 h-0.5 bg-gray-300 z-0" />
+
+          {WORKFLOW_STEPS.map((step) => (
+            <div
+              key={step.step}
+              className="relative z-10 bg-white p-6 sm:p-7 rounded-2xl border border-gray-200/90 shadow-2xs hover:shadow-md transition-shadow flex flex-col justify-between"
+            >
+              <div>
+                {/* Number Badge */}
+                <div className="w-12 h-12 rounded-xl bg-[#FAF9F6] border border-[#C5A880]/40 flex items-center justify-center font-serif text-lg font-bold text-[#A68A56] mb-5">
+                  {step.step}
+                </div>
+
+                <h3 className="font-serif text-lg sm:text-xl font-normal text-[#191919]">
+                  {step.title[lang]}
+                </h3>
+
+                <p className="mt-3 text-xs sm:text-sm text-[#191919]/70 leading-relaxed font-light">
+                  {step.desc[lang]}
+                </p>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-gray-100 text-[11px] font-mono text-[#A68A56]">
+                ✓ {step.details[lang]}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Value Proposition Callout Banner */}
+        <div className="mt-16 bg-[#191919] text-white rounded-2xl p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl">
+          <div className="max-w-2xl">
+            <span className="text-[11px] font-mono uppercase tracking-widest text-[#C5A880]">
+              {lang === 'vi' ? 'TIÊU CHUẨN XUẤT KHẨU VIỆT NAM' : 'EXPORT QUALITY GUARANTEE'}
+            </span>
+            <h3 className="mt-2 font-serif text-2xl sm:text-3xl font-normal text-white">
+              {lang === 'vi'
+                ? 'Độ ẩm gỗ kiểm soát dưới 10–12%, kết cấu gia cường chịu lực'
+                : 'Moisture-controlled hardwoods under 12%, reinforced export packing'}
+            </h3>
+            <p className="mt-3 text-xs sm:text-sm text-white/70 font-light leading-relaxed">
+              {lang === 'vi'
+                ? 'Mỗi kiện hàng đều được đóng gói theo tiêu chuẩn rơi rớt quốc tế (drop test), ghi nhãn từng phòng, sẵn sàng cho công tác fit-out tại khách sạn.'
+                : 'Every shipment is packaged to international drop-test standards with room-specific labeling for streamlined hotel site distribution.'}
+            </p>
+          </div>
+
+          <a
+            href="tel:0977429979"
+            className="px-8 py-3.5 bg-[#C5A880] text-[#191919] text-xs font-semibold uppercase tracking-wider rounded-lg hover:bg-white transition-colors whitespace-nowrap cursor-pointer shadow-md"
+          >
+            {lang === 'vi' ? 'Liên Hệ Trực Tiếp Kỹ Thuật' : 'Speak With Our Engineers'}
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
