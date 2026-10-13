@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { ArrowRight, Search } from 'lucide-react';
 import { PRODUCTS_CATALOG, COLLECTIONS_OVERVIEW } from '../data/content';
 import { Language, ProductItem } from '../types';
-
+import { Reveal } from './common/Reveal';
 interface CollectionsExplorerProps {
   lang: Language;
   onSelectProduct: (product: ProductItem) => void;
@@ -43,8 +43,8 @@ export default function CollectionsExplorer({
   return (
     <section id="collections" className="py-20 md:py-28 bg-[#FAF9F6] text-[#191919]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-10 border-b border-gray-200">
+        {/* Section Header with smooth entrance */}
+        <Reveal className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-10 border-b border-gray-200">
           <div>
             <h2 className="mt-2 font-serif text-3xl sm:text-4xl md:text-5xl font-normal tracking-tight text-[#191919]">
               {lang === 'vi' ? 'Bộ Sưu Tập Nội Thất' : 'Furniture Collections'}
@@ -66,7 +66,7 @@ export default function CollectionsExplorer({
               className="w-full px-4 py-2.5 text-xs sm:text-sm bg-white border border-gray-300 rounded-lg focus:outline-hidden focus:border-[#C5A880] shadow-2xs"
             />
           </div>
-        </div>
+        </Reveal>
 
         {/* Category Filter Pills */}
         <div className="flex items-center gap-2 overflow-x-auto py-6 no-scrollbar">

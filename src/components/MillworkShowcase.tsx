@@ -1,7 +1,7 @@
 import { ArrowRight } from 'lucide-react';
 import { COMMERCIAL_CLIENTS } from '../data/content';
 import { Language } from '../types';
-
+import { Reveal, StaggerContainer, StaggerItem } from './common/Reveal';
 interface MillworkShowcaseProps {
   lang: Language;
   onOpenRFQ: () => void;
@@ -41,8 +41,8 @@ export default function MillworkShowcase({ lang, onOpenRFQ }: MillworkShowcasePr
   return (
     <section id="clients" className="py-20 md:py-28 bg-[#121212] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-12 border-b border-white/10">
+        {/* Section Header with smooth entrance */}
+        <Reveal className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-12 border-b border-white/10">
           <div>
             <h2 className="mt-3 font-serif text-3xl sm:text-4xl md:text-5xl font-normal tracking-tight text-white">
               {lang === 'vi' ? 'Mộc Kiến Trúc & Thương Hiệu Quốc Tế' : 'Architectural Fit-Out at Scale'}
@@ -61,7 +61,7 @@ export default function MillworkShowcase({ lang, onOpenRFQ }: MillworkShowcasePr
             <span>{lang === 'vi' ? 'Yêu Cầu Báo Giá Thi Công' : 'Submit Millwork Drawings'}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
-        </div>
+        </Reveal>
 
         {/* Commercial Client Partner Logos Strip */}
         <div className="py-8 border-b border-white/10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 text-center">
@@ -80,14 +80,12 @@ export default function MillworkShowcase({ lang, onOpenRFQ }: MillworkShowcasePr
           ))}
         </div>
 
-        {/* Millwork Project Cards */}
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Millwork Project Cards with staggered cascade */}
+        <StaggerContainer className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
           {millworkProjects.map((proj, i) => (
-            <div
-              key={i}
-              className="luxury-card luxury-card-dark group"
-            >
-              <div className="luxury-card-inner flex flex-col justify-between h-full">
+            <StaggerItem key={i} className="h-full">
+              <div className="luxury-card luxury-card-dark group h-full">
+                <div className="luxury-card-inner flex flex-col justify-between h-full">
                 <div>
                   <div className="aspect-16/10 overflow-hidden relative">
                     <img
@@ -119,10 +117,11 @@ export default function MillworkShowcase({ lang, onOpenRFQ }: MillworkShowcasePr
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
+                </div>
               </div>
-            </div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerContainer>
       </div>
     </section>
   );

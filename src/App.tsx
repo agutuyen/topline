@@ -17,7 +17,6 @@ import RFQModal from './components/RFQModal';
 import PrivacyPolicyModal from './components/PrivacyPolicyModal';
 import TermsModal from './components/TermsModal';
 import { useSmoothScroll } from './components/3d/useSmoothScroll';
-import SectionTransition3D from './components/3d/SectionTransition3D';
 import { Language, ProductItem } from './types';
 
 export default function App() {
@@ -65,8 +64,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#FAF9F6] text-[#191919] font-sans antialiased overflow-x-hidden selection:bg-[#C5A880] selection:text-[#191919]">
-      {/* Three.js Spatial 3D Section Transitions */}
-      <SectionTransition3D />
 
       {/* Fixed Navigation Bar */}
       <Navbar
