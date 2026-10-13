@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
-import { PRODUCTS_CATALOG } from '../data/content';
+import { PRODUCTS_CATALOG, COLLECTIONS_OVERVIEW } from '../data/content';
 import { Language, ProductItem } from '../types';
 
 interface CollectionsExplorerProps {
@@ -36,6 +36,9 @@ export default function CollectionsExplorer({
       product.tags.some((t) => t.toLowerCase().includes(query));
     return matchesCategory && matchesSearch;
   });
+  const activeCollectionMeta = COLLECTIONS_OVERVIEW.find(
+    (c) => c.id === activeCategory
+  );
 
   return (
     <section id="collections" className="py-20 md:py-28 bg-[#FAF9F6] text-[#191919]">
@@ -84,6 +87,48 @@ export default function CollectionsExplorer({
             </button>
           ))}
         </div>
+        {/* Collection Overview Banner (When a specific collection is filtered) */}
+        {activeCollectionMeta && (
+          <div className="mb-10 bg-white rounded-2xl border border-gray-200/90 overflow-hidden shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            <div className="lg:col-span-7 p-6 sm:p-8 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono tracking-widest font-semibold px-2.5 py-1 rounded-sm bg-[#F4F3F0] text-[#A68A56]">
+                    COLLECTION {activeCollectionMeta.number}
+                  </span>
+                  <span className="text-xs text-gray-400 font-mono">
+                    TOPLINE PROFILE
+                  </span>
+                </div>
+                <h3 className="mt-3 font-serif text-2xl sm:text-3xl text-[#191919] font-normal">
+                  {activeCollectionMeta.title[lang]}
+                </h3>
+                <p className="mt-2 text-xs sm:text-sm text-[#191919]/75 leading-relaxed font-light">
+                  {activeCollectionMeta.subtitle[lang]}
+                </p>
+                <div className="mt-5 p-3 rounded-lg bg-[#FAF9F6] border border-gray-100">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-gray-500 block mb-1">
+                    {lang === 'vi' ? 'Hạng mục hoàn thiện trong bộ:' : 'Included pieces in family:'}
+                  </span>
+                  <span className="text-xs font-mono font-medium text-[#191919]">
+                    {activeCollectionMeta.pieces}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-5 bg-[#FAF9F6] relative group overflow-hidden h-64 sm:h-72 lg:h-full min-h-[220px]">
+              <img
+                src={activeCollectionMeta.overviewImage}
+                alt={activeCollectionMeta.title[lang]}
+                className="w-full h-full object-cover object-center group-hover:scale-103 transition-transform duration-500"
+              />
+              <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-sm text-[10px] font-mono uppercase text-white">
+                {lang === 'vi' ? 'Ảnh Tổng Thể Bộ Sưu Tập' : 'Collection Overview Board'}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Products Grid */}
         <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7 sm:gap-8">
@@ -94,22 +139,23 @@ export default function CollectionsExplorer({
             >
               <div>
                 {/* Product Image Stage */}
+                {/* Product Image Stage — Clean object containment with white background */}
                 <div
-                  className="relative aspect-4/3 bg-[#F4F3F0] overflow-hidden cursor-pointer"
+                  className="relative aspect-4/3 bg-white p-3 sm:p-4 border-b border-gray-100 overflow-hidden cursor-pointer flex items-center justify-center"
                   onClick={() => onSelectProduct(product)}
                 >
                   <img
                     src={product.image}
                     alt={product.name[lang]}
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                    className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300"
                     loading="lazy"
                   />
-                  <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-sm text-[10px] font-mono uppercase tracking-wider text-white">
+                  <div className="absolute top-3 left-3 bg-black/65 backdrop-blur-md px-2.5 py-1 rounded-sm text-[10px] font-mono uppercase tracking-wider text-white">
                     {product.dimensions}
                   </div>
                   <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <span className="px-4 py-2 rounded-lg bg-white/95 text-[#191919] text-xs font-semibold shadow-md tracking-wider uppercase">
-                      {lang === 'vi' ? 'Xem Thông Số Kỹ Thuật' : 'Inspect Specifications'}
+                      {lang === 'vi' ? 'Xem Chi Tiết Từng Đối Tượng' : 'Inspect Object Details'}
                     </span>
                   </div>
                 </div>

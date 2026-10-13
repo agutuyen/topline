@@ -1,4 +1,5 @@
-import { ArrowRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowRight, Eye, Grid } from 'lucide-react';
 import { Language, ProductItem } from '../types';
 
 interface ProductDetailModalProps {
@@ -14,6 +15,11 @@ export default function ProductDetailModal({
   onClose,
   onAddToRFQ,
 }: ProductDetailModalProps) {
+  const [viewMode, setViewMode] = useState<'product' | 'collection' | 'detail'>('product');
+
+  useEffect(() => {
+    setViewMode('product');
+  }, [product?.id]);
   if (!product) return null;
 
   return (
@@ -38,15 +44,74 @@ export default function ProductDetailModal({
           </svg>
         </button>
 
-        {/* Left Image Showcase */}
-        <div className="md:w-1/2 bg-[#F4F3F0] relative min-h-64 md:min-h-full">
-          <img
-            src={product.image}
-            alt={product.name[lang]}
-            className="w-full h-full object-cover object-center"
-          />
-          <div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-sm text-xs font-mono text-white">
-            {product.dimensions}
+        {/* Left Image Showcase with View Switcher */}
+        <div className="md:w-1/2 bg-[#FAF9F6] relative min-h-72 md:min-h-full flex flex-col justify-between border-b md:border-b-0 md:border-r border-gray-200">
+          <div className="flex-1 relative flex items-center justify-center p-4 bg-white overflow-hidden">
+            <img
+              src={
+                viewMode === 'collection' && product.collectionImage
+                  ? product.collectionImage
+                  : viewMode === 'detail' && product.detailImage
+                  ? product.detailImage
+                  : product.image
+              }
+              alt={product.name[lang]}
+              className={`max-h-full max-w-full transition-all duration-300 ${
+                viewMode === 'collection' ? 'object-cover w-full h-full' : 'object-contain'
+              }`}
+            />
+            <div className="absolute top-3 left-3 bg-black/70 backdrop-blur-md px-2.5 py-1 rounded-sm text-[10px] font-mono text-white">
+              {viewMode === 'collection'
+                ? lang === 'vi' ? 'Toàn Bộ Bộ Sưu Tập' : 'Collection Overview'
+                : viewMode === 'detail'
+                ? lang === 'vi' ? 'Chi Tiết Vật Liệu' : 'Material Detail'
+                : product.dimensions}
+            </div>
+          </div>
+
+          {/* View Mode Selector Tabs */}
+          <div className="p-3 bg-[#FAF9F6] border-t border-gray-200 flex items-center gap-1.5 overflow-x-auto text-[11px] font-mono">
+            <button
+              type="button"
+              onClick={() => setViewMode('product')}
+              className={`px-2.5 py-1.5 rounded-md flex items-center gap-1 transition-all cursor-pointer whitespace-nowrap ${
+                viewMode === 'product'
+                  ? 'bg-[#191919] text-white font-semibold shadow-xs'
+                  : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+              }`}
+            >
+              <Eye className="w-3 h-3" />
+              <span>{lang === 'vi' ? 'Ảnh Chi Tiết' : 'Object Detail'}</span>
+            </button>
+
+            {product.collectionImage && (
+              <button
+                type="button"
+                onClick={() => setViewMode('collection')}
+                className={`px-2.5 py-1.5 rounded-md flex items-center gap-1 transition-all cursor-pointer whitespace-nowrap ${
+                  viewMode === 'collection'
+                    ? 'bg-[#191919] text-white font-semibold shadow-xs'
+                    : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                }`}
+              >
+                <Grid className="w-3 h-3" />
+                <span>{lang === 'vi' ? 'Tổng Thể Bộ' : 'Collection Board'}</span>
+              </button>
+            )}
+
+            {product.detailImage && (
+              <button
+                type="button"
+                onClick={() => setViewMode('detail')}
+                className={`px-2.5 py-1.5 rounded-md flex items-center gap-1 transition-all cursor-pointer whitespace-nowrap ${
+                  viewMode === 'detail'
+                    ? 'bg-[#191919] text-white font-semibold shadow-xs'
+                    : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                }`}
+              >
+                <span>{lang === 'vi' ? 'Mẫu Bề Mặt' : 'Materials'}</span>
+              </button>
+            )}
           </div>
         </div>
 

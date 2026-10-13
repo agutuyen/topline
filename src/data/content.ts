@@ -127,6 +127,53 @@ export const CORE_SECTORS = [
   },
 ];
 
+export const COLLECTIONS_OVERVIEW = [
+  {
+    id: 'warm-wood',
+    number: '01',
+    title: { vi: 'Bộ Sưu Tập 01: Gỗ Ấm + Đá Đen', en: 'Collection 01: Warm Wood + Dark Stone' },
+    subtitle: {
+      vi: 'Gỗ sồi ấm, đá tự nhiên sẫm màu, đường bo cong mềm mại và nan fluted thủ công',
+      en: 'Warm wood, dark natural stone, rounded case profiles, fluted details and antique-brass accents',
+    },
+    pieces: 'CREDENZA | DRESSER | NIGHTSTAND | CONSOLE | COFFEE TABLE | DINING TABLE',
+    overviewImage: '/images/profile/collection-01-warm-wood.png',
+  },
+  {
+    id: 'black-contemporary',
+    number: '02',
+    title: { vi: 'Bộ Sưu Tập 02: Đen Kiến Trúc Hiện Đại', en: 'Collection 02: Black Contemporary' },
+    subtitle: {
+      vi: 'Tông màu đen kiến trúc, hình khối gãy gọn và tỷ lệ đương đại dành cho phòng suite & media',
+      en: 'A coordinated dark bedroom and media family with clean architectural proportions and restrained detailing',
+    },
+    pieces: 'BED | NIGHTSTAND | DRESSER | CHEST | MEDIA CONSOLE | MIRROR',
+    overviewImage: '/images/profile/collection-02-black-contemporary.png',
+  },
+  {
+    id: 'sculptural',
+    number: '03',
+    title: { vi: 'Bộ Sưu Tập 03: Điêu Khắc Đá & Gỗ', en: 'Collection 03: Sculptural Stone + Wood' },
+    subtitle: {
+      vi: 'Mặt đá tự nhiên phiến lớn kết hợp thân gỗ nan cong hữu cơ và kỹ thuật uốn mộc tinh xảo',
+      en: 'Statement occasional, dining and storage pieces combining expressive stone surfaces with sculptural oak forms',
+    },
+    pieces: 'SIDEBOARD | COFFEE TABLE | SIDE TABLE | DINING / CONSOLE TABLE',
+    overviewImage: '/images/profile/collection-03-sculptural-stone.png',
+  },
+  {
+    id: 'stanley',
+    number: '04',
+    title: { vi: 'Dòng Sản Phẩm Xuất Khẩu Stanley', en: 'Stanley Export Collections' },
+    subtitle: {
+      vi: 'Gia công xuất khẩu các bộ sưu tập phòng ngủ cao cấp Marlow Oak và Burl Oak Dark',
+      en: 'Finished Stanley Furniture pieces presented as coordinated bedroom collections',
+    },
+    pieces: 'KING BED | UPHOLSTERED BED | DRESSER | NIGHTSTAND',
+    overviewImage: '/images/profile/stanley-burl-oak.jpg',
+  },
+];
+
 export const PRODUCTS_CATALOG: ProductItem[] = [
   // Collection 01 - Warm Wood + Dark Stone
   {
@@ -141,7 +188,9 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
     },
     finish: { vi: 'Sơn PU mờ bảo tồn tom gỗ sồi ấm', en: 'Warm matte oak finish with exposed grain' },
     hardware: { vi: 'Tay nắm tròn kim loại Antique Brass', en: 'Circular antique brass metal pulls' },
-    image: '/images/profile/collection-01-warm-wood.png',
+    image: '/images/products/c1-credenza.png',
+    collectionImage: '/images/profile/collection-01-warm-wood.png',
+    detailImage: '/images/products/c1-materials-detail.png',
     description: {
       vi: 'Tủ credenza bo góc cong mềm mại kết hợp mặt đá cẩm thạch tối màu sang trọng và nan sọc fluted thủ công tinh tế.',
       en: 'Rounded case profile credenza featuring dark natural stone top, fluted vertical detailing, and antique-brass circular hardware.',
@@ -160,7 +209,9 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
     },
     finish: { vi: 'Gỗ sồi ấm tự nhiên mộc mạc', en: 'Natural warm oak veneer' },
     hardware: { vi: 'Tay nắm thanh dài Antique Brass', en: 'Linear antique-brass bar pulls' },
-    image: '/images/profile/collection-01-warm-wood.png',
+    image: '/images/products/c1-dresser.png',
+    collectionImage: '/images/profile/collection-01-warm-wood.png',
+    detailImage: '/images/products/c1-materials-detail.png',
     description: {
       vi: 'Tủ 6 ngăn kéo đối xứng với tay kéo đồng nguyên khối, mặt đá cẩm thạch chống trầy xước và chân gỗ vuốt nhã nhặn.',
       en: 'Refined 6-drawer dresser pairing natural stone surface with warm oak joinery and solid brass hardware.',
@@ -178,7 +229,9 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
       en: 'Contoured natural stone slab, oak veneer casing, antique brass pulls',
     },
     finish: { vi: 'Veneer gỗ sồi cao cấp', en: 'Hand-rubbed warm oak finish' },
-    image: '/images/profile/cover-furniture.png',
+    image: '/images/products/c1-nightstand.png',
+    collectionImage: '/images/profile/collection-01-warm-wood.png',
+    detailImage: '/images/products/c1-materials-detail.png',
     description: {
       vi: 'Kích thước lý tưởng cho phòng suite khách sạn 5 sao, bề mặt đá chịu nhiệt và chống bám bẩn.',
       en: 'Compact luxury bedside cabinet with durable natural stone surface for 5-star hospitality guestrooms.',
@@ -196,12 +249,34 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
       en: 'Solid natural stone slab top, dual fluted architectural oak pillar base',
     },
     finish: { vi: 'Sơn mờ bảo vệ chống tia UV', en: 'Low-sheen protective architectural lacquer' },
-    image: '/images/profile/collection-01-warm-wood.png',
+    image: '/images/products/c1-consoletable.png',
+    collectionImage: '/images/profile/collection-01-warm-wood.png',
+    detailImage: '/images/products/c1-materials-detail.png',
     description: {
       vi: 'Chiếc bàn console ấn tượng cho sảnh đón khách sạn hoặc hành lang cao cấp với chân trụ dạng thức cột Hy Lạp hiện đại.',
       en: 'Architectural foyer console with tactile fluted wood columns anchoring a substantial marble slab.',
     },
     tags: ['Console', 'Fluted', 'Lobby'],
+  },
+  {
+    id: 'c1-coffeetable',
+    name: { vi: 'Bàn Trà Chân Trụ Nan Bo Góc (Coffee Table)', en: 'Fluted Low Coffee Table' },
+    category: 'warm-wood',
+    categoryLabel: { vi: 'Bộ Sưu Tập 01: Gỗ Ấm + Đá Đen', en: 'Collection 01: Wood + Dark Stone' },
+    dimensions: 'W1200 x D600 x H420 mm',
+    materials: {
+      vi: 'Mặt đá tự nhiên Dark Emperador mài bo góc, chân đế nan gỗ sồi thủ công',
+      en: 'Bullnose natural dark marble slab, handcrafted solid fluted oak base',
+    },
+    finish: { vi: 'Đá đánh bóng satin, sồi ấm tự nhiên', en: 'Honed satin stone, warm clear matte lacquer' },
+    image: '/images/products/c1-coffeetable.png',
+    collectionImage: '/images/profile/collection-01-warm-wood.png',
+    detailImage: '/images/products/c1-materials-detail.png',
+    description: {
+      vi: 'Bàn trà trung tâm tinh tế với sự kết hợp kinh điển giữa đá cẩm thạch tối màu và nan gỗ sồi tròn trịa.',
+      en: 'Low architectural centerpiece pairing honed natural marble with sculptural fluted oak pedestal supports.',
+    },
+    tags: ['Coffee Table', 'Living Room', 'Dark Stone'],
   },
   {
     id: 'c1-diningtable',
@@ -214,7 +289,9 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
       en: 'Continuous 30mm natural stone slab, internal steel truss, dual fluted oak pedestal legs',
     },
     finish: { vi: 'Đá đánh bóng satin chống thấm, gỗ sồi xử lý độ ẩm 10%', en: 'Honed satin marble, kiln-dried oak base' },
-    image: '/images/profile/collection-01-warm-wood.png',
+    image: '/images/products/c1-diningtable.png',
+    collectionImage: '/images/profile/collection-01-warm-wood.png',
+    detailImage: '/images/products/c1-materials-detail.png',
     description: {
       vi: 'Bàn ăn 8–10 chỗ ngồi đẳng cấp quốc tế, kết hợp sự vững chãi của đá tự nhiên và sự ấm áp của chất gỗ gia công tỉ mỉ.',
       en: 'Substantial 8-10 seater dining table designed for private dining suites and penthouse residences.',
@@ -234,7 +311,8 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
       en: 'Kiln-dried solid ash & oak frame, architectural matte black lacquer, reinforced slats',
     },
     finish: { vi: 'Đen mờ sâu thẳm lộ tom gỗ tự nhiên', en: 'Deep matte black open-pore architectural finish' },
-    image: '/images/profile/collection-02-black-contemporary.png',
+    image: '/images/products/c2-bed.png',
+    collectionImage: '/images/profile/collection-02-black-contemporary.png',
     description: {
       vi: 'Tỷ lệ hình học mạnh mẽ, đầu giường nguyên khối tối giản thể hiện sự sang trọng điềm tĩnh của phong cách đương đại.',
       en: 'Bold architectural proportions and restrained detailing crafted for high-end contemporary hospitality suites.',
@@ -252,7 +330,8 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
       en: 'Ebonized oak veneer, soft-closing drawer glides, concealed wire management channels',
     },
     finish: { vi: 'Sơn đen mờ 5% cao cấp', en: '5% low-sheen ebonized matte lacquer' },
-    image: '/images/profile/collection-02-black-contemporary.png',
+    image: '/images/products/c2-mediaconsole.png',
+    collectionImage: '/images/profile/collection-02-black-contemporary.png',
     description: {
       vi: 'Thiết kế cân xứng có hộc mở trung tâm cho thiết bị nghe nhìn và các ngăn kéo kín lưu trữ gọn gàng.',
       en: 'Clean linear silhouette with central AV open bay and seamless touch-latch storage drawers.',
@@ -270,12 +349,51 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
       en: 'Solid wood joinery, ebonized oak veneer, integrated beveled finger-pull detail',
     },
     finish: { vi: 'Đen mờ kiến trúc', en: 'Architectural matte black' },
-    image: '/images/profile/collection-02-black-contemporary.png',
+    image: '/images/products/c2-chest.png',
+    collectionImage: '/images/profile/collection-02-black-contemporary.png',
     description: {
       vi: 'Tủ cao tiết kiệm diện tích sàn mà vẫn tối đa hóa không gian lưu trữ cho phòng ngủ khách sạn.',
       en: 'Vertical chest engineered for efficient suite floorplates without sacrificing drawer volume.',
     },
     tags: ['Chest', 'Vertical Storage', 'Minimalist'],
+  },
+  {
+    id: 'c2-nightstand',
+    name: { vi: 'Tủ Đầu Giường Đen Đương Đại (Nightstand)', en: 'Black Contemporary Nightstand' },
+    category: 'black-contemporary',
+    categoryLabel: { vi: 'Bộ Sưu Tập 02: Đen Kiến Trúc Hiện Đại', en: 'Collection 02: Black Contemporary' },
+    dimensions: 'W600 x D450 x H550 mm',
+    materials: {
+      vi: 'Veneer sồi đen ebonized, ray trượt giảm chấn, tay nắm ẩn tinh tế',
+      en: 'Ebonized oak veneer, soft-closing glides, minimalist finger-pull edge',
+    },
+    finish: { vi: 'Sơn đen mờ 5%', en: 'Architectural ebonized matte black' },
+    image: '/images/products/c2-nightstand.png',
+    collectionImage: '/images/profile/collection-02-black-contemporary.png',
+    description: {
+      vi: 'Thiết kế tủ đầu giường đồng bộ với giường King Platform, tạo tổng thể phòng ngủ khách sạn sang trọng.',
+      en: 'Bedside cabinet engineered to sit alongside the King Platform bed in upscale executive guestrooms.',
+    },
+    tags: ['Nightstand', 'Bedside', 'Black'],
+  },
+  {
+    id: 'c2-dresser',
+    name: { vi: 'Tủ Dresser 6 Ngăn Màu Đen (Dresser)', en: 'Black Architectural 6-Drawer Dresser' },
+    category: 'black-contemporary',
+    categoryLabel: { vi: 'Bộ Sưu Tập 02: Đen Kiến Trúc Hiện Đại', en: 'Collection 02: Black Contemporary' },
+    dimensions: 'W1400 x D500 x H820 mm',
+    materials: {
+      vi: 'Veneer sồi tự nhiên sơn đen, khung kết cấu cứng cáp, phụ kiện giảm chấn cao cấp',
+      en: 'Kiln-dried solid frame with ebonized oak veneer, heavy-duty soft-close glides',
+    },
+    finish: { vi: 'Đen mờ hở tom gỗ', en: 'Open-pore architectural black' },
+    image: '/images/products/c2-dresser.png',
+    collectionImage: '/images/profile/collection-02-black-contemporary.png',
+    description: {
+      vi: 'Tủ ngăn kéo ngang đối xứng cho không gian phòng ngủ đương đại, chịu lực bền bỉ theo tiêu chuẩn xuất khẩu.',
+      en: 'Substantial horizontal storage dresser designed for presidential hotel suites and private residences.',
+    },
+    tags: ['Dresser', 'Storage', 'Black Contemporary'],
   },
 
   // Collection 03 - Sculptural Stone + Wood
@@ -290,7 +408,8 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
       en: 'Expressive Calacatta marble slab, curved tambour oak cabinetry with solid wood ribs',
     },
     finish: { vi: 'Mặt đá đánh bóng thủ công, gỗ sồi màu tự nhiên ấm', en: 'Honed organic stone, natural golden oak finish' },
-    image: '/images/profile/collection-03-sculptural-stone.png',
+    image: '/images/products/c3-sideboard.png',
+    collectionImage: '/images/profile/collection-03-sculptural-stone.png',
     description: {
       vi: 'Tác phẩm điểm nhấn với mặt đá uốn theo dáng nan gỗ, thể hiện đỉnh cao kỹ thuật cơ khí chính xác và tay nghề thợ mộc TopLine.',
       en: 'Statement storage credenza combining expressive stone surfaces with sculptural oak forms and flowing radii.',
@@ -308,10 +427,11 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
       en: 'Freeform sculpted natural stone top, dual undulating solid oak sculpted bases',
     },
     finish: { vi: 'Đá mài cạnh tròn Bullnose, gỗ sồi tự nhiên', en: 'Bullnose bull-edged marble, silky tactile oak base' },
-    image: '/images/profile/collection-04-approved.png',
+    image: '/images/products/c3-approved-table.png',
+    collectionImage: '/images/profile/collection-04-approved.png',
     description: {
-      vi: 'Dáng hình lấy cảm hứng từ thiên nhiên, tạo điểm nhấn nghệ thuật phóng khoáng cho phòng khách và sảnh VIP.',
-      en: 'Nature-inspired organic silhouette designed as a functional centerpiece for luxury hospitality lobbies.',
+      vi: 'Dáng hình lấy cảm hứng từ thiên nhiên, tạo điểm nhấn nghệ thuật phóng khoáng cho phòng khách và sảnh VIP. Trích xuất trực tiếp từ hồ sơ duyệt trang 09.',
+      en: 'Nature-inspired organic silhouette designed as a functional centerpiece for luxury hospitality lobbies. Direct approval item from Page 09.',
     },
     tags: ['Coffee Table', 'Organic Form', 'Marble Sculpture'],
   },
@@ -329,30 +449,32 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
     },
     finish: { vi: 'Đánh bóng sâu làm nổi bật từng đốm vân nu tự nhiên', en: 'Deep multi-step hand-rubbed finish revealing burled grain' },
     hardware: { vi: 'Núm kéo tròn kim loại đồng tiện thủ công', en: 'Turned solid brass traditional knob hardware' },
-    image: '/images/profile/stanley-burl-oak.jpg',
+    image: '/images/products/stanley-burl-bed.jpg',
+    collectionImage: '/images/profile/stanley-burl-oak.jpg',
     description: {
-      vi: 'Dòng sản phẩm gia công hoàn thiện cho thương hiệu nội thất quốc tế danh tiếng, kết hợp tinh hoa cổ điển và độ bền vượt trội.',
+      vi: 'Dòng sản phẩm gia công hoàn thiện cho thương hiệu nội thất quốc tế danh tiếng Stanley Furniture, kết hợp tinh hoa cổ điển và độ bền vượt trội.',
       en: 'Finished Stanley Furniture pieces grouped as the Burl Oak Dark bedroom collection for presidential hospitality suites.',
     },
     tags: ['Stanley', 'Burl Oak', 'Heritage Luxury'],
   },
   {
     id: 'stanley-marlow',
-    name: { vi: 'Bộ Giường Marlow Oak Tự Nhiên (Marlow Oak Set)', en: 'Stanley - Marlow Oak Collection' },
+    name: { vi: 'Tủ Dresser Stanley Marlow Oak Tự Nhiên', en: 'Stanley - Marlow Oak Dresser' },
     category: 'stanley',
     categoryLabel: { vi: 'Dòng Sản Phẩm Stanley: Marlow Oak', en: 'Stanley Collection: Marlow Oak' },
-    dimensions: 'King Bed: W2100 x D2200 x H1280 mm | Nightstand: W650 x D450 x H600 mm',
+    dimensions: 'W1600 x D500 x H880 mm',
     materials: {
-      vi: 'Gỗ sồi Marlow tự nhiên tuyển chọn, lớp đệm bọc vải nỉ cao cấp chống cháy theo tiêu chuẩn khách sạn',
-      en: 'Select Marlow oak timber, commercial-grade fire-retardant upholstered headboard panel',
+      vi: 'Gỗ sồi Marlow tự nhiên tuyển chọn, tay nắm đồng cổ điển, phụ kiện ray giảm chấn cao cấp',
+      en: 'Select Marlow oak timber, solid brass traditional pulls, heavy-duty soft-close drawer glides',
     },
     finish: { vi: 'Sơn mờ màu nâu mộc tự nhiên', en: 'Hand-wiped medium oak natural finish' },
-    image: '/images/profile/stanley-marlow-01.jpg',
+    image: '/images/products/stanley-marlow-dresser.jpg',
+    collectionImage: '/images/profile/stanley-burl-oak.jpg',
     description: {
-      vi: 'Sự kết hợp hoàn hảo giữa khung sồi khỏe khoắn và nệm êm ái, mang lại trải nghiệm nghỉ ngơi thư thái tối đa.',
-      en: 'Marlow and Arbor coordinated bedroom set combining solid timber framing with bespoke upholstery.',
+      vi: 'Tủ ngăn kéo phòng ngủ gia công cho thương hiệu Stanley Furniture, kết cấu mộng gỗ truyền thống vững chãi.',
+      en: 'Coordinated dresser from the Stanley Marlow bedroom collection, crafted to exacting international export standards.',
     },
-    tags: ['Marlow Oak', 'Upholstered', 'Hospitality Standard'],
+    tags: ['Marlow Oak', 'Dresser', 'Hospitality Standard'],
   },
   {
     id: 'stanley-marlow-nightstand',
@@ -365,7 +487,8 @@ export const PRODUCTS_CATALOG: ProductItem[] = [
       en: 'Solid Marlow oak timber, custom turned brass pulls, soft-closing undermount slides',
     },
     finish: { vi: 'Sơn mờ màu nâu sồi mộc tự nhiên', en: 'Hand-wiped medium oak natural finish' },
-    image: '/images/profile/stanley-marlow-02.jpg',
+    image: '/images/products/stanley-marlow-nightstand.jpg',
+    collectionImage: '/images/profile/stanley-burl-oak.jpg',
     description: {
       vi: 'Tủ đầu giường đồng bộ thuộc bộ sưu tập Stanley Marlow, gia công chuẩn chỉ từng đường nét mộng gỗ cổ điển.',
       en: 'Coordinated bedside cabinet from the Stanley Marlow collection, finished to export architectural standards.',

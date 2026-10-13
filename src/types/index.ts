@@ -12,6 +12,8 @@ export interface ProductItem {
   image: string;
   description: { vi: string; en: string };
   tags: string[];
+  collectionImage?: string;
+  detailImage?: string;
 }
 
 export interface CollectionGroup {
