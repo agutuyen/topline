@@ -161,14 +161,8 @@ export default function AboutSection({ lang, onOpenRFQ }: AboutSectionProps) {
                     <span className="font-semibold text-[#191919]">{info.legalRepresentative}</span>
                   </div>
                   <div className="pt-3 flex justify-between">
-                    <span className="text-[#191919]/60">{lang === 'vi' ? 'Vốn điều lệ:' : 'Charter Capital:'}</span>
-                    <span className="font-semibold text-[#191919]">{info.charterCapital}</span>
-                  </div>
-                  <div className="pt-3 flex justify-between">
-                    <span className="text-[#191919]/60">{lang === 'vi' ? 'Thành viên góp vốn:' : 'Shareholders:'}</span>
-                    <span className="font-medium text-[#191919] text-right">
-                      {lang === 'vi' ? 'Trần Văn Đương (55%) · Trần Thanh Nhàn (45%)' : 'Tran Van Duong (55%) · Tran Thanh Nhan (45%)'}
-                    </span>
+                    <span className="text-[#191919]/60">{lang === 'vi' ? 'Lĩnh vực hoạt động:' : 'Core Capability:'}</span>
+                    <span className="font-medium text-[#191919] text-right max-w-[65%]">{info.coreActivity}</span>
                   </div>
                   <div className="pt-3 flex flex-col gap-1 bg-[#FAF9F6] p-3 rounded-lg border border-gray-100">
                     <span className="text-[11px] font-semibold text-[#A68A56] uppercase tracking-wider">

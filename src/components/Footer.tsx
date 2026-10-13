@@ -31,7 +31,6 @@ export default function Footer({ lang, onOpenRFQ, onOpenPrivacy, onOpenTerms }: 
             <div className="mt-8 pt-6 border-t border-white/10 text-xs text-white/50 space-y-1">
               <div>{lang === 'vi' ? 'MST Doanh Nghiệp:' : 'Business Tax ID:'} <span className="text-white font-mono">{info.taxId}</span></div>
               <div>{lang === 'vi' ? 'Đại diện pháp luật:' : 'Managing Director:'} <span className="text-white">{info.legalRepresentative}</span></div>
-              <div>{lang === 'vi' ? 'Vốn điều lệ:' : 'Charter Capital:'} <span className="text-white">{info.charterCapital}</span></div>
             </div>
           </div>
 

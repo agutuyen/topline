@@ -122,7 +122,7 @@ export default function RFQModal({
                 className="flex-1 py-3 bg-[#191919] text-white text-xs font-semibold uppercase tracking-wider rounded-lg hover:bg-[#C5A880] hover:text-[#191919] transition-colors text-center flex items-center justify-center gap-1.5"
               >
                 <Phone className="w-3.5 h-3.5" />
-                <span>{lang === 'vi' ? 'Hotline Kỹ Thuật: 0977 429 979' : 'Direct Line: (+84) 977 429 979'}</span>
+                <span>{lang === 'vi' ? 'Hotline Kỹ Thuật: 0977 429 979' : 'Direct Line: +84 977 429 979'}</span>
               </a>
               <button
                 onClick={() => {

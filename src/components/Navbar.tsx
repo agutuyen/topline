@@ -103,7 +103,7 @@ export default function Navbar({ lang, onToggleLang, onOpenRFQ }: NavbarProps) {
             {/* Direct Phone / Hotline */}
             <a
               href="tel:0977429979"
-              className={`hidden md:flex items-center gap-1.5 text-xs font-mono font-medium px-3 py-1.5 rounded-full transition-colors ${
+              className={`hidden md:flex items-center gap-1.5 text-xs font-mono font-medium px-3 py-1.5 rounded-full transition-colors whitespace-nowrap shrink-0 ${
                 scrolled
                   ? 'text-[#191919]/80 hover:text-[#191919] hover:bg-black/5'
                   : 'text-white/85 hover:text-white hover:bg-white/10'
@@ -111,7 +111,7 @@ export default function Navbar({ lang, onToggleLang, onOpenRFQ }: NavbarProps) {
               title="Hotline Kỹ Thuật"
             >
               <Phone className="w-3.5 h-3.5 text-[#C5A880]" />
-              <span>0977.429.979</span>
+              <span>{lang === 'vi' ? '0977.429.979' : '+84 977 429 979'}</span>
             </a>
 
             {/* Primary Action Button — Request Quote */}
@@ -162,7 +162,7 @@ export default function Navbar({ lang, onToggleLang, onOpenRFQ }: NavbarProps) {
                 className="flex items-center gap-2 text-sm font-mono text-[#191919] px-4 py-2"
               >
                 <Phone className="w-4 h-4 text-[#C5A880]" />
-                <span>Hotline: 0977 429 979</span>
+                <span>{lang === 'vi' ? 'Hotline: 0977 429 979' : 'Hotline: +84 977 429 979'}</span>
               </a>
 
               <button

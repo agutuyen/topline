@@ -143,7 +143,7 @@ export default function App() {
           title={lang === 'vi' ? 'Chat Zalo với Giám đốc' : 'Direct Line & WhatsApp'}
         >
           <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-          <span>{lang === 'vi' ? 'Zalo: 0977 429 979' : 'WhatsApp / Zalo'}</span>
+          <span>{lang === 'vi' ? 'Zalo: 0977 429 979' : 'WhatsApp: +84 977 429 979'}</span>
         </a>
 
         <a
