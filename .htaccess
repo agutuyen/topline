@@ -2,25 +2,31 @@
   RewriteEngine On
   RewriteBase /
 
-  # 1. Block access to hidden, sensitive configuration and database files
+  # 1. Block access to hidden configuration and raw database files
   RewriteRule (^|/)\.(git|env|cache|htaccess) - [F,L]
-  RewriteRule \.(db|sqlite|sqlite3|sql|log|md|bak|swp)$ - [F,L]
+  RewriteRule \.(db|sqlite|sqlite3|sql|log|bak|swp)$ - [F,L]
 
-  # Don't rewrite if request is already targeting dist/
+  # 2. Route all API calls to native PHP API engine
+  RewriteRule ^api/v1/(.*)$ api/index.php [QSA,L]
+  RewriteRule ^api/(.*)$ api/index.php [QSA,L]
+  RewriteRule ^dist/api/(.*)$ api/index.php [QSA,L]
+
+  # 3. Don't rewrite if request is already targeting dist/
   RewriteCond %{REQUEST_URI} ^/dist/ [NC]
   RewriteRule ^ - [L]
 
-  # If the requested file or directory exists in dist/, serve it from dist/
+  # 4. If the requested file or directory exists in dist/, serve it from dist/
   RewriteCond %{DOCUMENT_ROOT}/dist/$1 -f [OR]
   RewriteCond %{DOCUMENT_ROOT}/dist/$1 -d
   RewriteRule ^(.*)$ /dist/$1 [L]
 
-  # Otherwise, route all requests to /dist/index.html
+  # 5. Otherwise, route all requests to /dist/index.html (SPA Fallback)
   RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^(.*)$ /dist/index.html [L]
 </IfModule>
 
-# 2. Security Headers (Harden HTTP response)
+# Security Headers (Harden HTTP response)
 <IfModule mod_headers.c>
   Header always set X-Content-Type-Options "nosniff"
   Header always set X-Frame-Options "SAMEORIGIN"
@@ -29,7 +35,7 @@
   Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
 </IfModule>
 
-# 3. MIME Types Configuration
+# MIME Types Configuration
 <IfModule mod_mime.c>
   AddType text/javascript .js
   AddType text/javascript .mjs
@@ -39,9 +45,10 @@
   AddType image/png .png
   AddType image/jpeg .jpg .jpeg
   AddType video/mp4 .mp4
+  AddType application/x-httpd-php .php
 </IfModule>
 
-# 4. Gzip & Deflate Compression for Speed & Bandwidth
+# Gzip & Deflate Compression
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css application/xml application/xhtml+xml application/rss+xml application/javascript application/x-javascript application/json
 </IfModule>

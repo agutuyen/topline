@@ -2,9 +2,15 @@
   RewriteEngine On
   RewriteBase /
 
+  # 1. Block access to hidden configuration and raw database files
   RewriteRule (^|/)\.(git|env|cache|htaccess) - [F,L]
-  RewriteRule \.(db|sqlite|sqlite3|sql|log|md|bak|swp)$ - [F,L]
+  RewriteRule \.(db|sqlite|sqlite3|sql|log|bak|swp)$ - [F,L]
 
+  # 2. Route all API calls to native PHP API engine
+  RewriteRule ^api/v1/(.*)$ api/index.php [QSA,L]
+  RewriteRule ^api/(.*)$ api/index.php [QSA,L]
+
+  # 3. SPA Fallback
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^ index.html [L]
@@ -27,4 +33,5 @@
   AddType image/png .png
   AddType image/jpeg .jpg .jpeg
   AddType video/mp4 .mp4
+  AddType application/x-httpd-php .php
 </IfModule>
