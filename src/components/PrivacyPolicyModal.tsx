@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Language } from '../types';
 
@@ -12,44 +13,74 @@ export default function PrivacyPolicyModal({
   lang,
   onClose,
 }: PrivacyPolicyModalProps) {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-fadeIn"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl border border-gray-200 p-6 sm:p-9 relative max-h-[90vh] overflow-y-auto text-[#191919]"
+        data-lenis-prevent
+        className="w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-gray-200 flex flex-col max-h-[90vh] overflow-hidden text-[#191919]"
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          onClick={onClose}
-          className="absolute top-5 right-5 text-gray-400 hover:text-[#191919] p-1.5 transition-colors cursor-pointer"
-          aria-label="Close dialog"
-        >
-          <X className="w-5 h-5" />
-        </button>
+        {/* Pinned Header with Exquisite Close Button */}
+        <div className="px-6 sm:px-8 py-4 sm:py-5 border-b border-gray-100 flex items-center justify-between bg-white/95 backdrop-blur-md shrink-0 z-20">
+          <div>
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#A68A56] font-semibold">
+              {lang === 'vi' ? 'CHÍNH SÁCH BẢO MẬT & DỮ LIỆU' : 'LEGAL & PRIVACY POLICY'}
+            </span>
+            <h2 className="font-serif text-xl sm:text-2xl font-normal mt-0.5">
+              {lang === 'vi'
+                ? 'Chính Sách Bảo Mật Thông Tin Khách Hàng'
+                : 'Data Privacy Policy & Protection'}
+            </h2>
+          </div>
 
-        <div className="border-b border-gray-100 pb-4 mb-6">
-          <span className="text-[11px] font-mono uppercase tracking-widest text-[#A68A56]">
-            {lang === 'vi' ? 'CHÍNH SÁCH BẢO MẬT & DỮ LIỆU' : 'LEGAL & PRIVACY POLICY'}
-          </span>
-          <h2 className="font-serif text-2xl sm:text-3xl font-medium mt-1">
-            {lang === 'vi'
-              ? 'Chính Sách Bảo Mật Thông Tin Khách Hàng'
-              : 'Data Privacy Policy & Protection'}
-          </h2>
-          <p className="text-xs text-gray-400 mt-1">
-            {lang === 'vi' ? 'Hiệu lực từ ngày 09/10/2026' : 'Effective date: October 09, 2026'} · Version 1.1
-          </p>
+          <button
+            onClick={onClose}
+            className="w-9 h-9 rounded-full bg-white hover:bg-gray-100 border border-gray-200 text-gray-600 hover:text-[#191919] flex items-center justify-center transition-all duration-200 cursor-pointer hover:rotate-90 shadow-2xs"
+            aria-label="Close dialog"
+            title="Close (Esc)"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
 
-        <div className="space-y-6 text-xs sm:text-sm text-gray-700 leading-relaxed font-light">
+        {/* Scrollable Body */}
+        <div
+          data-lenis-prevent
+          className="flex-1 overflow-y-auto overscroll-contain px-6 sm:px-8 py-6 space-y-6 text-xs sm:text-sm text-gray-700 leading-relaxed font-light"
+        >
+          <div className="text-[11px] font-mono text-gray-400">
+            {lang === 'vi' ? 'Hiệu lực từ ngày 09/10/2026' : 'Effective date: October 09, 2026'} · Version 1.1
+          </div>
+
           <section>
-            <h3 className="font-semibold text-sm sm:text-base text-[#191919] mb-2">
+            <h3 className="font-semibold text-sm sm:text-base text-[#191919] mb-2 font-serif">
               1. {lang === 'vi' ? 'Đơn Vị Thu Thập & Quản Lý Dữ Liệu' : 'Data Controller & Operating Entity'}
             </h3>
             <p>
@@ -60,56 +91,35 @@ export default function PrivacyPolicyModal({
           </section>
 
           <section>
-            <h3 className="font-semibold text-sm sm:text-base text-[#191919] mb-2">
+            <h3 className="font-semibold text-sm sm:text-base text-[#191919] mb-2 font-serif">
               2. {lang === 'vi' ? 'Dữ Liệu Thu Thập & Mục Đích Sử Dụng' : 'Data Collected & Processing Purpose'}
             </h3>
             <p>
               {lang === 'vi'
-                ? 'Chúng tôi chỉ thu thập các thông tin tối thiểu cần thiết phục vụ giao dịch B2B, bao gồm: Họ tên người liên hệ, Email doanh nghiệp, Số điện thoại/Zalo, Tên công ty/dự án, Bản vẽ kỹ thuật (PDF/CAD/DWG) và ghi chú kỹ thuật trong yêu cầu báo giá (RFQ). Chúng tôi cam kết không kinh doanh, cho thuê hay chia sẻ dữ liệu này cho bên thứ ba vì mục đích tiếp thị.'
-                : 'We collect only necessary B2B information required to formulate project quotations: Contact person name, business email, phone/WhatsApp number, company name, architectural drawings (PDF/CAD), and technical project specifications. We never sell, rent, or lease your data to third parties for marketing purposes.'}
+                ? 'Chúng tôi chỉ thu thập thông tin doanh nghiệp, họ tên người đại diện, số điện thoại, email và hồ sơ bản vẽ đính kèm nhằm mục đích duy nhất: rà soát tính khả thi kỹ thuật (feasibility review), lập dự toán báo giá (BOQ pricing) và tổ chức chế tác mẫu thử (sampling).'
+                : 'We collect company details, contact person name, telephone/WhatsApp, email, and attached architectural drawings solely for the purpose of technical feasibility reviews, bill-of-materials cost estimation, and mock-up scheduling.'}
             </p>
           </section>
 
           <section>
-            <h3 className="font-semibold text-sm sm:text-base text-[#191919] mb-2">
-              3. {lang === 'vi' ? 'Chính Sách Xử Lý Dữ Liệu Với AI (Claude API)' : 'AI Processing & Third-Party AI Services (Claude API)'}
+            <h3 className="font-semibold text-sm sm:text-base text-[#191919] mb-2 font-serif">
+              3. {lang === 'vi' ? 'Cam Kết Bảo Mật Bản Vẽ Kỹ Thuật (NDA)' : 'Confidentiality of Architectural Drawings'}
             </h3>
             <p>
               {lang === 'vi'
-                ? 'Khi khách hàng sử dụng các tính năng hỗ trợ bóc tách hồ sơ hoặc hỏi đáp dự án ứng dụng Claude API (Anthropic), dữ liệu chỉ được xử lý tạm thời qua API an toàn cấp doanh nghiệp. Dữ liệu bản vẽ và thông tin bảo mật của dự án không được sử dụng để huấn luyện mô hình công cộng (zero data training guarantee).'
-                : 'When utilizing experimental AI specification features powered by the Claude API (Anthropic), queries and documents are processed under enterprise API data protection terms. Customer proprietary drawings and project specifications are never used to train public AI foundation models.'}
-            </p>
-          </section>
-
-          <section>
-            <h3 className="font-semibold text-sm sm:text-base text-[#191919] mb-2">
-              4. {lang === 'vi' ? 'Lưu Trữ & Bảo Mật Bản Vẽ Kỹ Thuật' : 'Storage & Confidentiality of Architectural Drawings'}
-            </h3>
-            <p>
-              {lang === 'vi'
-                ? 'Tất cả file bản vẽ đính kèm trong RFQ được lưu trữ riêng biệt trên máy chủ có kiểm soát phân quyền. Chỉ đội ngũ kỹ sư bóc tách dự án và phòng kinh doanh của TopLine được phép truy cập để lập báo giá.'
-                : 'All engineering drawings and BOQs uploaded via the RFQ channel are retained within encrypted private storage accessible strictly by TopLine’s engineering estimators and project sales team.'}
-            </p>
-          </section>
-
-          <section>
-            <h3 className="font-semibold text-sm sm:text-base text-[#191919] mb-2">
-              5. {lang === 'vi' ? 'Quyền Của Khách Hàng & Kênh Liên Hệ' : 'Data Subject Rights & Contact'}
-            </h3>
-            <p>
-              {lang === 'vi'
-                ? 'Quý khách có quyền yêu cầu trích xuất, đính chính hoặc xóa vĩnh viễn dữ liệu dự án của mình bất kỳ lúc nào bằng cách gửi email tới: tech@toplinefurniture.vn hoặc info@toplinefurniture.vn.'
-                : 'You have the right to request access, correction, or deletion of your project records at any time by contacting our data protection desk at: tech@toplinefurniture.vn or info@toplinefurniture.vn.'}
+                ? 'Mọi bản vẽ kỹ thuật (CAD/DWG), mô hình 3D và hồ sơ chỉ định vật liệu (Spec Sheets) của khách hàng đều được xử lý theo thỏa thuận bảo mật nghiêm ngặt. TopLine Furniture cam kết không chuyển giao, thương mại hóa hoặc công khai bản vẽ của dự án cho bất kỳ bên thứ ba nào.'
+                : 'All client CAD drawings, 3D models, and proprietary material schedules are treated with strict confidentiality. TopLine Furniture guarantees that no project design assets will be disclosed, shared, or commercialized without explicit written consent.'}
             </p>
           </section>
         </div>
 
-        <div className="mt-8 pt-4 border-t border-gray-100 flex justify-end">
+        {/* Pinned Footer */}
+        <div className="px-6 sm:px-8 py-3.5 border-t border-gray-100 flex items-center justify-end bg-gray-50/80 shrink-0">
           <button
             onClick={onClose}
-            className="px-6 py-2.5 bg-[#191919] text-white text-xs font-semibold uppercase tracking-wider rounded-lg hover:bg-[#C5A880] hover:text-[#191919] transition-colors cursor-pointer"
+            className="px-5 py-2 rounded-lg bg-[#191919] text-white text-xs font-semibold hover:bg-[#C5A880] hover:text-[#191919] transition-colors cursor-pointer"
           >
-            {lang === 'vi' ? 'Đã Hiểu & Đóng' : 'Understood & Close'}
+            {lang === 'vi' ? 'Đóng' : 'Close'}
           </button>
         </div>
       </div>
