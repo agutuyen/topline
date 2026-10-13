@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   ArrowLeft,
-  Check,
+  ArrowUpDown,
+  ChevronLeft,
+  ChevronRight,
   Edit3,
   FileText,
+  Image as ImageIcon,
   Layers,
   LayoutDashboard,
   LogOut,
@@ -14,6 +17,7 @@ import {
   Save,
   Search,
   Trash2,
+  Upload,
   X,
 } from 'lucide-react';
 import { Language, ProductItem, CollectionGroup } from '../../types';
@@ -31,6 +35,7 @@ import {
   adminUpdateCollection,
   adminGetContacts,
   adminUpdateContactStatus,
+  uploadImageFile,
   getAuthToken,
   removeAuthToken,
   DashboardStats,
@@ -46,6 +51,115 @@ interface AdminPortalProps {
 
 type AdminTab = 'overview' | 'rfqs' | 'products' | 'collections' | 'contacts';
 
+// ── REUSABLE VISUAL IMAGE UPLOAD & PREVIEW COMPONENT ──
+interface ImageUploadFieldProps {
+  label: string;
+  subLabel?: string;
+  value: string;
+  onChange: (url: string) => void;
+  recommendedRatio?: string;
+}
+
+function ImageUploadField({
+  label,
+  subLabel,
+  value,
+  onChange,
+  recommendedRatio = '1:1',
+}: ImageUploadFieldProps) {
+  const [uploading, setUploading] = useState(false);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // 1. Instant local preview
+    const localUrl = URL.createObjectURL(file);
+    onChange(localUrl);
+
+    // 2. Upload to server
+    setUploading(true);
+    try {
+      const res = await uploadImageFile(file);
+      if (res && res.url) {
+        onChange(res.url);
+      }
+    } catch {
+      // Fallback: convert to base64 so it persists in offline mode
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          onChange(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="p-3.5 rounded-2xl bg-black/40 border border-white/10 space-y-2">
+      <div className="flex items-center justify-between text-xs">
+        <span className="font-mono text-white/90 font-medium">{label}</span>
+        {subLabel && <span className="text-[10px] text-white/40 font-mono">{subLabel}</span>}
+      </div>
+
+      {value ? (
+        /* Visual Preview with Change & Delete Actions */
+        <div className="flex items-center gap-4 bg-white/5 p-2 rounded-xl border border-white/10">
+          <div className="w-20 h-20 rounded-lg overflow-hidden bg-white/10 shrink-0 border border-white/15 flex items-center justify-center p-1">
+            <img src={value} alt="Preview" className="w-full h-full object-contain" />
+          </div>
+
+          <div className="flex-1 space-y-2 min-w-0">
+            <div className="text-[11px] font-mono text-white/60 truncate" title={value}>
+              {value.startsWith('data:') ? 'Tệp ảnh từ máy tính (Base64)' : value}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label className="px-2.5 py-1 rounded bg-white/15 hover:bg-[#C5A880] hover:text-[#191919] text-white text-[11px] font-mono cursor-pointer transition-colors inline-flex items-center gap-1">
+                <Upload className="w-3 h-3" />
+                <span>{uploading ? 'Đang tải...' : 'Đổi ảnh khác'}</span>
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+              </label>
+
+              <button
+                type="button"
+                onClick={() => onChange('')}
+                className="px-2.5 py-1 rounded bg-red-900/40 hover:bg-red-800 text-red-200 text-[11px] font-mono cursor-pointer transition-colors inline-flex items-center gap-1"
+              >
+                <Trash2 className="w-3 h-3" />
+                <span>Xóa ảnh</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* Empty Upload Dropzone Button */
+        <label className="flex flex-col items-center justify-center p-4 border border-dashed border-white/20 hover:border-[#C5A880] rounded-xl cursor-pointer bg-white/5 hover:bg-white/10 transition-all text-center">
+          <Upload className="w-5 h-5 text-[#C5A880] mb-1" />
+          <span className="text-xs font-mono text-white/80">
+            {uploading ? 'Đang tải ảnh...' : 'Tải ảnh từ máy tính (.jpg, .png, .webp)'}
+          </span>
+          <span className="text-[10px] text-white/40 font-mono mt-0.5">Tỷ lệ khuyến nghị: {recommendedRatio}</span>
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+        </label>
+      )}
+    </div>
+  );
+}
+
 export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
@@ -58,15 +172,26 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
 
   // Dashboard Data State
   const [stats, setStats] = useState<DashboardStats | null>(null);
+
+  // RFQ State & Pagination
   const [rfqs, setRfqs] = useState<RfqRecord[]>([]);
   const [selectedRfq, setSelectedRfq] = useState<RfqRecord | null>(null);
   const [rfqFilterStatus, setRfqFilterStatus] = useState<string>('all');
   const [rfqSearch, setRfqSearch] = useState<string>('');
+  const [rfqPage, setRfqPage] = useState<number>(1);
+  const [rfqPageSize, setRfqPageSize] = useState<number>(10);
+  const [rfqSortField, setRfqSortField] = useState<'createdAt' | 'trackingCode' | 'fullName' | 'status'>('createdAt');
+  const [rfqSortOrder, setRfqSortOrder] = useState<'asc' | 'desc'>('desc');
 
-  // Products State
+  // Products State & Pagination
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [productSearch, setProductSearch] = useState<string>('');
   const [productCatFilter, setProductCatFilter] = useState<string>('all');
+  const [productPage, setProductPage] = useState<number>(1);
+  const [productPageSize, setProductPageSize] = useState<number>(10);
+  const [productSortField, setProductSortField] = useState<'sku' | 'name' | 'category' | 'dimensions' | 'isPublished'>('sku');
+  const [productSortOrder, setProductSortOrder] = useState<'asc' | 'desc'>('asc');
+
   const [editingProduct, setEditingProduct] = useState<ProductItem | null>(null);
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
 
@@ -96,6 +221,8 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
     descriptionEn: '',
     image: '',
     cutoutImage: '',
+    collectionImage: '',
+    detailImage: '',
     isPublished: true,
   });
 
@@ -117,7 +244,10 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccessMessage, setSaveSuccessMessage] = useState('');
 
+  // Contacts State & Pagination
   const [contacts, setContacts] = useState<ContactRecord[]>([]);
+  const [contactPage, setContactPage] = useState<number>(1);
+  const [contactPageSize, setContactPageSize] = useState<number>(10);
   const [loading, setLoading] = useState(false);
 
   // Check auth state on mount
@@ -159,7 +289,6 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
       setContacts(contactsData);
       setCollections(colsData);
     } catch {
-      // If unauthorized, reset login
       removeAuthToken();
       setIsAuthenticated(false);
     } finally {
@@ -246,6 +375,8 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
       descriptionEn: p.description.en,
       image: p.image,
       cutoutImage: p.cutoutImage || '',
+      collectionImage: p.collectionImage || '',
+      detailImage: p.detailImage || '',
       isPublished: p.isPublished !== false,
     });
     setFormLangTab('vi');
@@ -276,6 +407,8 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
       descriptionEn: '',
       image: '/images/products/TL-WW-01_Credenza_Cabinet.png',
       cutoutImage: '/images/products/cutouts/TL-WW-01_Credenza_Cabinet.png',
+      collectionImage: '',
+      detailImage: '',
       isPublished: true,
     });
     setFormLangTab('vi');
@@ -319,6 +452,10 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
       image: productForm.image,
       cutoutImage: productForm.cutoutImage,
       cutout_image: productForm.cutoutImage,
+      collectionImage: productForm.collectionImage,
+      collection_image: productForm.collectionImage,
+      detailImage: productForm.detailImage,
+      detail_image: productForm.detailImage,
       isPublished: productForm.isPublished,
       is_published: productForm.isPublished ? 1 : 0,
     };
@@ -403,6 +540,114 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
       alert(err instanceof Error ? err.message : 'Lỗi khi lưu bộ sưu tập');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  // ── SORTING & PAGINATION CALCULATIONS ──
+
+  // Sorted and Paginated Products
+  const sortedProducts = useMemo(() => {
+    const list = products
+      .filter((p) => productCatFilter === 'all' || p.category === productCatFilter)
+      .filter(
+        (p) =>
+          !productSearch ||
+          p.sku.toLowerCase().includes(productSearch.toLowerCase()) ||
+          p.name.vi.toLowerCase().includes(productSearch.toLowerCase()) ||
+          p.name.en.toLowerCase().includes(productSearch.toLowerCase())
+      );
+
+    return list.sort((a, b) => {
+      let valA = '';
+      let valB = '';
+      if (productSortField === 'sku') {
+        valA = a.sku;
+        valB = b.sku;
+      } else if (productSortField === 'name') {
+        valA = a.name.vi;
+        valB = b.name.vi;
+      } else if (productSortField === 'category') {
+        valA = String(a.category);
+        valB = String(b.category);
+      } else if (productSortField === 'dimensions') {
+        valA = a.dimensions;
+        valB = b.dimensions;
+      } else if (productSortField === 'isPublished') {
+        const numA = a.isPublished !== false ? 1 : 0;
+        const numB = b.isPublished !== false ? 1 : 0;
+        return productSortOrder === 'asc' ? numA - numB : numB - numA;
+      }
+
+      return productSortOrder === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+    });
+  }, [products, productCatFilter, productSearch, productSortField, productSortOrder]);
+
+  const totalProductPages = Math.max(1, Math.ceil(sortedProducts.length / productPageSize));
+  const paginatedProducts = useMemo(() => {
+    const start = (productPage - 1) * productPageSize;
+    return sortedProducts.slice(start, start + productPageSize);
+  }, [sortedProducts, productPage, productPageSize]);
+
+  // Sorted and Paginated RFQs
+  const sortedRfqs = useMemo(() => {
+    const list = rfqs
+      .filter((r) => rfqFilterStatus === 'all' || r.status === rfqFilterStatus)
+      .filter(
+        (r) =>
+          !rfqSearch ||
+          r.trackingCode.toLowerCase().includes(rfqSearch.toLowerCase()) ||
+          r.fullName.toLowerCase().includes(rfqSearch.toLowerCase()) ||
+          r.phone.includes(rfqSearch)
+      );
+
+    return list.sort((a, b) => {
+      let valA = '';
+      let valB = '';
+      if (rfqSortField === 'createdAt') {
+        valA = a.createdAt;
+        valB = b.createdAt;
+      } else if (rfqSortField === 'trackingCode') {
+        valA = a.trackingCode;
+        valB = b.trackingCode;
+      } else if (rfqSortField === 'fullName') {
+        valA = a.fullName;
+        valB = b.fullName;
+      } else if (rfqSortField === 'status') {
+        valA = a.status;
+        valB = b.status;
+      }
+      return rfqSortOrder === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+    });
+  }, [rfqs, rfqFilterStatus, rfqSearch, rfqSortField, rfqSortOrder]);
+
+  const totalRfqPages = Math.max(1, Math.ceil(sortedRfqs.length / rfqPageSize));
+  const paginatedRfqs = useMemo(() => {
+    const start = (rfqPage - 1) * rfqPageSize;
+    return sortedRfqs.slice(start, start + rfqPageSize);
+  }, [sortedRfqs, rfqPage, rfqPageSize]);
+
+  // Paginated Contacts
+  const totalContactPages = Math.max(1, Math.ceil(contacts.length / contactPageSize));
+  const paginatedContacts = useMemo(() => {
+    const start = (contactPage - 1) * contactPageSize;
+    return contacts.slice(start, start + contactPageSize);
+  }, [contacts, contactPage, contactPageSize]);
+
+  const toggleProductSort = (field: typeof productSortField) => {
+    if (productSortField === field) {
+      setProductSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setProductSortField(field);
+      setProductSortOrder('asc');
+    }
+  };
+
+  const toggleRfqSort = (field: typeof rfqSortField) => {
+    if (rfqSortField === field) {
+      setRfqSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setRfqSortField(field);
+      setRfqSortOrder('asc');
     }
   };
 
@@ -516,7 +761,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
         </div>
       ) : (
         /* Authenticated Admin Dashboard Layout */
-        <div className="flex-1 flex flex-col md:flex-row overflow-hidden bg-[#0F0E0D]">
+        <div className="flex-1 min-h-0 flex flex-col md:flex-row overflow-hidden bg-[#0F0E0D]">
           {/* Left Navigation Sidebar */}
           <aside className="w-full md:w-64 bg-[#141312] border-r border-white/10 flex flex-col justify-between shrink-0">
             <div className="p-4 space-y-1">
@@ -563,7 +808,6 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                 <span>Sản Phẩm (29 SKU)</span>
               </button>
 
-              {/* NEW: Collections Tab */}
               <button
                 onClick={() => setActiveTab('collections')}
                 className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
@@ -596,7 +840,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
           </aside>
 
           {/* Main Content Pane */}
-          <main className="flex-1 overflow-y-auto overscroll-contain p-6 sm:p-8 space-y-6">
+          <main data-lenis-prevent className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-6 sm:p-8 space-y-6">
             {/* Header Toolbar */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/10">
               <div>
@@ -610,8 +854,8 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                 <span className="text-xs text-white/50 font-light">
                   {activeTab === 'overview' && 'Theo dõi tiến độ báo giá, năng lực sản xuất và thông báo'}
                   {activeTab === 'rfqs' && 'Rà soát bản vẽ kỹ thuật CAD/DWG/BOQ và phân loại trạng thái'}
-                  {activeTab === 'products' && 'Chỉnh sửa thông số song ngữ, quy cách mm, vật liệu & hình ảnh'}
-                  {activeTab === 'collections' && 'Chỉnh sửa thông điệp thiết kế, hình ảnh tổng thể và vật liệu đại diện'}
+                  {activeTab === 'products' && 'Chỉnh sửa thông số song ngữ, quy cách mm, tải ảnh từ máy tính & phân trang'}
+                  {activeTab === 'collections' && 'Chỉnh sửa thông điệp thiết kế, hình ảnh tổng thể và tải ảnh trực quan'}
                   {activeTab === 'contacts' && 'Tin nhắn trao đổi trực tiếp từ khách hàng'}
                 </span>
               </div>
@@ -641,7 +885,6 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
             {/* TAB 1: OVERVIEW */}
             {activeTab === 'overview' && stats && (
               <div className="space-y-6">
-                {/* 4 Metric Cards */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="p-5 rounded-2xl bg-[#181615] border border-white/10 space-y-1">
                     <span className="text-[11px] font-mono text-white/50 uppercase">Tổng Hồ Sơ Báo Giá</span>
@@ -740,7 +983,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
               </div>
             )}
 
-            {/* TAB 2: RFQ MANAGEMENT */}
+            {/* TAB 2: RFQ MANAGEMENT (WITH SORTING & PAGINATION) */}
             {activeTab === 'rfqs' && (
               <div className="space-y-4">
                 {/* Filters */}
@@ -749,7 +992,10 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                     {['all', 'pending', 'reviewing', 'quoted', 'contracted'].map((st) => (
                       <button
                         key={st}
-                        onClick={() => setRfqFilterStatus(st)}
+                        onClick={() => {
+                          setRfqFilterStatus(st);
+                          setRfqPage(1);
+                        }}
                         className={`px-3 py-1.5 rounded-lg border transition-colors cursor-pointer uppercase text-[10px] ${
                           rfqFilterStatus === st
                             ? 'bg-[#C5A880] text-[#191919] font-bold border-[#C5A880]'
@@ -767,84 +1013,142 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                       type="text"
                       placeholder="Tìm mã RFQ, tên, số ĐT..."
                       value={rfqSearch}
-                      onChange={(e) => setRfqSearch(e.target.value)}
+                      onChange={(e) => {
+                        setRfqSearch(e.target.value);
+                        setRfqPage(1);
+                      }}
                       className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-[#181615] border border-white/15 text-xs text-white focus:outline-hidden focus:border-[#C5A880]"
                     />
                   </div>
                 </div>
 
-                {/* RFQs List Table */}
+                {/* RFQs List Table with Clickable Sort Headers */}
                 <div className="rounded-2xl bg-[#181615] border border-white/10 overflow-hidden">
                   <table className="w-full text-left text-xs">
                     <thead>
                       <tr className="border-b border-white/10 bg-black/40 text-white/50 font-mono uppercase text-[10px]">
-                        <th className="p-4">Mã RFQ</th>
-                        <th className="p-4">Người Liên Hệ</th>
+                        <th
+                          className="p-4 cursor-pointer hover:text-white"
+                          onClick={() => toggleRfqSort('trackingCode')}
+                        >
+                          <div className="flex items-center gap-1">
+                            <span>Mã RFQ</span>
+                            <ArrowUpDown className="w-3 h-3 text-[#C5A880]" />
+                          </div>
+                        </th>
+                        <th
+                          className="p-4 cursor-pointer hover:text-white"
+                          onClick={() => toggleRfqSort('fullName')}
+                        >
+                          <div className="flex items-center gap-1">
+                            <span>Người Liên Hệ</span>
+                            <ArrowUpDown className="w-3 h-3 text-[#C5A880]" />
+                          </div>
+                        </th>
                         <th className="p-4">Điện Thoại / Email</th>
                         <th className="p-4">Sản Phẩm & Bản Vẽ</th>
-                        <th className="p-4">Trạng Thái</th>
+                        <th
+                          className="p-4 cursor-pointer hover:text-white"
+                          onClick={() => toggleRfqSort('status')}
+                        >
+                          <div className="flex items-center gap-1">
+                            <span>Trạng Thái</span>
+                            <ArrowUpDown className="w-3 h-3 text-[#C5A880]" />
+                          </div>
+                        </th>
+                        <th
+                          className="p-4 cursor-pointer hover:text-white"
+                          onClick={() => toggleRfqSort('createdAt')}
+                        >
+                          <div className="flex items-center gap-1">
+                            <span>Thời Gian</span>
+                            <ArrowUpDown className="w-3 h-3 text-[#C5A880]" />
+                          </div>
+                        </th>
                         <th className="p-4 text-right">Thao Tác</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
-                      {rfqs
-                        .filter((r) => rfqFilterStatus === 'all' || r.status === rfqFilterStatus)
-                        .filter(
-                          (r) =>
-                            !rfqSearch ||
-                            r.trackingCode.toLowerCase().includes(rfqSearch.toLowerCase()) ||
-                            r.fullName.toLowerCase().includes(rfqSearch.toLowerCase()) ||
-                            r.phone.includes(rfqSearch)
-                        )
-                        .map((r) => (
-                          <tr key={r.id} className="hover:bg-white/5 transition-colors">
-                            <td className="p-4 font-mono font-bold text-[#C5A880]">{r.trackingCode}</td>
-                            <td className="p-4">
-                              <span className="font-semibold text-white block">{r.fullName}</span>
-                              <span className="text-[11px] text-white/50">{r.companyName || 'Khách riêng'}</span>
-                            </td>
-                            <td className="p-4 font-mono">
-                              <div className="text-white">{r.phone}</div>
-                              <div className="text-white/50 text-[11px]">{r.email}</div>
-                            </td>
-                            <td className="p-4">
-                              <div className="text-xs text-white/80">
-                                {r.selectedProducts.length} sản phẩm chọn
-                              </div>
-                              <div className="text-[11px] text-[#C5A880]">
-                                📎 {r.attachments.length} bản vẽ đính kèm
-                              </div>
-                            </td>
-                            <td className="p-4">
-                              <select
-                                value={r.status}
-                                onChange={(e) => handleUpdateRfqStatus(r.id, e.target.value)}
-                                className="px-2 py-1 rounded bg-black/40 border border-white/20 text-[11px] font-mono uppercase focus:outline-hidden"
-                              >
-                                <option value="pending">🟡 Chờ xử lý</option>
-                                <option value="reviewing">🔵 Đang rà soát</option>
-                                <option value="quoted">🟣 Đã báo giá</option>
-                                <option value="contracted">🟢 Chốt hợp đồng</option>
-                                <option value="rejected">🔴 Không khả thi</option>
-                              </select>
-                            </td>
-                            <td className="p-4 text-right">
-                              <button
-                                onClick={() => setSelectedRfq(r)}
-                                className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-[#C5A880] hover:text-[#191919] font-mono text-xs transition-colors cursor-pointer"
-                              >
-                                Xem Chi Tiết
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
+                      {paginatedRfqs.map((r) => (
+                        <tr key={r.id} className="hover:bg-white/5 transition-colors">
+                          <td className="p-4 font-mono font-bold text-[#C5A880]">{r.trackingCode}</td>
+                          <td className="p-4">
+                            <span className="font-semibold text-white block">{r.fullName}</span>
+                            <span className="text-[11px] text-white/50">{r.companyName || 'Khách riêng'}</span>
+                          </td>
+                          <td className="p-4 font-mono">
+                            <div className="text-white">{r.phone}</div>
+                            <div className="text-white/50 text-[11px]">{r.email}</div>
+                          </td>
+                          <td className="p-4">
+                            <div className="text-xs text-white/80">
+                              {r.selectedProducts.length} sản phẩm chọn
+                            </div>
+                            <div className="text-[11px] text-[#C5A880]">
+                              📎 {r.attachments.length} bản vẽ đính kèm
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <select
+                              value={r.status}
+                              onChange={(e) => handleUpdateRfqStatus(r.id, e.target.value)}
+                              className="px-2 py-1 rounded bg-black/40 border border-white/20 text-[11px] font-mono uppercase focus:outline-hidden"
+                            >
+                              <option value="pending">🟡 Chờ xử lý</option>
+                              <option value="reviewing">🔵 Đang rà soát</option>
+                              <option value="quoted">🟣 Đã báo giá</option>
+                              <option value="contracted">🟢 Chốt hợp đồng</option>
+                              <option value="rejected">🔴 Không khả thi</option>
+                            </select>
+                          </td>
+                          <td className="p-4 text-white/50 font-mono text-[11px]">{r.createdAt}</td>
+                          <td className="p-4 text-right">
+                            <button
+                              onClick={() => setSelectedRfq(r)}
+                              className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-[#C5A880] hover:text-[#191919] font-mono text-xs transition-colors cursor-pointer"
+                            >
+                              Xem Chi Tiết
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
+
+                  {/* Pagination Footer */}
+                  <div className="p-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-white/60 bg-black/30">
+                    <div>
+                      Hiển thị {Math.min(sortedRfqs.length, (rfqPage - 1) * rfqPageSize + 1)} -{' '}
+                      {Math.min(sortedRfqs.length, rfqPage * rfqPageSize)} trên tổng số {sortedRfqs.length} hồ sơ
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setRfqPage((p) => Math.max(1, p - 1))}
+                        disabled={rfqPage <= 1}
+                        className="px-2.5 py-1 rounded bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                      >
+                        <ChevronLeft className="w-3.5 h-3.5" />
+                      </button>
+
+                      <span>
+                        Trang {rfqPage} / {totalRfqPages}
+                      </span>
+
+                      <button
+                        onClick={() => setRfqPage((p) => Math.min(totalRfqPages, p + 1))}
+                        disabled={rfqPage >= totalRfqPages}
+                        className="px-2.5 py-1 rounded bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                      >
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* TAB 3: PRODUCTS MANAGEMENT (WITH EDIT & CREATE ACTIONS) */}
+            {/* TAB 3: PRODUCTS MANAGEMENT (WITH SORTING & PAGINATION) */}
             {activeTab === 'products' && (
               <div className="space-y-4">
                 {/* Search & Category Filter */}
@@ -861,7 +1165,10 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                     ].map((cat) => (
                       <button
                         key={cat.id}
-                        onClick={() => setProductCatFilter(cat.id)}
+                        onClick={() => {
+                          setProductCatFilter(cat.id);
+                          setProductPage(1);
+                        }}
                         className={`px-3 py-1.5 rounded-lg border transition-colors cursor-pointer uppercase text-[10px] ${
                           productCatFilter === cat.id
                             ? 'bg-[#C5A880] text-[#191919] font-bold border-[#C5A880]'
@@ -879,91 +1186,153 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                       type="text"
                       placeholder="Tìm SKU, tên, vật liệu..."
                       value={productSearch}
-                      onChange={(e) => setProductSearch(e.target.value)}
+                      onChange={(e) => {
+                        setProductSearch(e.target.value);
+                        setProductPage(1);
+                      }}
                       className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-[#181615] border border-white/15 text-xs text-white focus:outline-hidden focus:border-[#C5A880]"
                     />
                   </div>
                 </div>
 
-                {/* Products Table with Edit Buttons */}
+                {/* Products Table with Sortable Headers */}
                 <div className="rounded-2xl bg-[#181615] border border-white/10 overflow-hidden">
                   <table className="w-full text-left text-xs">
                     <thead>
                       <tr className="border-b border-white/10 bg-black/40 text-white/50 font-mono uppercase text-[10px]">
                         <th className="p-4">Ảnh</th>
-                        <th className="p-4">SKU</th>
-                        <th className="p-4">Tên Sản Phẩm (VI / EN)</th>
-                        <th className="p-4">Kích Thước</th>
-                        <th className="p-4">Bộ Sưu Tập</th>
-                        <th className="p-4">Hiển Thị</th>
+                        <th
+                          className="p-4 cursor-pointer hover:text-white"
+                          onClick={() => toggleProductSort('sku')}
+                        >
+                          <div className="flex items-center gap-1">
+                            <span>SKU</span>
+                            <ArrowUpDown className="w-3 h-3 text-[#C5A880]" />
+                          </div>
+                        </th>
+                        <th
+                          className="p-4 cursor-pointer hover:text-white"
+                          onClick={() => toggleProductSort('name')}
+                        >
+                          <div className="flex items-center gap-1">
+                            <span>Tên Sản Phẩm (VI / EN)</span>
+                            <ArrowUpDown className="w-3 h-3 text-[#C5A880]" />
+                          </div>
+                        </th>
+                        <th
+                          className="p-4 cursor-pointer hover:text-white"
+                          onClick={() => toggleProductSort('dimensions')}
+                        >
+                          <div className="flex items-center gap-1">
+                            <span>Kích Thước</span>
+                            <ArrowUpDown className="w-3 h-3 text-[#C5A880]" />
+                          </div>
+                        </th>
+                        <th
+                          className="p-4 cursor-pointer hover:text-white"
+                          onClick={() => toggleProductSort('category')}
+                        >
+                          <div className="flex items-center gap-1">
+                            <span>Bộ Sưu Tập</span>
+                            <ArrowUpDown className="w-3 h-3 text-[#C5A880]" />
+                          </div>
+                        </th>
+                        <th
+                          className="p-4 cursor-pointer hover:text-white"
+                          onClick={() => toggleProductSort('isPublished')}
+                        >
+                          <div className="flex items-center gap-1">
+                            <span>Hiển Thị</span>
+                            <ArrowUpDown className="w-3 h-3 text-[#C5A880]" />
+                          </div>
+                        </th>
                         <th className="p-4 text-right">Thao Tác</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
-                      {products
-                        .filter((p) => productCatFilter === 'all' || p.category === productCatFilter)
-                        .filter(
-                          (p) =>
-                            !productSearch ||
-                            p.sku.toLowerCase().includes(productSearch.toLowerCase()) ||
-                            p.name.vi.toLowerCase().includes(productSearch.toLowerCase()) ||
-                            p.name.en.toLowerCase().includes(productSearch.toLowerCase())
-                        )
-                        .map((p) => (
-                          <tr key={p.id} className="hover:bg-white/5 transition-colors">
-                            <td className="p-4">
-                              <div className="w-12 h-12 rounded-lg bg-white p-1 overflow-hidden">
-                                <img src={p.image} alt={p.sku} className="w-full h-full object-contain" />
-                              </div>
-                            </td>
-                            <td className="p-4 font-mono font-bold text-[#C5A880]">{p.sku}</td>
-                            <td className="p-4">
-                              <span className="font-semibold text-white block">{p.name.vi}</span>
-                              <span className="text-[11px] text-white/50 italic">{p.name.en}</span>
-                            </td>
-                            <td className="p-4 font-mono text-[11px] text-white/70">{p.dimensions}</td>
-                            <td className="p-4 font-mono text-[11px] text-[#A68A56]">{p.categoryLabel.vi}</td>
-                            <td className="p-4">
-                              <button
-                                onClick={() => handleToggleProduct(p.id, Boolean(p.isPublished ?? true))}
-                                className={`px-2.5 py-1 rounded text-[10px] font-mono uppercase cursor-pointer transition-colors ${
-                                  p.isPublished !== false
-                                    ? 'bg-emerald-900/40 text-emerald-300 border border-emerald-500/30'
-                                    : 'bg-red-900/40 text-red-300 border border-red-500/30'
-                                }`}
-                              >
-                                {p.isPublished !== false ? 'Hiển thị' : 'Ẩn'}
-                              </button>
-                            </td>
-                            <td className="p-4 text-right space-x-2">
-                              {/* EDIT PRODUCT BUTTON */}
-                              <button
-                                onClick={() => openEditProduct(p)}
-                                className="px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-[#C5A880] hover:text-[#191919] font-mono text-xs transition-colors cursor-pointer inline-flex items-center gap-1"
-                                title="Chỉnh sửa chi tiết sản phẩm"
-                              >
-                                <Edit3 className="w-3.5 h-3.5" />
-                                <span>Sửa</span>
-                              </button>
+                      {paginatedProducts.map((p) => (
+                        <tr key={p.id} className="hover:bg-white/5 transition-colors">
+                          <td className="p-4">
+                            <div className="w-12 h-12 rounded-lg bg-white p-1 overflow-hidden border border-white/10">
+                              <img src={p.image} alt={p.sku} className="w-full h-full object-contain" />
+                            </div>
+                          </td>
+                          <td className="p-4 font-mono font-bold text-[#C5A880]">{p.sku}</td>
+                          <td className="p-4">
+                            <span className="font-semibold text-white block">{p.name.vi}</span>
+                            <span className="text-[11px] text-white/50 italic">{p.name.en}</span>
+                          </td>
+                          <td className="p-4 font-mono text-[11px] text-white/70">{p.dimensions}</td>
+                          <td className="p-4 font-mono text-[11px] text-[#A68A56]">{p.categoryLabel.vi}</td>
+                          <td className="p-4">
+                            <button
+                              onClick={() => handleToggleProduct(p.id, Boolean(p.isPublished ?? true))}
+                              className={`px-2.5 py-1 rounded text-[10px] font-mono uppercase cursor-pointer transition-colors ${
+                                p.isPublished !== false
+                                  ? 'bg-emerald-900/40 text-emerald-300 border border-emerald-500/30'
+                                  : 'bg-red-900/40 text-red-300 border border-red-500/30'
+                              }`}
+                            >
+                              {p.isPublished !== false ? 'Hiển thị' : 'Ẩn'}
+                            </button>
+                          </td>
+                          <td className="p-4 text-right space-x-2">
+                            <button
+                              onClick={() => openEditProduct(p)}
+                              className="px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-[#C5A880] hover:text-[#191919] font-mono text-xs transition-colors cursor-pointer inline-flex items-center gap-1"
+                              title="Chỉnh sửa chi tiết & ảnh sản phẩm"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                              <span>Sửa</span>
+                            </button>
 
-                              {/* DELETE PRODUCT BUTTON */}
-                              <button
-                                onClick={() => handleDeleteProduct(p.id, p.sku)}
-                                className="p-1.5 rounded bg-red-900/30 hover:bg-red-800 text-red-300 transition-colors cursor-pointer inline-flex items-center"
-                                title="Xóa"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
+                            <button
+                              onClick={() => handleDeleteProduct(p.id, p.sku)}
+                              className="p-1.5 rounded bg-red-900/30 hover:bg-red-800 text-red-300 transition-colors cursor-pointer inline-flex items-center"
+                              title="Xóa"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
+
+                  {/* Pagination Footer */}
+                  <div className="p-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-white/60 bg-black/30">
+                    <div>
+                      Hiển thị {Math.min(sortedProducts.length, (productPage - 1) * productPageSize + 1)} -{' '}
+                      {Math.min(sortedProducts.length, productPage * productPageSize)} trên tổng số {sortedProducts.length} sản phẩm
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setProductPage((p) => Math.max(1, p - 1))}
+                        disabled={productPage <= 1}
+                        className="px-2.5 py-1 rounded bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                      >
+                        <ChevronLeft className="w-3.5 h-3.5" />
+                      </button>
+
+                      <span>
+                        Trang {productPage} / {totalProductPages}
+                      </span>
+
+                      <button
+                        onClick={() => setProductPage((p) => Math.min(totalProductPages, p + 1))}
+                        disabled={productPage >= totalProductPages}
+                        className="px-2.5 py-1 rounded bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                      >
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* TAB 4: COLLECTIONS MANAGEMENT (WITH EDIT ACTION) */}
+            {/* TAB 4: COLLECTIONS MANAGEMENT */}
             {activeTab === 'collections' && (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -981,11 +1350,11 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
 
                         {/* Image & Titles */}
                         <div className="mt-4 flex gap-4">
-                          <div className="w-28 h-20 rounded-xl overflow-hidden bg-white/5 shrink-0 border border-white/10">
+                          <div className="w-28 h-20 rounded-xl overflow-hidden bg-white/5 shrink-0 border border-white/10 p-1">
                             <img
                               src={col.overviewImage}
                               alt={col.title.vi}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-cover rounded-lg"
                             />
                           </div>
                           <div>
@@ -1014,7 +1383,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                         className="w-full py-2.5 px-4 rounded-xl bg-white/10 hover:bg-[#C5A880] hover:text-[#191919] text-white text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-2"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
-                        <span>Chỉnh Sửa Bộ Sưu Tập</span>
+                        <span>Chỉnh Sửa Bộ Sưu Tập & Tải Ảnh</span>
                       </button>
                     </div>
                   ))}
@@ -1022,7 +1391,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
               </div>
             )}
 
-            {/* TAB 5: CONTACTS */}
+            {/* TAB 5: CONTACTS (WITH PAGINATION) */}
             {activeTab === 'contacts' && (
               <div className="rounded-2xl bg-[#181615] border border-white/10 overflow-hidden">
                 <table className="w-full text-left text-xs">
@@ -1036,7 +1405,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
-                    {contacts.map((c) => (
+                    {paginatedContacts.map((c) => (
                       <tr key={c.id} className="hover:bg-white/5 transition-colors">
                         <td className="p-4 font-mono text-[11px] text-white/50">{c.createdAt}</td>
                         <td className="p-4 font-semibold text-white">{c.fullName}</td>
@@ -1065,18 +1434,46 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                     ))}
                   </tbody>
                 </table>
+
+                {/* Contacts Pagination */}
+                <div className="p-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-white/60 bg-black/30">
+                  <div>
+                    Hiển thị {Math.min(contacts.length, (contactPage - 1) * contactPageSize + 1)} -{' '}
+                    {Math.min(contacts.length, contactPage * contactPageSize)} trên tổng số {contacts.length} thư
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setContactPage((p) => Math.max(1, p - 1))}
+                      disabled={contactPage <= 1}
+                      className="px-2.5 py-1 rounded bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                    </button>
+                    <span>
+                      Trang {contactPage} / {totalContactPages}
+                    </span>
+                    <button
+                      onClick={() => setContactPage((p) => Math.min(totalContactPages, p + 1))}
+                      disabled={contactPage >= totalContactPages}
+                      className="px-2.5 py-1 rounded bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </main>
         </div>
       )}
 
-      {/* ── PRODUCT EDIT / CREATE MODAL (BILINGUAL FORM) ── */}
+      {/* ── PRODUCT EDIT / CREATE MODAL WITH VISUAL IMAGE UPLOAD & PREVIEW ── */}
       {(editingProduct || isAddProductOpen) && (
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-[130] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
+          className="fixed inset-0 z-[130] flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md"
           onClick={() => {
             setEditingProduct(null);
             setIsAddProductOpen(false);
@@ -1099,12 +1496,11 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
               </div>
 
               <div className="flex items-center gap-3">
-                {/* Language Tab Switcher inside Form */}
                 <div className="flex rounded-lg bg-black/50 p-1 border border-white/15 text-xs font-mono">
                   <button
                     type="button"
                     onClick={() => setFormLangTab('vi')}
-                    className={`px-3 py-1 rounded-md transition-colors ${
+                    className={`px-3 py-1 rounded-md transition-colors cursor-pointer ${
                       formLangTab === 'vi' ? 'bg-[#C5A880] text-[#191919] font-bold' : 'text-white/60'
                     }`}
                   >
@@ -1113,7 +1509,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                   <button
                     type="button"
                     onClick={() => setFormLangTab('en')}
-                    className={`px-3 py-1 rounded-md transition-colors ${
+                    className={`px-3 py-1 rounded-md transition-colors cursor-pointer ${
                       formLangTab === 'en' ? 'bg-[#C5A880] text-[#191919] font-bold' : 'text-white/60'
                     }`}
                   >
@@ -1175,7 +1571,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                 </div>
               </div>
 
-              {/* Row 2: Product Name (VI or EN based on tab) */}
+              {/* Row 2: Product Name */}
               {formLangTab === 'vi' ? (
                 <div>
                   <label className="block font-mono text-white/70 mb-1">Tên sản phẩm (Tiếng Việt) *:</label>
@@ -1225,7 +1621,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                 </div>
               </div>
 
-              {/* Row 4: Materials & Finish (Bilingual tab) */}
+              {/* Row 4: Materials & Finish */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block font-mono text-white/70 mb-1">
@@ -1310,36 +1706,41 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                 />
               </div>
 
-              {/* Row 7: Images */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-mono text-white/70 mb-1">Đường dẫn ảnh chính (1:1):</label>
-                  <input
-                    type="text"
+              {/* ── VISUAL IMAGE UPLOAD & PREVIEW SECTION ── */}
+              <div className="space-y-3 pt-2 border-t border-white/10">
+                <span className="text-xs font-mono text-[#C5A880] uppercase tracking-wider block">
+                  Quản lý hình ảnh trực quan (Tải từ máy tính):
+                </span>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Visual Image 1: Studio Shot */}
+                  <ImageUploadField
+                    label="Ảnh đại diện Studio (1:1)"
+                    subLabel="Hiển thị trên catalog & thẻ sản phẩm"
                     value={productForm.image}
-                    onChange={(e) => setProductForm({ ...productForm, image: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white font-mono focus:border-[#C5A880]"
+                    onChange={(url) => setProductForm({ ...productForm, image: url })}
+                    recommendedRatio="1:1 Vuông (1200x1200px)"
                   />
-                </div>
-                <div>
-                  <label className="block font-mono text-white/70 mb-1">Ảnh tách nền (Cutout PNG):</label>
-                  <input
-                    type="text"
+
+                  {/* Visual Image 2: Cutout PNG */}
+                  <ImageUploadField
+                    label="Ảnh tách nền (Cutout PNG)"
+                    subLabel="Dùng cho bản vẽ phối cảnh kiến trúc"
                     value={productForm.cutoutImage}
-                    onChange={(e) => setProductForm({ ...productForm, cutoutImage: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white font-mono focus:border-[#C5A880]"
+                    onChange={(url) => setProductForm({ ...productForm, cutoutImage: url })}
+                    recommendedRatio="PNG Trong suốt"
                   />
                 </div>
               </div>
 
-              {/* Row 8: Published toggle */}
-              <div className="flex items-center gap-2 pt-1">
+              {/* Published toggle */}
+              <div className="flex items-center gap-2 pt-2">
                 <input
                   type="checkbox"
                   id="prod-published"
                   checked={productForm.isPublished}
                   onChange={(e) => setProductForm({ ...productForm, isPublished: e.target.checked })}
-                  className="rounded border-white/20 text-[#C5A880] focus:ring-[#C5A880]"
+                  className="rounded border-white/20 text-[#C5A880] focus:ring-[#C5A880] cursor-pointer"
                 />
                 <label htmlFor="prod-published" className="font-mono text-white/80 cursor-pointer">
                   Kích hoạt hiển thị công khai trên website
@@ -1374,7 +1775,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
         </div>
       )}
 
-      {/* ── COLLECTION EDIT MODAL (BILINGUAL) ── */}
+      {/* ── COLLECTION EDIT MODAL WITH VISUAL IMAGE UPLOAD ── */}
       {editingCollection && (
         <div
           role="dialog"
@@ -1403,7 +1804,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                   <button
                     type="button"
                     onClick={() => setFormLangTab('vi')}
-                    className={`px-3 py-1 rounded-md transition-colors ${
+                    className={`px-3 py-1 rounded-md transition-colors cursor-pointer ${
                       formLangTab === 'vi' ? 'bg-[#C5A880] text-[#191919] font-bold' : 'text-white/60'
                     }`}
                   >
@@ -1412,7 +1813,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                   <button
                     type="button"
                     onClick={() => setFormLangTab('en')}
-                    className={`px-3 py-1 rounded-md transition-colors ${
+                    className={`px-3 py-1 rounded-md transition-colors cursor-pointer ${
                       formLangTab === 'en' ? 'bg-[#C5A880] text-[#191919] font-bold' : 'text-white/60'
                     }`}
                   >
@@ -1501,13 +1902,17 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                 />
               </div>
 
-              <div>
-                <label className="block font-mono text-white/70 mb-1">Đường dẫn ảnh tổng thể (Overview Board Image):</label>
-                <input
-                  type="text"
+              {/* Visual Collection Image Upload */}
+              <div className="pt-2 border-t border-white/10 space-y-2">
+                <span className="text-xs font-mono text-[#C5A880] uppercase tracking-wider block">
+                  Hình ảnh tổng thể bộ sưu tập (Moodboard):
+                </span>
+                <ImageUploadField
+                  label="Ảnh phối cảnh tổng thể (Overview Board)"
+                  subLabel="Ảnh ngang kích thước lớn"
                   value={collectionForm.overviewImage}
-                  onChange={(e) => setCollectionForm({ ...collectionForm, overviewImage: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white font-mono focus:border-[#C5A880]"
+                  onChange={(url) => setCollectionForm({ ...collectionForm, overviewImage: url })}
+                  recommendedRatio="16:10 hoặc 16:9"
                 />
               </div>
             </form>

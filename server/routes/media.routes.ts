@@ -10,7 +10,7 @@ const router = Router();
 router.post(
   '/upload',
   requireAdmin,
-  uploadProductImage.array('images', 5),
+  uploadProductImage.any(),
   (req: AuthenticatedRequest, res: Response): void => {
     const files = (req.files as Express.Multer.File[]) || [];
     if (files.length === 0) {
@@ -18,6 +18,7 @@ router.post(
       return;
     }
 
+    const first = files[0];
     const uploaded = files.map((f) => ({
       originalName: f.originalname,
       fileName: f.filename,
@@ -28,8 +29,14 @@ router.post(
 
     res.status(201).json({
       success: true,
-      data: uploaded,
-      message: `Đã tải lên thành công ${uploaded.length} hình ảnh`,
+      data: {
+        url: `/uploads/products/${first.filename}`,
+        fileName: first.filename,
+        originalName: first.originalname,
+        size: first.size,
+        allFiles: uploaded,
+      },
+      message: `Đã tải lên thành công ${files.length} hình ảnh`,
     });
   }
 );

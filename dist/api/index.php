@@ -517,6 +517,54 @@ if ($route === '/rfq' && $method === 'POST') {
     ]);
     exit;
 }
+// POST /media/upload (Admin Upload Image)
+if (($route === '/media/upload' || $route === '/media') && $method === 'POST') {
+    requireAuth();
+    $uploadProdDir = $baseDir . '/uploads/products';
+    if (!is_dir($uploadProdDir)) @mkdir($uploadProdDir, 0755, true);
+
+    $uploaded = [];
+    $fileSource = $_FILES['images'] ?? ($_FILES['image'] ?? ($_FILES['file'] ?? null));
+
+    if ($fileSource && !empty($fileSource['name'])) {
+        $fileCount = is_array($fileSource['name']) ? count($fileSource['name']) : 1;
+        for ($i = 0; $i < $fileCount; $i++) {
+            $origName = is_array($fileSource['name']) ? $fileSource['name'][$i] : $fileSource['name'];
+            $tmpPath = is_array($fileSource['tmp_name']) ? $fileSource['tmp_name'][$i] : $fileSource['tmp_name'];
+            $size = is_array($fileSource['size']) ? $fileSource['size'][$i] : $fileSource['size'];
+
+            if ($origName && is_uploaded_file($tmpPath)) {
+                $ext = strtolower(pathinfo($origName, PATHINFO_EXTENSION));
+                if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])) {
+                    $safeName = 'prod_' . time() . '_' . rand(100, 999) . '.' . $ext;
+                    $targetFile = $uploadProdDir . '/' . $safeName;
+                    if (move_uploaded_file($tmpPath, $targetFile)) {
+                        $uploaded[] = [
+                            'url' => '/uploads/products/' . $safeName,
+                            'fileName' => $safeName,
+                            'originalName' => $origName,
+                            'size' => $size,
+                        ];
+                    }
+                }
+            }
+        }
+    }
+
+    if (empty($uploaded)) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Chưa có tệp hình ảnh hợp lệ (.jpg, .jpeg, .png, .webp)']);
+        exit;
+    }
+
+    echo json_encode([
+        'success' => true,
+        'data' => $uploaded[0],
+        'allFiles' => $uploaded,
+        'message' => 'Tải lên hình ảnh thành công',
+    ]);
+    exit;
+}
 
 // GET /rfqs (Admin List)
 if ($route === '/rfqs' && $method === 'GET') {

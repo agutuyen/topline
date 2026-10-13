@@ -292,6 +292,30 @@ export async function adminCreateProduct(productData: Record<string, unknown>): 
   return await safeParseJson<ProductItem>(res, 'Không thể tạo sản phẩm mới');
 }
 
+export interface UploadMediaResult {
+  url: string;
+  fileName: string;
+  originalName?: string;
+  size?: number;
+}
+
+export async function uploadImageFile(file: File): Promise<UploadMediaResult> {
+  const formData = new FormData();
+  formData.append('image', file);
+  formData.append('file', file);
+  formData.append('images', file);
+
+  const res = await fetch(`${API_BASE}/media/upload`, {
+    method: 'POST',
+    headers: {
+      ...authHeaders(),
+    },
+    body: formData,
+  });
+
+  return await safeParseJson<UploadMediaResult>(res, 'Không thể tải ảnh lên máy chủ');
+}
+
 export async function adminUpdateProduct(id: string, productData: Record<string, unknown>): Promise<ProductItem> {
   const res = await fetch(`${API_BASE}/products/${id}`, {
     method: 'PUT',
