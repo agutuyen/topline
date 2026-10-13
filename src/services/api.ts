@@ -240,6 +240,41 @@ export async function adminCreateProduct(productData: Record<string, unknown>): 
   }
   return json.data;
 }
+export async function adminUpdateProduct(id: string, productData: Record<string, unknown>): Promise<ProductItem> {
+  const res = await fetch(`${API_BASE}/products/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(),
+    },
+    body: JSON.stringify(productData),
+  });
+  const json = (await res.json()) as { success: boolean; data?: ProductItem; error?: string };
+  if (!res.ok || !json.success || !json.data) {
+    throw new Error(json.error || 'Không thể cập nhật sản phẩm');
+  }
+  return json.data;
+}
+
+export async function adminGetCollections(): Promise<CollectionGroup[]> {
+  return fetchCollections();
+}
+
+export async function adminUpdateCollection(id: string, colData: Record<string, unknown>): Promise<CollectionGroup> {
+  const res = await fetch(`${API_BASE}/collections/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(),
+    },
+    body: JSON.stringify(colData),
+  });
+  const json = (await res.json()) as { success: boolean; data?: CollectionGroup; error?: string };
+  if (!res.ok || !json.success || !json.data) {
+    throw new Error(json.error || 'Không thể cập nhật bộ sưu tập');
+  }
+  return json.data;
+}
 export interface RfqRecord {
   id: string;
   trackingCode: string;

@@ -144,20 +144,46 @@ router.get('/:id', (req: Request, res: Response): void => {
 
 // POST /api/v1/products (Admin Only)
 router.post('/', requireAdmin, (req: AuthenticatedRequest, res: Response): void => {
-  const body = req.body;
+  const b = req.body;
 
-  if (!body.sku || !body.name_vi || !body.name_en || !body.collection_id) {
-    res.status(400).json({ success: false, error: 'Mã SKU, tên sản phẩm (VI & EN) và bộ sưu tập là bắt buộc' });
+  const sku = b.sku ? String(b.sku).trim() : '';
+  const nameVi = b.name?.vi ?? b.name_vi ?? '';
+  const nameEn = b.name?.en ?? b.name_en ?? '';
+  const colId = b.collectionId ?? b.collection_id ?? b.category ?? 'warm-wood';
+
+  if (!sku || !nameVi || !nameEn) {
+    res.status(400).json({ success: false, error: 'Mã SKU và Tên sản phẩm (VI & EN) là bắt buộc' });
     return;
   }
 
-  const id = body.id ? String(body.id).toLowerCase() : String(body.sku).toLowerCase().replace(/[^a-z0-9]/g, '-');
+  const id = b.id ? String(b.id).toLowerCase() : sku.toLowerCase().replace(/[^a-z0-9]/g, '-');
 
-  const existing = db.get<{ id: string }>('SELECT id FROM products WHERE id = ? OR sku = ?', [id, body.sku]);
+  const existing = db.get<{ id: string }>('SELECT id FROM products WHERE id = ? OR sku = ?', [id, sku]);
   if (existing) {
-    res.status(400).json({ success: false, error: `Sản phẩm với ID hoặc SKU ${body.sku} đã tồn tại` });
+    res.status(400).json({ success: false, error: `Sản phẩm với ID hoặc SKU ${sku} đã tồn tại` });
     return;
   }
+
+  const materialsVi = b.materials?.vi ?? b.materials_vi ?? 'Gỗ tự nhiên & đá cẩm thạch';
+  const materialsEn = b.materials?.en ?? b.materials_en ?? 'Solid hardwood & natural stone';
+  const finishVi = b.finish?.vi ?? b.finish_vi ?? 'Sơn PU mờ bảo vệ chống ẩm';
+  const finishEn = b.finish?.en ?? b.finish_en ?? 'Matte polyurethane finish';
+  const colorVi = b.color?.vi ?? b.color_vi ?? null;
+  const colorEn = b.color?.en ?? b.color_en ?? null;
+  const hardwareVi = b.hardware?.vi ?? b.hardware_vi ?? null;
+  const hardwareEn = b.hardware?.en ?? b.hardware_en ?? null;
+  const designStyleVi = b.designStyle?.vi ?? b.design_style_vi ?? null;
+  const designStyleEn = b.designStyle?.en ?? b.design_style_en ?? null;
+  const descVi = b.description?.vi ?? b.description_vi ?? nameVi;
+  const descEn = b.description?.en ?? b.description_en ?? nameEn;
+  const image = b.image || '/images/products/TL-WW-01_Credenza_Cabinet.png';
+  const cutoutImage = b.cutoutImage ?? b.cutout_image ?? null;
+  const collectionImage = b.collectionImage ?? b.collection_image ?? null;
+  const detailImage = b.detailImage ?? b.detail_image ?? null;
+  const dimensions = b.dimensions || 'Theo bản vẽ thiết kế';
+  const dimensionsCm = b.dimensionsCm ?? b.dimensions_cm ?? null;
+  const tagsStr = Array.isArray(b.tags) ? b.tags.join(', ') : b.tags || null;
+  const isPublished = b.isPublished !== undefined ? (b.isPublished ? 1 : 0) : b.is_published !== undefined ? (b.is_published ? 1 : 0) : 1;
 
   db.run(
     `INSERT INTO products (
@@ -175,34 +201,34 @@ router.post('/', requireAdmin, (req: AuthenticatedRequest, res: Response): void 
     )`,
     [
       id,
-      body.sku,
-      body.collection_id,
-      body.name_vi,
-      body.name_en,
-      body.category || body.collection_id,
-      body.category_label_vi || null,
-      body.category_label_en || null,
-      body.dimensions || 'Theo yêu cầu bản vẽ',
-      body.dimensions_cm || null,
-      body.materials_vi || 'Gỗ tự nhiên & đá cẩm thạch',
-      body.materials_en || 'Natural hardwood & stone',
-      body.finish_vi || 'Sơn PU mờ cao cấp',
-      body.finish_en || 'Matte polyurethane finish',
-      body.color_vi || null,
-      body.color_en || null,
-      body.hardware_vi || null,
-      body.hardware_en || null,
-      body.design_style_vi || null,
-      body.design_style_en || null,
-      body.description_vi || body.name_vi,
-      body.description_en || body.name_en,
-      body.image || '/images/products/placeholder.png',
-      body.cutout_image || null,
-      body.collection_image || null,
-      body.detail_image || null,
-      Array.isArray(body.tags) ? body.tags.join(', ') : body.tags || null,
-      body.seo_keywords || null,
-      body.is_published !== undefined ? (body.is_published ? 1 : 0) : 1,
+      sku,
+      colId,
+      nameVi,
+      nameEn,
+      colId,
+      b.categoryLabel?.vi ?? b.category_label_vi ?? colId,
+      b.categoryLabel?.en ?? b.category_label_en ?? colId,
+      dimensions,
+      dimensionsCm,
+      materialsVi,
+      materialsEn,
+      finishVi,
+      finishEn,
+      colorVi,
+      colorEn,
+      hardwareVi,
+      hardwareEn,
+      designStyleVi,
+      designStyleEn,
+      descVi,
+      descEn,
+      image,
+      cutoutImage,
+      collectionImage,
+      detailImage,
+      tagsStr,
+      b.seoKeywords ?? b.seo_keywords ?? null,
+      isPublished,
     ]
   );
 
@@ -210,10 +236,10 @@ router.post('/', requireAdmin, (req: AuthenticatedRequest, res: Response): void 
   res.status(201).json({ success: true, data: created ? formatProduct(created) : null });
 });
 
-// PUT /api/v1/products/:id (Admin Only)
+// PUT /api/v1/products/:id (Admin Only — Full Support for Nested & Flat Objects)
 router.put('/:id', requireAdmin, (req: AuthenticatedRequest, res: Response): void => {
   const { id } = req.params;
-  const body = req.body;
+  const b = req.body;
 
   const existing = db.get<ProductDbRow>('SELECT id FROM products WHERE id = ?', [id]);
   if (!existing) {
@@ -221,12 +247,51 @@ router.put('/:id', requireAdmin, (req: AuthenticatedRequest, res: Response): voi
     return;
   }
 
+  const sku = b.sku ?? null;
+  const colId = b.collectionId ?? b.collection_id ?? null;
+  const nameVi = b.name?.vi ?? b.name_vi ?? null;
+  const nameEn = b.name?.en ?? b.name_en ?? null;
+  const categoryLabelVi = b.categoryLabel?.vi ?? b.category_label_vi ?? null;
+  const categoryLabelEn = b.categoryLabel?.en ?? b.category_label_en ?? null;
+  const dimensions = b.dimensions ?? null;
+  const dimensionsCm = b.dimensionsCm ?? b.dimensions_cm ?? null;
+  const materialsVi = b.materials?.vi ?? b.materials_vi ?? null;
+  const materialsEn = b.materials?.en ?? b.materials_en ?? null;
+  const finishVi = b.finish?.vi ?? b.finish_vi ?? null;
+  const finishEn = b.finish?.en ?? b.finish_en ?? null;
+  const colorVi = b.color?.vi ?? b.color_vi ?? null;
+  const colorEn = b.color?.en ?? b.color_en ?? null;
+  const hardwareVi = b.hardware?.vi ?? b.hardware_vi ?? null;
+  const hardwareEn = b.hardware?.en ?? b.hardware_en ?? null;
+  const designStyleVi = b.designStyle?.vi ?? b.design_style_vi ?? null;
+  const designStyleEn = b.designStyle?.en ?? b.design_style_en ?? null;
+  const descVi = b.description?.vi ?? b.description_vi ?? null;
+  const descEn = b.description?.en ?? b.description_en ?? null;
+  const image = b.image ?? null;
+  const cutoutImage = b.cutoutImage ?? b.cutout_image ?? null;
+  const collectionImage = b.collectionImage ?? b.collection_image ?? null;
+  const detailImage = b.detailImage ?? b.detail_image ?? null;
+  const tagsStr = Array.isArray(b.tags) ? b.tags.join(', ') : b.tags ?? null;
+  const isPublished =
+    b.isPublished !== undefined
+      ? b.isPublished
+        ? 1
+        : 0
+      : b.is_published !== undefined
+      ? b.is_published
+        ? 1
+        : 0
+      : null;
+
   db.run(
     `UPDATE products SET
       sku = COALESCE(?, sku),
       collection_id = COALESCE(?, collection_id),
+      category = COALESCE(?, category),
       name_vi = COALESCE(?, name_vi),
       name_en = COALESCE(?, name_en),
+      category_label_vi = COALESCE(?, category_label_vi),
+      category_label_en = COALESCE(?, category_label_en),
       dimensions = COALESCE(?, dimensions),
       dimensions_cm = COALESCE(?, dimensions_cm),
       materials_vi = COALESCE(?, materials_vi),
@@ -250,30 +315,33 @@ router.put('/:id', requireAdmin, (req: AuthenticatedRequest, res: Response): voi
       updated_at = CURRENT_TIMESTAMP
     WHERE id = ?`,
     [
-      body.sku ?? null,
-      body.collection_id ?? null,
-      body.name_vi ?? null,
-      body.name_en ?? null,
-      body.dimensions ?? null,
-      body.dimensions_cm ?? null,
-      body.materials_vi ?? null,
-      body.materials_en ?? null,
-      body.finish_vi ?? null,
-      body.finish_en ?? null,
-      body.color_vi ?? null,
-      body.color_en ?? null,
-      body.hardware_vi ?? null,
-      body.hardware_en ?? null,
-      body.design_style_vi ?? null,
-      body.design_style_en ?? null,
-      body.description_vi ?? null,
-      body.description_en ?? null,
-      body.image ?? null,
-      body.cutout_image ?? null,
-      body.collection_image ?? null,
-      body.detail_image ?? null,
-      Array.isArray(body.tags) ? body.tags.join(', ') : body.tags ?? null,
-      body.is_published !== undefined ? (body.is_published ? 1 : 0) : null,
+      sku,
+      colId,
+      colId,
+      nameVi,
+      nameEn,
+      categoryLabelVi,
+      categoryLabelEn,
+      dimensions,
+      dimensionsCm,
+      materialsVi,
+      materialsEn,
+      finishVi,
+      finishEn,
+      colorVi,
+      colorEn,
+      hardwareVi,
+      hardwareEn,
+      designStyleVi,
+      designStyleEn,
+      descVi,
+      descEn,
+      image,
+      cutoutImage,
+      collectionImage,
+      detailImage,
+      tagsStr,
+      isPublished,
       id,
     ]
   );
@@ -298,10 +366,11 @@ router.delete('/:id', requireAdmin, (req: AuthenticatedRequest, res: Response): 
 // PATCH /api/v1/products/:id/status (Admin Only)
 router.patch('/:id/status', requireAdmin, (req: AuthenticatedRequest, res: Response): void => {
   const { id } = req.params;
-  const { is_published } = req.body;
+  const { is_published, isPublished } = req.body;
+  const status = isPublished !== undefined ? isPublished : is_published;
 
   const result = db.run('UPDATE products SET is_published = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [
-    is_published ? 1 : 0,
+    status ? 1 : 0,
     id,
   ]);
 

@@ -1,18 +1,22 @@
 import { useState, useEffect } from 'react';
 import {
   ArrowLeft,
+  Check,
+  Edit3,
   FileText,
+  Layers,
   LayoutDashboard,
   LogOut,
   Mail,
   Package,
   Plus,
   RefreshCw,
+  Save,
   Search,
   Trash2,
   X,
 } from 'lucide-react';
-import { Language, ProductItem } from '../../types';
+import { Language, ProductItem, CollectionGroup } from '../../types';
 import {
   adminLogin,
   adminGetStats,
@@ -20,8 +24,11 @@ import {
   adminUpdateRfqStatus,
   adminGetProducts,
   adminCreateProduct,
+  adminUpdateProduct,
   adminDeleteProduct,
   adminToggleProductStatus,
+  adminGetCollections,
+  adminUpdateCollection,
   adminGetContacts,
   adminUpdateContactStatus,
   getAuthToken,
@@ -37,9 +44,9 @@ interface AdminPortalProps {
   onClose: () => void;
 }
 
-type AdminTab = 'overview' | 'rfqs' | 'products' | 'contacts' | 'media';
+type AdminTab = 'overview' | 'rfqs' | 'products' | 'collections' | 'contacts';
 
-export default function AdminPortal({ isOpen, lang, onClose }: AdminPortalProps) {
+export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
 
@@ -56,10 +63,59 @@ export default function AdminPortal({ isOpen, lang, onClose }: AdminPortalProps)
   const [rfqFilterStatus, setRfqFilterStatus] = useState<string>('all');
   const [rfqSearch, setRfqSearch] = useState<string>('');
 
+  // Products State
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [productSearch, setProductSearch] = useState<string>('');
   const [productCatFilter, setProductCatFilter] = useState<string>('all');
+  const [editingProduct, setEditingProduct] = useState<ProductItem | null>(null);
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+
+  // Collections State
+  const [collections, setCollections] = useState<CollectionGroup[]>([]);
+  const [editingCollection, setEditingCollection] = useState<CollectionGroup | null>(null);
+
+  // Form Edit State for Products
+  const [productForm, setProductForm] = useState({
+    sku: '',
+    collectionId: 'warm-wood',
+    nameVi: '',
+    nameEn: '',
+    dimensions: '',
+    dimensionsCm: '',
+    materialsVi: '',
+    materialsEn: '',
+    finishVi: '',
+    finishEn: '',
+    colorVi: '',
+    colorEn: '',
+    hardwareVi: '',
+    hardwareEn: '',
+    designStyleVi: '',
+    designStyleEn: '',
+    descriptionVi: '',
+    descriptionEn: '',
+    image: '',
+    cutoutImage: '',
+    isPublished: true,
+  });
+
+  // Form Edit State for Collections
+  const [collectionForm, setCollectionForm] = useState({
+    number: '',
+    titleVi: '',
+    titleEn: '',
+    subtitleVi: '',
+    subtitleEn: '',
+    pieces: '',
+    materialsSummaryVi: '',
+    materialsSummaryEn: '',
+    overviewImage: '',
+    detailImage: '',
+  });
+
+  const [formLangTab, setFormLangTab] = useState<'vi' | 'en'>('vi');
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccessMessage, setSaveSuccessMessage] = useState('');
 
   const [contacts, setContacts] = useState<ContactRecord[]>([]);
   const [loading, setLoading] = useState(false);
@@ -90,16 +146,18 @@ export default function AdminPortal({ isOpen, lang, onClose }: AdminPortalProps)
   const loadDashboardData = async () => {
     setLoading(true);
     try {
-      const [statsData, rfqsData, prodsData, contactsData] = await Promise.all([
+      const [statsData, rfqsData, prodsData, contactsData, colsData] = await Promise.all([
         adminGetStats(),
         adminGetRfqs(),
         adminGetProducts(),
         adminGetContacts(),
+        adminGetCollections(),
       ]);
       setStats(statsData);
       setRfqs(rfqsData);
       setProducts(prodsData);
       setContacts(contactsData);
+      setCollections(colsData);
     } catch {
       // If unauthorized, reset login
       removeAuthToken();
@@ -161,6 +219,190 @@ export default function AdminPortal({ isOpen, lang, onClose }: AdminPortalProps)
       adminGetStats().then(setStats).catch(() => {});
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Xóa thất bại');
+    }
+  };
+
+  // Open Edit Product Modal
+  const openEditProduct = (p: ProductItem) => {
+    setEditingProduct(p);
+    setProductForm({
+      sku: p.sku,
+      collectionId: String(p.collectionId || p.category || 'warm-wood'),
+      nameVi: p.name.vi,
+      nameEn: p.name.en,
+      dimensions: p.dimensions,
+      dimensionsCm: p.dimensionsCm || '',
+      materialsVi: p.materials.vi,
+      materialsEn: p.materials.en,
+      finishVi: p.finish.vi,
+      finishEn: p.finish.en,
+      colorVi: p.color?.vi || '',
+      colorEn: p.color?.en || '',
+      hardwareVi: p.hardware?.vi || '',
+      hardwareEn: p.hardware?.en || '',
+      designStyleVi: p.designStyle?.vi || '',
+      designStyleEn: p.designStyle?.en || '',
+      descriptionVi: p.description.vi,
+      descriptionEn: p.description.en,
+      image: p.image,
+      cutoutImage: p.cutoutImage || '',
+      isPublished: p.isPublished !== false,
+    });
+    setFormLangTab('vi');
+    setSaveSuccessMessage('');
+  };
+
+  // Open Create Product Modal
+  const openCreateProduct = () => {
+    setIsAddProductOpen(true);
+    setProductForm({
+      sku: `TL-NEW-${Math.floor(10 + Math.random() * 90)}`,
+      collectionId: 'warm-wood',
+      nameVi: '',
+      nameEn: '',
+      dimensions: 'W1200 x D450 x H750 mm',
+      dimensionsCm: '120 x 45 x 75 cm',
+      materialsVi: 'Gỗ sồi tự nhiên & đá cẩm thạch',
+      materialsEn: 'Natural White Oak & Marble Top',
+      finishVi: 'Sơn PU mờ bảo vệ chống ẩm',
+      finishEn: 'Matte polyurethane finish',
+      colorVi: 'Nâu sồi tự nhiên',
+      colorEn: 'Natural Warm Oak',
+      hardwareVi: 'Phụ kiện kim khí đồng thau',
+      hardwareEn: 'Antique brass metal pulls',
+      designStyleVi: 'Modern Luxury',
+      designStyleEn: 'Contemporary Architectural',
+      descriptionVi: '',
+      descriptionEn: '',
+      image: '/images/products/TL-WW-01_Credenza_Cabinet.png',
+      cutoutImage: '/images/products/cutouts/TL-WW-01_Credenza_Cabinet.png',
+      isPublished: true,
+    });
+    setFormLangTab('vi');
+    setSaveSuccessMessage('');
+  };
+
+  // Save Product (Create or Update)
+  const handleSaveProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    setSaveSuccessMessage('');
+
+    const payload = {
+      sku: productForm.sku,
+      collectionId: productForm.collectionId,
+      collection_id: productForm.collectionId,
+      name: { vi: productForm.nameVi, en: productForm.nameEn },
+      name_vi: productForm.nameVi,
+      name_en: productForm.nameEn,
+      dimensions: productForm.dimensions,
+      dimensionsCm: productForm.dimensionsCm,
+      dimensions_cm: productForm.dimensionsCm,
+      materials: { vi: productForm.materialsVi, en: productForm.materialsEn },
+      materials_vi: productForm.materialsVi,
+      materials_en: productForm.materialsEn,
+      finish: { vi: productForm.finishVi, en: productForm.finishEn },
+      finish_vi: productForm.finishVi,
+      finish_en: productForm.finishEn,
+      color: { vi: productForm.colorVi, en: productForm.colorEn },
+      color_vi: productForm.colorVi,
+      color_en: productForm.colorEn,
+      hardware: { vi: productForm.hardwareVi, en: productForm.hardwareEn },
+      hardware_vi: productForm.hardwareVi,
+      hardware_en: productForm.hardwareEn,
+      designStyle: { vi: productForm.designStyleVi, en: productForm.designStyleEn },
+      design_style_vi: productForm.designStyleVi,
+      design_style_en: productForm.designStyleEn,
+      description: { vi: productForm.descriptionVi, en: productForm.descriptionEn },
+      description_vi: productForm.descriptionVi,
+      description_en: productForm.descriptionEn,
+      image: productForm.image,
+      cutoutImage: productForm.cutoutImage,
+      cutout_image: productForm.cutoutImage,
+      isPublished: productForm.isPublished,
+      is_published: productForm.isPublished ? 1 : 0,
+    };
+
+    try {
+      if (editingProduct) {
+        const updated = await adminUpdateProduct(editingProduct.id, payload);
+        setProducts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+        setSaveSuccessMessage('Đã cập nhật sản phẩm thành công!');
+        setTimeout(() => {
+          setEditingProduct(null);
+        }, 800);
+      } else if (isAddProductOpen) {
+        const created = await adminCreateProduct(payload);
+        setProducts((prev) => [created, ...prev]);
+        setSaveSuccessMessage('Đã tạo sản phẩm mới thành công!');
+        setTimeout(() => {
+          setIsAddProductOpen(false);
+        }, 800);
+      }
+      adminGetStats().then(setStats).catch(() => {});
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Lỗi khi lưu sản phẩm');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Open Edit Collection Modal
+  const openEditCollection = (c: CollectionGroup) => {
+    setEditingCollection(c);
+    setCollectionForm({
+      number: c.number,
+      titleVi: c.title.vi,
+      titleEn: c.title.en,
+      subtitleVi: c.subtitle.vi,
+      subtitleEn: c.subtitle.en,
+      pieces: c.pieces,
+      materialsSummaryVi: c.materialsSummary?.vi || '',
+      materialsSummaryEn: c.materialsSummary?.en || '',
+      overviewImage: c.overviewImage,
+      detailImage: c.detailImage || '',
+    });
+    setFormLangTab('vi');
+    setSaveSuccessMessage('');
+  };
+
+  // Save Collection
+  const handleSaveCollection = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCollection) return;
+    setIsSaving(true);
+    setSaveSuccessMessage('');
+
+    const payload = {
+      number: collectionForm.number,
+      title: { vi: collectionForm.titleVi, en: collectionForm.titleEn },
+      title_vi: collectionForm.titleVi,
+      title_en: collectionForm.titleEn,
+      subtitle: { vi: collectionForm.subtitleVi, en: collectionForm.subtitleEn },
+      subtitle_vi: collectionForm.subtitleVi,
+      subtitle_en: collectionForm.subtitleEn,
+      pieces: collectionForm.pieces,
+      pieces_summary: collectionForm.pieces,
+      materialsSummary: { vi: collectionForm.materialsSummaryVi, en: collectionForm.materialsSummaryEn },
+      materials_summary_vi: collectionForm.materialsSummaryVi,
+      materials_summary_en: collectionForm.materialsSummaryEn,
+      overviewImage: collectionForm.overviewImage,
+      overview_image: collectionForm.overviewImage,
+      detailImage: collectionForm.detailImage,
+      detail_image: collectionForm.detailImage,
+    };
+
+    try {
+      const updated = await adminUpdateCollection(editingCollection.id, payload);
+      setCollections((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
+      setSaveSuccessMessage('Đã cập nhật bộ sưu tập thành công!');
+      setTimeout(() => {
+        setEditingCollection(null);
+      }, 800);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Lỗi khi lưu bộ sưu tập');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -276,7 +518,7 @@ export default function AdminPortal({ isOpen, lang, onClose }: AdminPortalProps)
         /* Authenticated Admin Dashboard Layout */
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden bg-[#0F0E0D]">
           {/* Left Navigation Sidebar */}
-          <aside className="w-full md:w-60 bg-[#141312] border-r border-white/10 flex flex-col justify-between shrink-0">
+          <aside className="w-full md:w-64 bg-[#141312] border-r border-white/10 flex flex-col justify-between shrink-0">
             <div className="p-4 space-y-1">
               <button
                 onClick={() => setActiveTab('overview')}
@@ -321,6 +563,19 @@ export default function AdminPortal({ isOpen, lang, onClose }: AdminPortalProps)
                 <span>Sản Phẩm (29 SKU)</span>
               </button>
 
+              {/* NEW: Collections Tab */}
+              <button
+                onClick={() => setActiveTab('collections')}
+                className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
+                  activeTab === 'collections'
+                    ? 'bg-[#C5A880] text-[#191919] font-bold shadow-xs'
+                    : 'text-white/70 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <Layers className="w-4 h-4" />
+                <span>Bộ Sưu Tập (6 BST)</span>
+              </button>
+
               <button
                 onClick={() => setActiveTab('contacts')}
                 className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
@@ -348,13 +603,15 @@ export default function AdminPortal({ isOpen, lang, onClose }: AdminPortalProps)
                 <h1 className="font-serif text-2xl sm:text-3xl font-normal text-white">
                   {activeTab === 'overview' && 'Bảng Điều Khiển Tổng Quan'}
                   {activeTab === 'rfqs' && 'Quản Lý Hồ Sơ Báo Giá Dự Án (RFQ)'}
-                  {activeTab === 'products' && 'Danh Mục 29 Sản Phẩm May Đo'}
+                  {activeTab === 'products' && 'Quản Lý & Chỉnh Sửa 29 Sản Phẩm'}
+                  {activeTab === 'collections' && 'Quản Lý 6 Bộ Sưu Tập Thiết Kế'}
                   {activeTab === 'contacts' && 'Hộp Thư Liên Hệ Khách Hàng'}
                 </h1>
                 <span className="text-xs text-white/50 font-light">
                   {activeTab === 'overview' && 'Theo dõi tiến độ báo giá, năng lực sản xuất và thông báo'}
                   {activeTab === 'rfqs' && 'Rà soát bản vẽ kỹ thuật CAD/DWG/BOQ và phân loại trạng thái'}
-                  {activeTab === 'products' && 'Cập nhật thông số song ngữ, quy cách mm & hình ảnh'}
+                  {activeTab === 'products' && 'Chỉnh sửa thông số song ngữ, quy cách mm, vật liệu & hình ảnh'}
+                  {activeTab === 'collections' && 'Chỉnh sửa thông điệp thiết kế, hình ảnh tổng thể và vật liệu đại diện'}
                   {activeTab === 'contacts' && 'Tin nhắn trao đổi trực tiếp từ khách hàng'}
                 </span>
               </div>
@@ -371,8 +628,8 @@ export default function AdminPortal({ isOpen, lang, onClose }: AdminPortalProps)
 
                 {activeTab === 'products' && (
                   <button
-                    onClick={() => setIsAddProductOpen(true)}
-                    className="px-4 py-2 rounded-xl bg-[#C5A880] text-[#191919] text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+                    onClick={openCreateProduct}
+                    className="px-4 py-2 rounded-xl bg-[#C5A880] text-[#191919] text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm hover:bg-white"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Thêm Sản Phẩm Mới</span>
@@ -403,7 +660,7 @@ export default function AdminPortal({ isOpen, lang, onClose }: AdminPortalProps)
                   <div className="p-5 rounded-2xl bg-[#181615] border border-white/10 space-y-1">
                     <span className="text-[11px] font-mono text-white/50 uppercase">Bộ Sưu Tập Chính Thức</span>
                     <div className="font-serif text-3xl font-medium text-[#C5A880]">6</div>
-                    <span className="text-[11px] text-white/50 font-mono block">Warm Wood, Black, Stanley...</span>
+                    <span className="text-[11px] text-white/50 font-mono block">Cho phép chỉnh sửa</span>
                   </div>
 
                   <div className="p-5 rounded-2xl bg-[#181615] border border-white/10 space-y-1">
@@ -419,7 +676,7 @@ export default function AdminPortal({ isOpen, lang, onClose }: AdminPortalProps)
                     <h3 className="font-serif text-lg font-normal text-white">Yêu Cầu Báo Giá Gần Đây</h3>
                     <button
                       onClick={() => setActiveTab('rfqs')}
-                      className="text-xs font-mono text-[#C5A880] hover:underline"
+                      className="text-xs font-mono text-[#C5A880] hover:underline cursor-pointer"
                     >
                       Xem tất cả →
                     </button>
@@ -587,7 +844,7 @@ export default function AdminPortal({ isOpen, lang, onClose }: AdminPortalProps)
               </div>
             )}
 
-            {/* TAB 3: PRODUCTS MANAGEMENT */}
+            {/* TAB 3: PRODUCTS MANAGEMENT (WITH EDIT & CREATE ACTIONS) */}
             {activeTab === 'products' && (
               <div className="space-y-4">
                 {/* Search & Category Filter */}
@@ -628,7 +885,7 @@ export default function AdminPortal({ isOpen, lang, onClose }: AdminPortalProps)
                   </div>
                 </div>
 
-                {/* Products Table */}
+                {/* Products Table with Edit Buttons */}
                 <div className="rounded-2xl bg-[#181615] border border-white/10 overflow-hidden">
                   <table className="w-full text-left text-xs">
                     <thead>
@@ -679,9 +936,20 @@ export default function AdminPortal({ isOpen, lang, onClose }: AdminPortalProps)
                               </button>
                             </td>
                             <td className="p-4 text-right space-x-2">
+                              {/* EDIT PRODUCT BUTTON */}
+                              <button
+                                onClick={() => openEditProduct(p)}
+                                className="px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-[#C5A880] hover:text-[#191919] font-mono text-xs transition-colors cursor-pointer inline-flex items-center gap-1"
+                                title="Chỉnh sửa chi tiết sản phẩm"
+                              >
+                                <Edit3 className="w-3.5 h-3.5" />
+                                <span>Sửa</span>
+                              </button>
+
+                              {/* DELETE PRODUCT BUTTON */}
                               <button
                                 onClick={() => handleDeleteProduct(p.id, p.sku)}
-                                className="p-1.5 rounded bg-red-900/30 hover:bg-red-800 text-red-300 transition-colors cursor-pointer"
+                                className="p-1.5 rounded bg-red-900/30 hover:bg-red-800 text-red-300 transition-colors cursor-pointer inline-flex items-center"
                                 title="Xóa"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -695,7 +963,66 @@ export default function AdminPortal({ isOpen, lang, onClose }: AdminPortalProps)
               </div>
             )}
 
-            {/* TAB 4: CONTACTS */}
+            {/* TAB 4: COLLECTIONS MANAGEMENT (WITH EDIT ACTION) */}
+            {activeTab === 'collections' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {collections.map((col) => (
+                    <div
+                      key={col.id}
+                      className="p-6 rounded-3xl bg-[#181615] border border-white/10 flex flex-col justify-between space-y-4"
+                    >
+                      <div>
+                        {/* Top Badge & Number */}
+                        <div className="flex items-center justify-between pb-3 border-b border-white/10 text-xs font-mono">
+                          <span className="text-[#C5A880] font-bold">COLLECTION {col.number}</span>
+                          <span className="text-white/40">ID: {col.id}</span>
+                        </div>
+
+                        {/* Image & Titles */}
+                        <div className="mt-4 flex gap-4">
+                          <div className="w-28 h-20 rounded-xl overflow-hidden bg-white/5 shrink-0 border border-white/10">
+                            <img
+                              src={col.overviewImage}
+                              alt={col.title.vi}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div>
+                            <h3 className="font-serif text-lg font-normal text-white">
+                              {col.title.vi}
+                            </h3>
+                            <h4 className="font-serif text-xs italic text-white/50">
+                              {col.title.en}
+                            </h4>
+                            <p className="mt-2 text-xs text-white/70 line-clamp-2 font-light">
+                              {col.subtitle.vi}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Pieces Summary */}
+                        <div className="mt-4 p-3 rounded-xl bg-black/40 border border-white/10 text-[11px] font-mono text-white/70">
+                          <span className="text-white/40 block text-[9px] uppercase">Hạng mục chính:</span>
+                          <span className="text-[#C5A880]">{col.pieces}</span>
+                        </div>
+                      </div>
+
+                      {/* Edit Collection Button */}
+                      <button
+                        onClick={() => openEditCollection(col)}
+                        className="w-full py-2.5 px-4 rounded-xl bg-white/10 hover:bg-[#C5A880] hover:text-[#191919] text-white text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-2"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                        <span>Chỉnh Sửa Bộ Sưu Tập</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 5: CONTACTS */}
             {activeTab === 'contacts' && (
               <div className="rounded-2xl bg-[#181615] border border-white/10 overflow-hidden">
                 <table className="w-full text-left text-xs">
@@ -744,7 +1071,472 @@ export default function AdminPortal({ isOpen, lang, onClose }: AdminPortalProps)
         </div>
       )}
 
-      {/* RFQ DETAIL INSPECTION MODAL */}
+      {/* ── PRODUCT EDIT / CREATE MODAL (BILINGUAL FORM) ── */}
+      {(editingProduct || isAddProductOpen) && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-[130] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
+          onClick={() => {
+            setEditingProduct(null);
+            setIsAddProductOpen(false);
+          }}
+        >
+          <div
+            data-lenis-prevent
+            className="w-full max-w-3xl bg-[#181615] rounded-3xl border border-white/20 p-6 sm:p-8 space-y-5 text-white max-h-[92vh] flex flex-col justify-between overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-white/10 shrink-0">
+              <div>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-[#C5A880]">
+                  {editingProduct ? `CHỈNH SỬA SẢN PHẨM: ${editingProduct.sku}` : 'THÊM MỚI SẢN PHẨM MAY ĐO'}
+                </span>
+                <h3 className="font-serif text-2xl font-normal text-white">
+                  {editingProduct ? productForm.nameVi || productForm.sku : 'Thông Số Sản Phẩm Mới'}
+                </h3>
+              </div>
+
+              <div className="flex items-center gap-3">
+                {/* Language Tab Switcher inside Form */}
+                <div className="flex rounded-lg bg-black/50 p-1 border border-white/15 text-xs font-mono">
+                  <button
+                    type="button"
+                    onClick={() => setFormLangTab('vi')}
+                    className={`px-3 py-1 rounded-md transition-colors ${
+                      formLangTab === 'vi' ? 'bg-[#C5A880] text-[#191919] font-bold' : 'text-white/60'
+                    }`}
+                  >
+                    Tiếng Việt
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormLangTab('en')}
+                    className={`px-3 py-1 rounded-md transition-colors ${
+                      formLangTab === 'en' ? 'bg-[#C5A880] text-[#191919] font-bold' : 'text-white/60'
+                    }`}
+                  >
+                    English
+                  </button>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setEditingProduct(null);
+                    setIsAddProductOpen(false);
+                  }}
+                  className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20 cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {saveSuccessMessage && (
+              <div className="p-3 rounded-xl bg-emerald-900/40 border border-emerald-500/40 text-emerald-300 text-xs text-center font-mono">
+                ✓ {saveSuccessMessage}
+              </div>
+            )}
+
+            {/* Scrollable Form Body */}
+            <form
+              id="product-edit-form"
+              onSubmit={handleSaveProduct}
+              className="flex-1 overflow-y-auto overscroll-contain space-y-4 pr-1 text-xs"
+            >
+              {/* Row 1: SKU & Collection */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-mono text-white/70 mb-1">Mã SKU *:</label>
+                  <input
+                    type="text"
+                    required
+                    value={productForm.sku}
+                    onChange={(e) => setProductForm({ ...productForm, sku: e.target.value })}
+                    className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white font-mono focus:border-[#C5A880]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-mono text-white/70 mb-1">Thuộc Bộ Sưu Tập *:</label>
+                  <select
+                    value={productForm.collectionId}
+                    onChange={(e) => setProductForm({ ...productForm, collectionId: e.target.value })}
+                    className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white font-mono focus:border-[#C5A880]"
+                  >
+                    <option value="warm-wood">01. Warm Wood + Dark Stone</option>
+                    <option value="black-contemporary">02. Black Contemporary</option>
+                    <option value="sculptural">03. Sculptural Stone + Wood</option>
+                    <option value="dining-accent">04. Dining & Accent Collection</option>
+                    <option value="marlow-oak">05. Stanley Marlow Oak</option>
+                    <option value="burl-oak">06. Stanley Burl Oak Dark</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Row 2: Product Name (VI or EN based on tab) */}
+              {formLangTab === 'vi' ? (
+                <div>
+                  <label className="block font-mono text-white/70 mb-1">Tên sản phẩm (Tiếng Việt) *:</label>
+                  <input
+                    type="text"
+                    required
+                    value={productForm.nameVi}
+                    onChange={(e) => setProductForm({ ...productForm, nameVi: e.target.value })}
+                    className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white focus:border-[#C5A880]"
+                  />
+                </div>
+              ) : (
+                <div>
+                  <label className="block font-mono text-white/70 mb-1">Product Name (English) *:</label>
+                  <input
+                    type="text"
+                    required
+                    value={productForm.nameEn}
+                    onChange={(e) => setProductForm({ ...productForm, nameEn: e.target.value })}
+                    className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white focus:border-[#C5A880]"
+                  />
+                </div>
+              )}
+
+              {/* Row 3: Dimensions */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-mono text-white/70 mb-1">Kích thước (mm) *:</label>
+                  <input
+                    type="text"
+                    required
+                    value={productForm.dimensions}
+                    onChange={(e) => setProductForm({ ...productForm, dimensions: e.target.value })}
+                    placeholder="W1200 x D450 x H750 mm"
+                    className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white font-mono focus:border-[#C5A880]"
+                  />
+                </div>
+                <div>
+                  <label className="block font-mono text-white/70 mb-1">Quy cách (cm):</label>
+                  <input
+                    type="text"
+                    value={productForm.dimensionsCm}
+                    onChange={(e) => setProductForm({ ...productForm, dimensionsCm: e.target.value })}
+                    placeholder="120 x 45 x 75 cm"
+                    className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white font-mono focus:border-[#C5A880]"
+                  />
+                </div>
+              </div>
+
+              {/* Row 4: Materials & Finish (Bilingual tab) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-mono text-white/70 mb-1">
+                    {formLangTab === 'vi' ? 'Vật liệu chính (VI):' : 'Primary Materials (EN):'}
+                  </label>
+                  <input
+                    type="text"
+                    value={formLangTab === 'vi' ? productForm.materialsVi : productForm.materialsEn}
+                    onChange={(e) =>
+                      formLangTab === 'vi'
+                        ? setProductForm({ ...productForm, materialsVi: e.target.value })
+                        : setProductForm({ ...productForm, materialsEn: e.target.value })
+                    }
+                    className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white focus:border-[#C5A880]"
+                  />
+                </div>
+                <div>
+                  <label className="block font-mono text-white/70 mb-1">
+                    {formLangTab === 'vi' ? 'Hoàn thiện bề mặt (VI):' : 'Surface Finish (EN):'}
+                  </label>
+                  <input
+                    type="text"
+                    value={formLangTab === 'vi' ? productForm.finishVi : productForm.finishEn}
+                    onChange={(e) =>
+                      formLangTab === 'vi'
+                        ? setProductForm({ ...productForm, finishVi: e.target.value })
+                        : setProductForm({ ...productForm, finishEn: e.target.value })
+                    }
+                    className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white focus:border-[#C5A880]"
+                  />
+                </div>
+              </div>
+
+              {/* Row 5: Hardware & Color */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-mono text-white/70 mb-1">
+                    {formLangTab === 'vi' ? 'Phụ kiện kim khí (VI):' : 'Hardware (EN):'}
+                  </label>
+                  <input
+                    type="text"
+                    value={formLangTab === 'vi' ? productForm.hardwareVi : productForm.hardwareEn}
+                    onChange={(e) =>
+                      formLangTab === 'vi'
+                        ? setProductForm({ ...productForm, hardwareVi: e.target.value })
+                        : setProductForm({ ...productForm, hardwareEn: e.target.value })
+                    }
+                    className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white focus:border-[#C5A880]"
+                  />
+                </div>
+                <div>
+                  <label className="block font-mono text-white/70 mb-1">
+                    {formLangTab === 'vi' ? 'Bảng màu (VI):' : 'Color Palette (EN):'}
+                  </label>
+                  <input
+                    type="text"
+                    value={formLangTab === 'vi' ? productForm.colorVi : productForm.colorEn}
+                    onChange={(e) =>
+                      formLangTab === 'vi'
+                        ? setProductForm({ ...productForm, colorVi: e.target.value })
+                        : setProductForm({ ...productForm, colorEn: e.target.value })
+                    }
+                    className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white focus:border-[#C5A880]"
+                  />
+                </div>
+              </div>
+
+              {/* Row 6: Description */}
+              <div>
+                <label className="block font-mono text-white/70 mb-1">
+                  {formLangTab === 'vi' ? 'Mô tả công năng & thiết kế (VI):' : 'Description & Narrative (EN):'}
+                </label>
+                <textarea
+                  rows={3}
+                  value={formLangTab === 'vi' ? productForm.descriptionVi : productForm.descriptionEn}
+                  onChange={(e) =>
+                    formLangTab === 'vi'
+                      ? setProductForm({ ...productForm, descriptionVi: e.target.value })
+                      : setProductForm({ ...productForm, descriptionEn: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white focus:border-[#C5A880]"
+                />
+              </div>
+
+              {/* Row 7: Images */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-mono text-white/70 mb-1">Đường dẫn ảnh chính (1:1):</label>
+                  <input
+                    type="text"
+                    value={productForm.image}
+                    onChange={(e) => setProductForm({ ...productForm, image: e.target.value })}
+                    className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white font-mono focus:border-[#C5A880]"
+                  />
+                </div>
+                <div>
+                  <label className="block font-mono text-white/70 mb-1">Ảnh tách nền (Cutout PNG):</label>
+                  <input
+                    type="text"
+                    value={productForm.cutoutImage}
+                    onChange={(e) => setProductForm({ ...productForm, cutoutImage: e.target.value })}
+                    className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white font-mono focus:border-[#C5A880]"
+                  />
+                </div>
+              </div>
+
+              {/* Row 8: Published toggle */}
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="prod-published"
+                  checked={productForm.isPublished}
+                  onChange={(e) => setProductForm({ ...productForm, isPublished: e.target.checked })}
+                  className="rounded border-white/20 text-[#C5A880] focus:ring-[#C5A880]"
+                />
+                <label htmlFor="prod-published" className="font-mono text-white/80 cursor-pointer">
+                  Kích hoạt hiển thị công khai trên website
+                </label>
+              </div>
+            </form>
+
+            {/* Pinned Modal Footer */}
+            <div className="pt-4 border-t border-white/10 flex items-center justify-between shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingProduct(null);
+                  setIsAddProductOpen(false);
+                }}
+                className="px-4 py-2 rounded-xl border border-white/20 text-white/70 hover:bg-white/10 text-xs font-mono transition-colors cursor-pointer"
+              >
+                Hủy bỏ
+              </button>
+
+              <button
+                type="submit"
+                form="product-edit-form"
+                disabled={isSaving}
+                className="px-6 py-2.5 rounded-xl bg-[#C5A880] hover:bg-white text-[#191919] text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer flex items-center gap-2 shadow-md disabled:opacity-50"
+              >
+                <Save className="w-4 h-4" />
+                <span>{isSaving ? 'Đang lưu...' : 'Lưu Thay Đổi CSDL'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── COLLECTION EDIT MODAL (BILINGUAL) ── */}
+      {editingCollection && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-[130] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
+          onClick={() => setEditingCollection(null)}
+        >
+          <div
+            data-lenis-prevent
+            className="w-full max-w-2xl bg-[#181615] rounded-3xl border border-white/20 p-6 sm:p-8 space-y-5 text-white max-h-[92vh] flex flex-col justify-between overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-white/10 shrink-0">
+              <div>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-[#C5A880]">
+                  CHỈNH SỬA BỘ SƯU TẬP {collectionForm.number}
+                </span>
+                <h3 className="font-serif text-2xl font-normal text-white">
+                  {collectionForm.titleVi}
+                </h3>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="flex rounded-lg bg-black/50 p-1 border border-white/15 text-xs font-mono">
+                  <button
+                    type="button"
+                    onClick={() => setFormLangTab('vi')}
+                    className={`px-3 py-1 rounded-md transition-colors ${
+                      formLangTab === 'vi' ? 'bg-[#C5A880] text-[#191919] font-bold' : 'text-white/60'
+                    }`}
+                  >
+                    Tiếng Việt
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormLangTab('en')}
+                    className={`px-3 py-1 rounded-md transition-colors ${
+                      formLangTab === 'en' ? 'bg-[#C5A880] text-[#191919] font-bold' : 'text-white/60'
+                    }`}
+                  >
+                    English
+                  </button>
+                </div>
+
+                <button
+                  onClick={() => setEditingCollection(null)}
+                  className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20 cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {saveSuccessMessage && (
+              <div className="p-3 rounded-xl bg-emerald-900/40 border border-emerald-500/40 text-emerald-300 text-xs text-center font-mono">
+                ✓ {saveSuccessMessage}
+              </div>
+            )}
+
+            {/* Scrollable Form Body */}
+            <form
+              id="col-edit-form"
+              onSubmit={handleSaveCollection}
+              className="flex-1 overflow-y-auto overscroll-contain space-y-4 pr-1 text-xs"
+            >
+              <div>
+                <label className="block font-mono text-white/70 mb-1">
+                  {formLangTab === 'vi' ? 'Tên bộ sưu tập (Tiếng Việt) *:' : 'Collection Title (English) *:'}
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formLangTab === 'vi' ? collectionForm.titleVi : collectionForm.titleEn}
+                  onChange={(e) =>
+                    formLangTab === 'vi'
+                      ? setCollectionForm({ ...collectionForm, titleVi: e.target.value })
+                      : setCollectionForm({ ...collectionForm, titleEn: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white focus:border-[#C5A880]"
+                />
+              </div>
+
+              <div>
+                <label className="block font-mono text-white/70 mb-1">
+                  {formLangTab === 'vi' ? 'Mô tả triết lý & phong cách (Tiếng Việt):' : 'Design Philosophy & Subtitle (English):'}
+                </label>
+                <textarea
+                  rows={3}
+                  value={formLangTab === 'vi' ? collectionForm.subtitleVi : collectionForm.subtitleEn}
+                  onChange={(e) =>
+                    formLangTab === 'vi'
+                      ? setCollectionForm({ ...collectionForm, subtitleVi: e.target.value })
+                      : setCollectionForm({ ...collectionForm, subtitleEn: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white focus:border-[#C5A880]"
+                />
+              </div>
+
+              <div>
+                <label className="block font-mono text-white/70 mb-1">Tóm tắt các hạng mục trong bộ (Pieces Summary):</label>
+                <input
+                  type="text"
+                  value={collectionForm.pieces}
+                  onChange={(e) => setCollectionForm({ ...collectionForm, pieces: e.target.value })}
+                  placeholder="CREDENZA | DRESSER | NIGHTSTAND..."
+                  className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white font-mono focus:border-[#C5A880]"
+                />
+              </div>
+
+              <div>
+                <label className="block font-mono text-white/70 mb-1">
+                  {formLangTab === 'vi' ? 'Tóm tắt vật liệu đặc trưng (VI):' : 'Key Materials Summary (EN):'}
+                </label>
+                <input
+                  type="text"
+                  value={formLangTab === 'vi' ? collectionForm.materialsSummaryVi : collectionForm.materialsSummaryEn}
+                  onChange={(e) =>
+                    formLangTab === 'vi'
+                      ? setCollectionForm({ ...collectionForm, materialsSummaryVi: e.target.value })
+                      : setCollectionForm({ ...collectionForm, materialsSummaryEn: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white focus:border-[#C5A880]"
+                />
+              </div>
+
+              <div>
+                <label className="block font-mono text-white/70 mb-1">Đường dẫn ảnh tổng thể (Overview Board Image):</label>
+                <input
+                  type="text"
+                  value={collectionForm.overviewImage}
+                  onChange={(e) => setCollectionForm({ ...collectionForm, overviewImage: e.target.value })}
+                  className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white font-mono focus:border-[#C5A880]"
+                />
+              </div>
+            </form>
+
+            {/* Pinned Modal Footer */}
+            <div className="pt-4 border-t border-white/10 flex items-center justify-between shrink-0">
+              <button
+                type="button"
+                onClick={() => setEditingCollection(null)}
+                className="px-4 py-2 rounded-xl border border-white/20 text-white/70 hover:bg-white/10 text-xs font-mono transition-colors cursor-pointer"
+              >
+                Hủy bỏ
+              </button>
+
+              <button
+                type="submit"
+                form="col-edit-form"
+                disabled={isSaving}
+                className="px-6 py-2.5 rounded-xl bg-[#C5A880] hover:bg-white text-[#191919] text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer flex items-center gap-2 shadow-md disabled:opacity-50"
+              >
+                <Save className="w-4 h-4" />
+                <span>{isSaving ? 'Đang lưu...' : 'Lưu Thay Đổi BST'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── RFQ DETAIL INSPECTION MODAL ── */}
       {selectedRfq && (
         <div
           role="dialog"
@@ -753,6 +1545,7 @@ export default function AdminPortal({ isOpen, lang, onClose }: AdminPortalProps)
           onClick={() => setSelectedRfq(null)}
         >
           <div
+            data-lenis-prevent
             className="w-full max-w-2xl bg-[#181615] rounded-3xl border border-white/20 p-6 sm:p-8 space-y-5 text-white max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >

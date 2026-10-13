@@ -37,7 +37,7 @@ function formatCollection(row: CollectionDbRow) {
   };
 }
 
-// GET /api/v1/collections
+// GET /api/v1/collections (Public)
 router.get('/', (_req: Request, res: Response): void => {
   const rows = db.all<CollectionDbRow>('SELECT * FROM collections WHERE is_active = 1 ORDER BY sort_order ASC');
   res.json({
@@ -49,7 +49,17 @@ router.get('/', (_req: Request, res: Response): void => {
 // PUT /api/v1/collections/:id (Admin only)
 router.put('/:id', requireAdmin, (req: AuthenticatedRequest, res: Response): void => {
   const { id } = req.params;
-  const body = req.body;
+  const b = req.body;
+
+  const titleVi = b.title?.vi ?? b.title_vi ?? null;
+  const titleEn = b.title?.en ?? b.title_en ?? null;
+  const subtitleVi = b.subtitle?.vi ?? b.subtitle_vi ?? null;
+  const subtitleEn = b.subtitle?.en ?? b.subtitle_en ?? null;
+  const pieces = b.pieces ?? b.pieces_summary ?? null;
+  const overviewImage = b.overviewImage ?? b.overview_image ?? null;
+  const detailImage = b.detailImage ?? b.detail_image ?? null;
+  const materialsSummaryVi = b.materialsSummary?.vi ?? b.materials_summary_vi ?? null;
+  const materialsSummaryEn = b.materialsSummary?.en ?? b.materials_summary_en ?? null;
 
   const result = db.run(
     `UPDATE collections SET
@@ -64,15 +74,15 @@ router.put('/:id', requireAdmin, (req: AuthenticatedRequest, res: Response): voi
       materials_summary_en = COALESCE(?, materials_summary_en)
     WHERE id = ?`,
     [
-      body.title_vi ?? null,
-      body.title_en ?? null,
-      body.subtitle_vi ?? null,
-      body.subtitle_en ?? null,
-      body.pieces ?? null,
-      body.overview_image ?? null,
-      body.detail_image ?? null,
-      body.materials_summary_vi ?? null,
-      body.materials_summary_en ?? null,
+      titleVi,
+      titleEn,
+      subtitleVi,
+      subtitleEn,
+      pieces,
+      overviewImage,
+      detailImage,
+      materialsSummaryVi,
+      materialsSummaryEn,
       id,
     ]
   );
