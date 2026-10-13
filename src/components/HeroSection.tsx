@@ -41,7 +41,7 @@ export default function HeroSection({
       : ['Hotels & Resorts', 'Architectural Millwork', 'Premium Retail'];
 
   return (
-    <section className="relative min-h-screen flex flex-col overflow-hidden text-white">
+    <section id="hero" className="relative min-h-screen flex flex-col overflow-hidden text-white">
       {/* Brighter video background with reduced overlay */}
       <AmbientVideoBackground overlayOpacity={0.55} />
 
