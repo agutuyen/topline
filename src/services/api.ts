@@ -1,5 +1,5 @@
-import { ProductItem, CollectionGroup } from '../types';
-import { PRODUCTS_CATALOG, COLLECTIONS_OVERVIEW } from '../data/content';
+import { ProductItem, CollectionGroup, ProjectItem } from '../types';
+import { PRODUCTS_CATALOG, COLLECTIONS_OVERVIEW, MILLWORK_PROJECTS } from '../data/content';
 
 const API_BASE = '/api/v1';
 
@@ -214,6 +214,21 @@ export async function adminLogin(
     throw err;
   }
 }
+export async function adminChangePassword(
+  currentPassword: string,
+  newPassword: string
+): Promise<{ message: string }> {
+  const res = await fetch(`${API_BASE}/auth/change-password`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(),
+    },
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+
+  return await safeParseJson<{ message: string }>(res, 'Đổi mật khẩu không thành công');
+}
 
 export async function adminGetMe(): Promise<AdminUser> {
   try {
@@ -342,6 +357,34 @@ export async function adminUpdateCollection(id: string, colData: Record<string, 
     body: JSON.stringify(colData),
   });
   return await safeParseJson<CollectionGroup>(res, 'Không thể cập nhật bộ sưu tập');
+}
+export async function fetchMillworkProjects(): Promise<ProjectItem[]> {
+  try {
+    const res = await fetch(`${API_BASE}/millwork`);
+    return await safeParseJson<ProjectItem[]>(res, 'Không thể tải danh sách dự án');
+  } catch {
+    return MILLWORK_PROJECTS;
+  }
+}
+
+export async function adminGetMillworkProjects(): Promise<ProjectItem[]> {
+  return fetchMillworkProjects();
+}
+
+export async function adminUpdateMillworkProject(
+  id: string,
+  payload: Record<string, unknown>
+): Promise<ProjectItem> {
+  const res = await fetch(`${API_BASE}/millwork/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(),
+    },
+    body: JSON.stringify(payload),
+  });
+
+  return await safeParseJson<ProjectItem>(res, 'Không thể cập nhật dự án mộc kiến trúc');
 }
 
 export interface RfqRecord {

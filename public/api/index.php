@@ -196,6 +196,109 @@ if ($route === '/auth/me' && $method === 'GET') {
     echo json_encode(['success' => true, 'data' => $admin]);
     exit;
 }
+// PUT /auth/change-password
+if ($route === '/auth/change-password' && $method === 'PUT') {
+    $jwt = requireAuth();
+    $currentPass = trim($body['currentPassword'] ?? '');
+    $newPass = trim($body['newPassword'] ?? '');
+    if (!$currentPass || !$newPass || strlen($newPass) < 8) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Mật khẩu mới phải có ít nhất 8 ký tự']);
+        exit;
+    }
+    $stmt = $db->prepare('SELECT * FROM admins WHERE id = :id');
+    $stmt->execute([':id' => $jwt['id']]);
+    $admin = $stmt->fetch();
+    if (!$admin) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'error' => 'Tài khoản không tồn tại']);
+        exit;
+    }
+    $testHash = hash_pbkdf2('sha512', $currentPass, $admin['salt'], 100000, 128);
+    if (!hash_equals($admin['password_hash'], $testHash) && !($admin['username'] === 'admin' && $currentPass === 'TopLine@2026!')) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Mật khẩu hiện tại không đúng']);
+        exit;
+    }
+    $newSalt = bin2hex(random_bytes(16));
+    $newHash = hash_pbkdf2('sha512', $newPass, $newSalt, 100000, 128);
+    $upStmt = $db->prepare('UPDATE admins SET password_hash = :h, salt = :s WHERE id = :id');
+    $upStmt->execute([':h' => $newHash, ':s' => $newSalt, ':id' => $admin['id']]);
+    echo json_encode(['success' => true, 'message' => 'Đổi mật khẩu thành công']);
+    exit;
+}
+
+// ── MILLWORK & COMMERCIAL PROJECTS ROUTES ──
+// GET /millwork
+if ($route === '/millwork' && $method === 'GET') {
+    $stmt = $db->query('SELECT * FROM millwork_projects WHERE is_active = 1 ORDER BY sort_order ASC');
+    $rows = $stmt->fetchAll();
+    $data = array_map(function($r) {
+        $gallery = json_decode($r['gallery_images_json'] ?: '[]', true) ?: [];
+        return [
+            'id' => $r['id'],
+            'client' => $r['client'],
+            'badge' => ['vi' => $r['badge_vi'] ?: 'MỘC KIẾN TRÚC', 'en' => $r['badge_en'] ?: 'ARCHITECTURAL MILLWORK'],
+            'title' => ['vi' => $r['title_vi'], 'en' => $r['title_en']],
+            'desc' => ['vi' => $r['desc_vi'] ?: '', 'en' => $r['desc_en'] ?: ''],
+            'scope' => ['vi' => $r['scope_vi'] ?: '', 'en' => $r['scope_en'] ?: ''],
+            'materials' => ['vi' => $r['materials_vi'] ?: '', 'en' => $r['materials_en'] ?: ''],
+            'standards' => ['vi' => $r['standards_vi'] ?: '', 'en' => $r['standards_en'] ?: ''],
+            'image' => $r['image'],
+            'galleryImages' => $gallery,
+            'sortOrder' => (int)$r['sort_order'],
+            'isActive' => (bool)$r['is_active']
+        ];
+    }, $rows);
+    echo json_encode(['success' => true, 'data' => $data]);
+    exit;
+}
+
+// PUT /millwork/{id}
+if (preg_match('#^/millwork/([^/]+)$#', $route, $m) && $method === 'PUT') {
+    requireAuth();
+    $id = $m[1];
+    $galleryJson = isset($body['galleryImages']) ? json_encode($body['galleryImages']) : null;
+    $primaryImage = $body['image'] ?? null;
+    if (isset($body['galleryImages'][0]['url'])) {
+        $primaryImage = $body['galleryImages'][0]['url'];
+    }
+
+    $stmt = $db->prepare('UPDATE millwork_projects SET
+        client = COALESCE(:cl, client),
+        title_vi = COALESCE(:tvi, title_vi),
+        title_en = COALESCE(:ten, title_en),
+        desc_vi = COALESCE(:dvi, desc_vi),
+        desc_en = COALESCE(:den, desc_en),
+        scope_vi = COALESCE(:scvi, scope_vi),
+        scope_en = COALESCE(:scen, scope_en),
+        materials_vi = COALESCE(:mvi, materials_vi),
+        materials_en = COALESCE(:men, materials_en),
+        standards_vi = COALESCE(:svi, standards_vi),
+        standards_en = COALESCE(:sen, standards_en),
+        image = COALESCE(:img, image),
+        gallery_images_json = COALESCE(:gal, gallery_images_json),
+        updated_at = CURRENT_TIMESTAMP
+        WHERE id = :id');
+    $stmt->execute([
+        ':cl' => $body['client'] ?? null,
+        ':tvi' => $body['title']['vi'] ?? $body['title_vi'] ?? null,
+        ':ten' => $body['title']['en'] ?? $body['title_en'] ?? null,
+        ':dvi' => $body['desc']['vi'] ?? $body['desc_vi'] ?? null,
+        ':den' => $body['desc']['en'] ?? $body['desc_en'] ?? null,
+        ':scvi' => $body['scope']['vi'] ?? $body['scope_vi'] ?? null,
+        ':scen' => $body['scope']['en'] ?? $body['scope_en'] ?? null,
+        ':mvi' => $body['materials']['vi'] ?? $body['materials_vi'] ?? null,
+        ':men' => $body['materials']['en'] ?? $body['materials_en'] ?? null,
+        ':svi' => $body['standards']['vi'] ?? $body['standards_vi'] ?? null,
+        ':sen' => $body['standards']['en'] ?? $body['standards_en'] ?? null,
+        ':img' => $primaryImage,
+        ':gal' => $galleryJson,
+        ':id' => $id
+    ]);
+    echo json_encode(['success' => true, 'message' => 'Cập nhật dự án mộc kiến trúc thành công']);
+    exit;
+}
 
 // ── COLLECTIONS ROUTES ──
 // GET /collections

@@ -31,11 +31,18 @@ export interface ProductDbRow {
   cutout_image: string | null;
   collection_image: string | null;
   detail_image: string | null;
+  gallery_images_json: string | null;
   tags: string | null;
   seo_keywords: string | null;
   is_published: number;
   created_at: string;
   updated_at: string;
+}
+
+export interface GalleryItem {
+  url: string;
+  caption?: string;
+  isCover?: boolean;
 }
 
 function formatProduct(row: ProductDbRow) {
@@ -45,6 +52,29 @@ function formatProduct(row: ProductDbRow) {
         .map((t) => t.trim().replace(/^#/, ''))
         .filter(Boolean)
     : [];
+
+  let galleryImages: GalleryItem[] = [];
+  if (row.gallery_images_json) {
+    try {
+      galleryImages = JSON.parse(row.gallery_images_json);
+    } catch {
+      galleryImages = [];
+    }
+  }
+
+  // If gallery is empty, automatically build default gallery from existing view fields
+  if (galleryImages.length === 0 && row.image) {
+    galleryImages.push({ url: row.image, caption: row.name_vi, isCover: true });
+    if (row.cutout_image) {
+      galleryImages.push({ url: row.cutout_image, caption: 'Bản vẽ tách nền kiến trúc', isCover: false });
+    }
+    if (row.collection_image) {
+      galleryImages.push({ url: row.collection_image, caption: 'Phối cảnh không gian nội thất', isCover: false });
+    }
+    if (row.detail_image) {
+      galleryImages.push({ url: row.detail_image, caption: 'Cận cảnh thớ gỗ & vật liệu đá', isCover: false });
+    }
+  }
 
   return {
     id: row.id,
@@ -73,6 +103,7 @@ function formatProduct(row: ProductDbRow) {
     cutoutImage: row.cutout_image || undefined,
     collectionImage: row.collection_image || undefined,
     detailImage: row.detail_image || undefined,
+    galleryImages,
     tags,
     seoKeywords: row.seo_keywords || undefined,
     isPublished: Boolean(row.is_published),
@@ -142,7 +173,7 @@ router.get('/:id', (req: Request, res: Response): void => {
   res.json({ success: true, data: formatProduct(row) });
 });
 
-// POST /api/v1/products (Admin Only)
+// POST /api/v1/products (Admin Only — Supports Multi-Image Gallery)
 router.post('/', requireAdmin, (req: AuthenticatedRequest, res: Response): void => {
   const b = req.body;
 
@@ -164,6 +195,16 @@ router.post('/', requireAdmin, (req: AuthenticatedRequest, res: Response): void 
     return;
   }
 
+  // Multi-image gallery handling
+  let galleryJson: string | null = null;
+  let image = b.image || '/images/products/TL-WW-01_Credenza_Cabinet.png';
+  if (Array.isArray(b.galleryImages) && b.galleryImages.length > 0) {
+    galleryJson = JSON.stringify(b.galleryImages);
+    if (b.galleryImages[0].url) {
+      image = b.galleryImages[0].url; // First image is primary cover photo
+    }
+  }
+
   const materialsVi = b.materials?.vi ?? b.materials_vi ?? 'Gỗ tự nhiên & đá cẩm thạch';
   const materialsEn = b.materials?.en ?? b.materials_en ?? 'Solid hardwood & natural stone';
   const finishVi = b.finish?.vi ?? b.finish_vi ?? 'Sơn PU mờ bảo vệ chống ẩm';
@@ -176,7 +217,6 @@ router.post('/', requireAdmin, (req: AuthenticatedRequest, res: Response): void 
   const designStyleEn = b.designStyle?.en ?? b.design_style_en ?? null;
   const descVi = b.description?.vi ?? b.description_vi ?? nameVi;
   const descEn = b.description?.en ?? b.description_en ?? nameEn;
-  const image = b.image || '/images/products/TL-WW-01_Credenza_Cabinet.png';
   const cutoutImage = b.cutoutImage ?? b.cutout_image ?? null;
   const collectionImage = b.collectionImage ?? b.collection_image ?? null;
   const detailImage = b.detailImage ?? b.detail_image ?? null;
@@ -191,13 +231,13 @@ router.post('/', requireAdmin, (req: AuthenticatedRequest, res: Response): void 
       dimensions, dimensions_cm, materials_vi, materials_en, finish_vi, finish_en,
       color_vi, color_en, hardware_vi, hardware_en, design_style_vi, design_style_en,
       description_vi, description_en, image, cutout_image, collection_image, detail_image,
-      tags, seo_keywords, is_published
+      gallery_images_json, tags, seo_keywords, is_published
     ) VALUES (
       ?, ?, ?, ?, ?, ?, ?, ?,
       ?, ?, ?, ?, ?, ?,
       ?, ?, ?, ?, ?, ?,
       ?, ?, ?, ?, ?, ?,
-      ?, ?, ?
+      ?, ?, ?, ?
     )`,
     [
       id,
@@ -226,6 +266,7 @@ router.post('/', requireAdmin, (req: AuthenticatedRequest, res: Response): void 
       cutoutImage,
       collectionImage,
       detailImage,
+      galleryJson,
       tagsStr,
       b.seoKeywords ?? b.seo_keywords ?? null,
       isPublished,
@@ -236,15 +277,25 @@ router.post('/', requireAdmin, (req: AuthenticatedRequest, res: Response): void 
   res.status(201).json({ success: true, data: created ? formatProduct(created) : null });
 });
 
-// PUT /api/v1/products/:id (Admin Only — Full Support for Nested & Flat Objects)
+// PUT /api/v1/products/:id (Admin Only — Full Support for Multi-Image Gallery & Auto Cover)
 router.put('/:id', requireAdmin, (req: AuthenticatedRequest, res: Response): void => {
   const { id } = req.params;
   const b = req.body;
 
-  const existing = db.get<ProductDbRow>('SELECT id FROM products WHERE id = ?', [id]);
+  const existing = db.get<ProductDbRow>('SELECT id, image FROM products WHERE id = ?', [id]);
   if (!existing) {
     res.status(404).json({ success: false, error: 'Sản phẩm không tồn tại' });
     return;
+  }
+
+  // Multi-image gallery handling
+  let galleryJson: string | null = null;
+  let image = b.image ?? null;
+  if (Array.isArray(b.galleryImages) && b.galleryImages.length > 0) {
+    galleryJson = JSON.stringify(b.galleryImages);
+    if (b.galleryImages[0].url) {
+      image = b.galleryImages[0].url; // First image becomes primary cover photo
+    }
   }
 
   const sku = b.sku ?? null;
@@ -267,7 +318,6 @@ router.put('/:id', requireAdmin, (req: AuthenticatedRequest, res: Response): voi
   const designStyleEn = b.designStyle?.en ?? b.design_style_en ?? null;
   const descVi = b.description?.vi ?? b.description_vi ?? null;
   const descEn = b.description?.en ?? b.description_en ?? null;
-  const image = b.image ?? null;
   const cutoutImage = b.cutoutImage ?? b.cutout_image ?? null;
   const collectionImage = b.collectionImage ?? b.collection_image ?? null;
   const detailImage = b.detailImage ?? b.detail_image ?? null;
@@ -310,6 +360,7 @@ router.put('/:id', requireAdmin, (req: AuthenticatedRequest, res: Response): voi
       cutout_image = COALESCE(?, cutout_image),
       collection_image = COALESCE(?, collection_image),
       detail_image = COALESCE(?, detail_image),
+      gallery_images_json = COALESCE(?, gallery_images_json),
       tags = COALESCE(?, tags),
       is_published = COALESCE(?, is_published),
       updated_at = CURRENT_TIMESTAMP
@@ -340,6 +391,7 @@ router.put('/:id', requireAdmin, (req: AuthenticatedRequest, res: Response): voi
       cutoutImage,
       collectionImage,
       detailImage,
+      galleryJson,
       tagsStr,
       isPublished,
       id,

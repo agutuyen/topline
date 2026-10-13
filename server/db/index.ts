@@ -12,12 +12,25 @@ const DB_PATH = path.join(DB_DIR, 'topline.db');
 // Initialize SQLite connection
 export const sqliteDb = new DatabaseSync(DB_PATH);
 
-// Initialize tables if needed
+// Initialize tables and safe column migrations
 export function initDatabase(): void {
   const schemaPath = path.resolve(process.cwd(), 'server/db/schema.sql');
   if (fs.existsSync(schemaPath)) {
     const schemaSql = fs.readFileSync(schemaPath, 'utf8');
     sqliteDb.exec(schemaSql);
+  }
+
+  // Safe migration for multi-image columns on existing tables
+  try {
+    sqliteDb.exec('ALTER TABLE products ADD COLUMN gallery_images_json TEXT;');
+  } catch {
+    // Column already exists, safe to ignore
+  }
+
+  try {
+    sqliteDb.exec('ALTER TABLE collections ADD COLUMN gallery_images_json TEXT;');
+  } catch {
+    // Column already exists, safe to ignore
   }
 }
 

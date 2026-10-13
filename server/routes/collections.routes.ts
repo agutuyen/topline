@@ -16,11 +16,28 @@ interface CollectionDbRow {
   detail_image: string | null;
   materials_summary_vi: string | null;
   materials_summary_en: string | null;
+  gallery_images_json: string | null;
   sort_order: number;
   is_active: number;
 }
 
 function formatCollection(row: CollectionDbRow) {
+  let galleryImages: { url: string; caption?: string }[] = [];
+  if (row.gallery_images_json) {
+    try {
+      galleryImages = JSON.parse(row.gallery_images_json);
+    } catch {
+      galleryImages = [];
+    }
+  }
+
+  if (galleryImages.length === 0 && row.overview_image) {
+    galleryImages.push({ url: row.overview_image, caption: row.title_vi });
+    if (row.detail_image) {
+      galleryImages.push({ url: row.detail_image, caption: 'Mẫu vật liệu tuyển chọn' });
+    }
+  }
+
   return {
     id: row.id,
     number: row.number,
@@ -29,6 +46,7 @@ function formatCollection(row: CollectionDbRow) {
     pieces: row.pieces_summary || '',
     overviewImage: row.overview_image || '',
     detailImage: row.detail_image || undefined,
+    galleryImages,
     materialsSummary: row.materials_summary_vi
       ? { vi: row.materials_summary_vi, en: row.materials_summary_en || row.materials_summary_vi }
       : undefined,
@@ -51,12 +69,20 @@ router.put('/:id', requireAdmin, (req: AuthenticatedRequest, res: Response): voi
   const { id } = req.params;
   const b = req.body;
 
+  let galleryJson: string | null = null;
+  let overviewImage = b.overviewImage ?? b.overview_image ?? null;
+  if (Array.isArray(b.galleryImages) && b.galleryImages.length > 0) {
+    galleryJson = JSON.stringify(b.galleryImages);
+    if (b.galleryImages[0].url) {
+      overviewImage = b.galleryImages[0].url; // First image is primary cover photo
+    }
+  }
+
   const titleVi = b.title?.vi ?? b.title_vi ?? null;
   const titleEn = b.title?.en ?? b.title_en ?? null;
   const subtitleVi = b.subtitle?.vi ?? b.subtitle_vi ?? null;
   const subtitleEn = b.subtitle?.en ?? b.subtitle_en ?? null;
   const pieces = b.pieces ?? b.pieces_summary ?? null;
-  const overviewImage = b.overviewImage ?? b.overview_image ?? null;
   const detailImage = b.detailImage ?? b.detail_image ?? null;
   const materialsSummaryVi = b.materialsSummary?.vi ?? b.materials_summary_vi ?? null;
   const materialsSummaryEn = b.materialsSummary?.en ?? b.materials_summary_en ?? null;
@@ -71,7 +97,8 @@ router.put('/:id', requireAdmin, (req: AuthenticatedRequest, res: Response): voi
       overview_image = COALESCE(?, overview_image),
       detail_image = COALESCE(?, detail_image),
       materials_summary_vi = COALESCE(?, materials_summary_vi),
-      materials_summary_en = COALESCE(?, materials_summary_en)
+      materials_summary_en = COALESCE(?, materials_summary_en),
+      gallery_images_json = COALESCE(?, gallery_images_json)
     WHERE id = ?`,
     [
       titleVi,
@@ -83,6 +110,7 @@ router.put('/:id', requireAdmin, (req: AuthenticatedRequest, res: Response): voi
       detailImage,
       materialsSummaryVi,
       materialsSummaryEn,
+      galleryJson,
       id,
     ]
   );

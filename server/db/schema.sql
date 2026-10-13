@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS admins (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2. COLLECTIONS (6 Bộ sưu tập chính thức - Song ngữ)
+-- 2. COLLECTIONS (6 Bộ sưu tập chính thức - Song ngữ & Multi-Images)
 CREATE TABLE IF NOT EXISTS collections (
     id VARCHAR(50) PRIMARY KEY,
     number VARCHAR(10) NOT NULL,
@@ -31,11 +31,12 @@ CREATE TABLE IF NOT EXISTS collections (
     detail_image VARCHAR(255),
     materials_summary_vi TEXT,
     materials_summary_en TEXT,
+    gallery_images_json TEXT, -- Danh sách đa ảnh dạng JSON
     sort_order INTEGER DEFAULT 0,
     is_active INTEGER DEFAULT 1
 );
 
--- 3. PRODUCTS (29 Sản phẩm nội thất may đo - Song ngữ)
+-- 3. PRODUCTS (29 Sản phẩm nội thất may đo - Song ngữ & Multi-Images)
 CREATE TABLE IF NOT EXISTS products (
     id VARCHAR(50) PRIMARY KEY,
     sku VARCHAR(50) NOT NULL UNIQUE,
@@ -59,10 +60,11 @@ CREATE TABLE IF NOT EXISTS products (
     design_style_en VARCHAR(100),
     description_vi TEXT NOT NULL,
     description_en TEXT NOT NULL,
-    image VARCHAR(255) NOT NULL,
+    image VARCHAR(255) NOT NULL, -- Ảnh đầu tiên làm ảnh đại diện
     cutout_image VARCHAR(255),
     collection_image VARCHAR(255),
     detail_image VARCHAR(255),
+    gallery_images_json TEXT, -- Danh sách đa ảnh chi tiết/các góc chụp dạng JSON
     tags TEXT,
     seo_keywords TEXT,
     is_published INTEGER DEFAULT 1,
@@ -75,7 +77,7 @@ CREATE INDEX IF NOT EXISTS idx_products_collection ON products(collection_id);
 CREATE INDEX IF NOT EXISTS idx_products_sku ON products(sku);
 CREATE INDEX IF NOT EXISTS idx_products_published ON products(is_published);
 
--- 4. PRODUCT IMAGES (Quản lý đa góc nhìn ảnh sản phẩm)
+-- 4. PRODUCT IMAGES (Tùy chọn phụ lưu trữ chi tiết ảnh)
 CREATE TABLE IF NOT EXISTS product_images (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     product_id VARCHAR(50) NOT NULL,
@@ -148,4 +150,37 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     ip_address VARCHAR(50),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (admin_id) REFERENCES admins(id) ON DELETE SET NULL
+);
+
+-- 9. MILLWORK PROJECTS (Mộc Kiến Trúc & Dự Án F&B / Khách Sạn)
+CREATE TABLE IF NOT EXISTS millwork_projects (
+    id VARCHAR(50) PRIMARY KEY,
+    client VARCHAR(100) NOT NULL,
+    badge_vi VARCHAR(100),
+    badge_en VARCHAR(100),
+    title_vi VARCHAR(255) NOT NULL,
+    title_en VARCHAR(255) NOT NULL,
+    desc_vi TEXT,
+    desc_en TEXT,
+    scope_vi TEXT,
+    scope_en TEXT,
+    materials_vi TEXT,
+    materials_en TEXT,
+    standards_vi TEXT,
+    standards_en TEXT,
+    image VARCHAR(255) NOT NULL,
+    gallery_images_json TEXT, -- Lưu danh sách đa ảnh công trình
+    sort_order INTEGER DEFAULT 0,
+    is_active INTEGER DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 10. COMMERCIAL CLIENTS (Logo Đối Tác Thương Mại Quốc Tế)
+CREATE TABLE IF NOT EXISTS commercial_clients (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR(100) NOT NULL,
+    role VARCHAR(255) NOT NULL,
+    logo_text VARCHAR(100) NOT NULL,
+    sort_order INTEGER DEFAULT 0
 );

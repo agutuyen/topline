@@ -2,11 +2,12 @@ import { useState, useEffect, useMemo } from 'react';
 import {
   ArrowLeft,
   ArrowUpDown,
+  Building2,
   ChevronLeft,
   ChevronRight,
   Edit3,
   FileText,
-  Image as ImageIcon,
+  KeyRound,
   Layers,
   LayoutDashboard,
   LogOut,
@@ -16,13 +17,15 @@ import {
   RefreshCw,
   Save,
   Search,
+  Star,
   Trash2,
   Upload,
   X,
 } from 'lucide-react';
-import { Language, ProductItem, CollectionGroup } from '../../types';
+import { Language, ProductItem, CollectionGroup, ProjectItem } from '../../types';
 import {
   adminLogin,
+  adminChangePassword,
   adminGetStats,
   adminGetRfqs,
   adminUpdateRfqStatus,
@@ -33,6 +36,8 @@ import {
   adminToggleProductStatus,
   adminGetCollections,
   adminUpdateCollection,
+  adminGetMillworkProjects,
+  adminUpdateMillworkProject,
   adminGetContacts,
   adminUpdateContactStatus,
   uploadImageFile,
@@ -49,113 +54,178 @@ interface AdminPortalProps {
   onClose: () => void;
 }
 
-type AdminTab = 'overview' | 'rfqs' | 'products' | 'collections' | 'contacts';
+type AdminTab = 'overview' | 'rfqs' | 'products' | 'collections' | 'millwork' | 'contacts';
 
-// ── REUSABLE VISUAL IMAGE UPLOAD & PREVIEW COMPONENT ──
-interface ImageUploadFieldProps {
-  label: string;
-  subLabel?: string;
-  value: string;
-  onChange: (url: string) => void;
-  recommendedRatio?: string;
+export interface GalleryImageItem {
+  url: string;
+  caption?: string | { vi: string; en: string };
+  isCover?: boolean;
 }
 
-function ImageUploadField({
+// ── REUSABLE MULTI-IMAGE GALLERY MANAGER (1st image is primary cover photo) ──
+interface MultiImageGalleryManagerProps {
+  label: string;
+  subLabel?: string;
+  images: GalleryImageItem[];
+  onChange: (images: GalleryImageItem[]) => void;
+  maxImages?: number;
+}
+
+function MultiImageGalleryManager({
   label,
   subLabel,
-  value,
+  images,
   onChange,
-  recommendedRatio = '1:1',
-}: ImageUploadFieldProps) {
+  maxImages = 15,
+}: MultiImageGalleryManagerProps) {
   const [uploading, setUploading] = useState(false);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleFilesAdded = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
 
-    // 1. Instant local preview
-    const localUrl = URL.createObjectURL(file);
-    onChange(localUrl);
+    // 1. Instant local preview entries
+    const localEntries: GalleryImageItem[] = files.map((f, i) => ({
+      url: URL.createObjectURL(f),
+      caption: f.name.replace(/\.[^/.]+$/, ''),
+      isCover: images.length === 0 && i === 0,
+    }));
 
-    // 2. Upload to server
+    const combined = [...images, ...localEntries].slice(0, maxImages);
+    onChange(combined);
+
+    // 2. Upload to server in background
     setUploading(true);
     try {
-      const res = await uploadImageFile(file);
-      if (res && res.url) {
-        onChange(res.url);
-      }
-    } catch {
-      // Fallback: convert to base64 so it persists in offline mode
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result === 'string') {
-          onChange(reader.result);
+      const uploadPromises = files.map(async (file, idx) => {
+        try {
+          const res = await uploadImageFile(file);
+          return { originalIdx: images.length + idx, url: res.url };
+        } catch {
+          return null;
         }
-      };
-      reader.readAsDataURL(file);
+      });
+
+      const results = await Promise.all(uploadPromises);
+      const updated = [...combined];
+      for (const r of results) {
+        if (r && r.originalIdx < updated.length) {
+          updated[r.originalIdx] = { ...updated[r.originalIdx], url: r.url };
+        }
+      }
+      onChange(updated);
+    } catch {
+      // Keep local preview URLs
     } finally {
       setUploading(false);
     }
   };
 
+  const setAsCover = (index: number) => {
+    if (index === 0 || index >= images.length) return;
+    const target = images[index];
+    const rest = images.filter((_, i) => i !== index);
+    const reordered = [{ ...target, isCover: true }, ...rest.map((img) => ({ ...img, isCover: false }))];
+    onChange(reordered);
+  };
+
+  const removeImage = (index: number) => {
+    const remaining = images.filter((_, i) => i !== index);
+    if (remaining.length > 0) {
+      remaining[0].isCover = true;
+    }
+    onChange(remaining);
+  };
+
   return (
-    <div className="p-3.5 rounded-2xl bg-black/40 border border-white/10 space-y-2">
-      <div className="flex items-center justify-between text-xs">
-        <span className="font-mono text-white/90 font-medium">{label}</span>
-        {subLabel && <span className="text-[10px] text-white/40 font-mono">{subLabel}</span>}
+    <div className="p-4 rounded-2xl bg-black/40 border border-white/10 space-y-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <span className="font-mono text-white/90 text-xs font-medium block">{label}</span>
+          {subLabel && <span className="text-[10px] text-white/40 font-mono">{subLabel}</span>}
+        </div>
+        <span className="text-[10px] font-mono text-[#C5A880]">
+          {images.length} / {maxImages} ảnh (Ảnh #1 là ảnh đại diện chính)
+        </span>
       </div>
 
-      {value ? (
-        /* Visual Preview with Change & Delete Actions */
-        <div className="flex items-center gap-4 bg-white/5 p-2 rounded-xl border border-white/10">
-          <div className="w-20 h-20 rounded-lg overflow-hidden bg-white/10 shrink-0 border border-white/15 flex items-center justify-center p-1">
-            <img src={value} alt="Preview" className="w-full h-full object-contain" />
-          </div>
+      {/* Visual Image Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {images.map((img, idx) => {
+          const captionStr =
+            typeof img.caption === 'string'
+              ? img.caption
+              : img.caption?.vi || img.caption?.en || `Ảnh ${idx + 1}`;
 
-          <div className="flex-1 space-y-2 min-w-0">
-            <div className="text-[11px] font-mono text-white/60 truncate" title={value}>
-              {value.startsWith('data:') ? 'Tệp ảnh từ máy tính (Base64)' : value}
+          return (
+            <div
+              key={`${img.url}-${idx}`}
+              className={`relative aspect-square rounded-xl overflow-hidden bg-white/5 border-2 group p-1 flex items-center justify-center ${
+                idx === 0
+                  ? 'border-[#C5A880] ring-2 ring-[#C5A880]/30 shadow-md'
+                  : 'border-white/15 hover:border-white/30'
+              }`}
+            >
+              <img src={img.url} alt={captionStr} className="w-full h-full object-contain" />
+
+              {/* Cover Badge on first image */}
+              {idx === 0 ? (
+                <div className="absolute top-1.5 left-1.5 z-10 px-2 py-0.5 rounded-sm bg-[#C5A880] text-[#191919] font-bold text-[9px] uppercase tracking-wider flex items-center gap-1 shadow-sm">
+                  <Star className="w-2.5 h-2.5 fill-current" />
+                  <span>Ảnh Bìa</span>
+                </div>
+              ) : (
+                <div className="absolute top-1.5 left-1.5 z-10 px-1.5 py-0.5 rounded-sm bg-black/70 text-white font-mono text-[9px]">
+                  #{idx + 1}
+                </div>
+              )}
+
+              {/* Hover Actions Bar */}
+              <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1.5 p-2">
+                {idx !== 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setAsCover(idx)}
+                    className="w-full py-1 px-1.5 rounded bg-[#C5A880] hover:bg-white text-[#191919] text-[10px] font-mono font-bold transition-colors cursor-pointer flex items-center justify-center gap-1"
+                    title="Đặt ảnh này làm ảnh đại diện chính đầu tiên"
+                  >
+                    <Star className="w-3 h-3" />
+                    <span>Đặt ảnh bìa</span>
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => removeImage(idx)}
+                  className="w-full py-1 px-1.5 rounded bg-red-900/60 hover:bg-red-800 text-red-200 text-[10px] font-mono transition-colors cursor-pointer flex items-center justify-center gap-1"
+                  title="Xóa ảnh này"
+                >
+                  <Trash2 className="w-3 h-3" />
+                  <span>Xóa ảnh</span>
+                </button>
+              </div>
             </div>
+          );
+        })}
 
-            <div className="flex items-center gap-2">
-              <label className="px-2.5 py-1 rounded bg-white/15 hover:bg-[#C5A880] hover:text-[#191919] text-white text-[11px] font-mono cursor-pointer transition-colors inline-flex items-center gap-1">
-                <Upload className="w-3 h-3" />
-                <span>{uploading ? 'Đang tải...' : 'Đổi ảnh khác'}</span>
-                <input
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-              </label>
-
-              <button
-                type="button"
-                onClick={() => onChange('')}
-                className="px-2.5 py-1 rounded bg-red-900/40 hover:bg-red-800 text-red-200 text-[11px] font-mono cursor-pointer transition-colors inline-flex items-center gap-1"
-              >
-                <Trash2 className="w-3 h-3" />
-                <span>Xóa ảnh</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : (
-        /* Empty Upload Dropzone Button */
-        <label className="flex flex-col items-center justify-center p-4 border border-dashed border-white/20 hover:border-[#C5A880] rounded-xl cursor-pointer bg-white/5 hover:bg-white/10 transition-all text-center">
-          <Upload className="w-5 h-5 text-[#C5A880] mb-1" />
-          <span className="text-xs font-mono text-white/80">
-            {uploading ? 'Đang tải ảnh...' : 'Tải ảnh từ máy tính (.jpg, .png, .webp)'}
-          </span>
-          <span className="text-[10px] text-white/40 font-mono mt-0.5">Tỷ lệ khuyến nghị: {recommendedRatio}</span>
-          <input
-            type="file"
-            accept="image/png,image/jpeg,image/webp"
-            className="hidden"
-            onChange={handleFileChange}
-          />
-        </label>
-      )}
+        {/* Add Images from Computer Button */}
+        {images.length < maxImages && (
+          <label className="aspect-square flex flex-col items-center justify-center p-3 border-2 border-dashed border-white/20 hover:border-[#C5A880] rounded-xl cursor-pointer bg-white/5 hover:bg-white/10 transition-all text-center">
+            <Upload className="w-5 h-5 text-[#C5A880] mb-1" />
+            <span className="text-[11px] font-mono text-white/80">
+              {uploading ? 'Đang tải...' : '+ Tải thêm ảnh'}
+            </span>
+            <span className="text-[9px] text-white/40 font-mono mt-0.5">Từ máy tính</span>
+            <input
+              type="file"
+              multiple
+              accept="image/png,image/jpeg,image/webp"
+              className="hidden"
+              onChange={handleFilesAdded}
+            />
+          </label>
+        )}
+      </div>
     </div>
   );
 }
@@ -169,6 +239,15 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
   const [password, setPassword] = useState('TopLine@2026!');
   const [loginError, setLoginError] = useState('');
   const [loggingIn, setLoggingIn] = useState(false);
+
+  // Change Password Modal State
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordChangeMessage, setPasswordChangeMessage] = useState('');
+  const [passwordChangeError, setPasswordChangeError] = useState('');
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   // Dashboard Data State
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -199,7 +278,11 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
   const [collections, setCollections] = useState<CollectionGroup[]>([]);
   const [editingCollection, setEditingCollection] = useState<CollectionGroup | null>(null);
 
-  // Form Edit State for Products
+  // Millwork Projects State
+  const [millworkProjects, setMillworkProjects] = useState<ProjectItem[]>([]);
+  const [editingProject, setEditingProject] = useState<ProjectItem | null>(null);
+
+  // Form Edit State for Products (Multi-Image Gallery)
   const [productForm, setProductForm] = useState({
     sku: '',
     collectionId: 'warm-wood',
@@ -219,14 +302,11 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
     designStyleEn: '',
     descriptionVi: '',
     descriptionEn: '',
-    image: '',
-    cutoutImage: '',
-    collectionImage: '',
-    detailImage: '',
+    galleryImages: [] as GalleryImageItem[],
     isPublished: true,
   });
 
-  // Form Edit State for Collections
+  // Form Edit State for Collections (Multi-Image Gallery)
   const [collectionForm, setCollectionForm] = useState({
     number: '',
     titleVi: '',
@@ -236,8 +316,25 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
     pieces: '',
     materialsSummaryVi: '',
     materialsSummaryEn: '',
-    overviewImage: '',
-    detailImage: '',
+    galleryImages: [] as GalleryImageItem[],
+  });
+
+  // Form Edit State for Millwork Projects (Multi-Image Gallery)
+  const [projectForm, setProjectForm] = useState({
+    client: '',
+    badgeVi: '',
+    badgeEn: '',
+    titleVi: '',
+    titleEn: '',
+    descVi: '',
+    descEn: '',
+    scopeVi: '',
+    scopeEn: '',
+    materialsVi: '',
+    materialsEn: '',
+    standardsVi: '',
+    standardsEn: '',
+    galleryImages: [] as { url: string; caption: { vi: string; en: string } }[],
   });
 
   const [formLangTab, setFormLangTab] = useState<'vi' | 'en'>('vi');
@@ -276,18 +373,20 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
   const loadDashboardData = async () => {
     setLoading(true);
     try {
-      const [statsData, rfqsData, prodsData, contactsData, colsData] = await Promise.all([
+      const [statsData, rfqsData, prodsData, contactsData, colsData, millworkData] = await Promise.all([
         adminGetStats(),
         adminGetRfqs(),
         adminGetProducts(),
         adminGetContacts(),
         adminGetCollections(),
+        adminGetMillworkProjects(),
       ]);
       setStats(statsData);
       setRfqs(rfqsData);
       setProducts(prodsData);
       setContacts(contactsData);
       setCollections(colsData);
+      setMillworkProjects(millworkData);
     } catch {
       removeAuthToken();
       setIsAuthenticated(false);
@@ -314,6 +413,39 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
   const handleLogout = () => {
     removeAuthToken();
     setIsAuthenticated(false);
+  };
+
+  const handleChangePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordChangeError('');
+    setPasswordChangeMessage('');
+
+    if (newPassword !== confirmPassword) {
+      setPasswordChangeError('Mật khẩu mới và xác nhận mật khẩu không khớp');
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      setPasswordChangeError('Mật khẩu mới phải có ít nhất 8 ký tự');
+      return;
+    }
+
+    setIsChangingPassword(true);
+    try {
+      const res = await adminChangePassword(currentPassword, newPassword);
+      setPasswordChangeMessage(res.message || 'Đổi mật khẩu thành công!');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setTimeout(() => {
+        setIsPasswordModalOpen(false);
+        setPasswordChangeMessage('');
+      }, 1200);
+    } catch (err) {
+      setPasswordChangeError(err instanceof Error ? err.message : 'Đổi mật khẩu thất bại');
+    } finally {
+      setIsChangingPassword(false);
+    }
   };
 
   const handleUpdateRfqStatus = async (rfqId: string, newStatus: string) => {
@@ -354,6 +486,15 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
   // Open Edit Product Modal
   const openEditProduct = (p: ProductItem) => {
     setEditingProduct(p);
+
+    // Build initial gallery images list (1st is cover)
+    const gallery: GalleryImageItem[] = [
+      { url: p.image, caption: p.name.vi, isCover: true },
+      ...(p.cutoutImage ? [{ url: p.cutoutImage, caption: 'Bản vẽ tách nền PNG', isCover: false }] : []),
+      ...(p.collectionImage ? [{ url: p.collectionImage, caption: 'Phối cảnh không gian nội thất', isCover: false }] : []),
+      ...(p.detailImage ? [{ url: p.detailImage, caption: 'Chi tiết vân mộc & đá', isCover: false }] : []),
+    ];
+
     setProductForm({
       sku: p.sku,
       collectionId: String(p.collectionId || p.category || 'warm-wood'),
@@ -373,10 +514,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
       designStyleEn: p.designStyle?.en || '',
       descriptionVi: p.description.vi,
       descriptionEn: p.description.en,
-      image: p.image,
-      cutoutImage: p.cutoutImage || '',
-      collectionImage: p.collectionImage || '',
-      detailImage: p.detailImage || '',
+      galleryImages: gallery,
       isPublished: p.isPublished !== false,
     });
     setFormLangTab('vi');
@@ -405,21 +543,26 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
       designStyleEn: 'Contemporary Architectural',
       descriptionVi: '',
       descriptionEn: '',
-      image: '/images/products/TL-WW-01_Credenza_Cabinet.png',
-      cutoutImage: '/images/products/cutouts/TL-WW-01_Credenza_Cabinet.png',
-      collectionImage: '',
-      detailImage: '',
+      galleryImages: [
+        { url: '/images/products/TL-WW-01_Credenza_Cabinet.png', caption: 'Ảnh đại diện chính', isCover: true },
+      ],
       isPublished: true,
     });
     setFormLangTab('vi');
     setSaveSuccessMessage('');
   };
 
-  // Save Product (Create or Update)
+  // Save Product (Create or Update with Multi-Image Support)
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
     setSaveSuccessMessage('');
+
+    // First image in gallery is the primary cover photo
+    const primaryImg =
+      productForm.galleryImages.length > 0
+        ? productForm.galleryImages[0].url
+        : '/images/products/TL-WW-01_Credenza_Cabinet.png';
 
     const payload = {
       sku: productForm.sku,
@@ -449,13 +592,8 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
       description: { vi: productForm.descriptionVi, en: productForm.descriptionEn },
       description_vi: productForm.descriptionVi,
       description_en: productForm.descriptionEn,
-      image: productForm.image,
-      cutoutImage: productForm.cutoutImage,
-      cutout_image: productForm.cutoutImage,
-      collectionImage: productForm.collectionImage,
-      collection_image: productForm.collectionImage,
-      detailImage: productForm.detailImage,
-      detail_image: productForm.detailImage,
+      image: primaryImg,
+      galleryImages: productForm.galleryImages,
       isPublished: productForm.isPublished,
       is_published: productForm.isPublished ? 1 : 0,
     };
@@ -464,7 +602,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
       if (editingProduct) {
         const updated = await adminUpdateProduct(editingProduct.id, payload);
         setProducts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
-        setSaveSuccessMessage('Đã cập nhật sản phẩm thành công!');
+        setSaveSuccessMessage('Đã cập nhật sản phẩm và bộ sưu tập ảnh thành công!');
         setTimeout(() => {
           setEditingProduct(null);
         }, 800);
@@ -487,6 +625,11 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
   // Open Edit Collection Modal
   const openEditCollection = (c: CollectionGroup) => {
     setEditingCollection(c);
+    const gallery: GalleryImageItem[] = [
+      { url: c.overviewImage, caption: 'Ảnh tổng thể Moodboard', isCover: true },
+      ...(c.detailImage ? [{ url: c.detailImage, caption: 'Mẫu vật liệu đặc trưng', isCover: false }] : []),
+    ];
+
     setCollectionForm({
       number: c.number,
       titleVi: c.title.vi,
@@ -496,8 +639,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
       pieces: c.pieces,
       materialsSummaryVi: c.materialsSummary?.vi || '',
       materialsSummaryEn: c.materialsSummary?.en || '',
-      overviewImage: c.overviewImage,
-      detailImage: c.detailImage || '',
+      galleryImages: gallery,
     });
     setFormLangTab('vi');
     setSaveSuccessMessage('');
@@ -509,6 +651,11 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
     if (!editingCollection) return;
     setIsSaving(true);
     setSaveSuccessMessage('');
+
+    const primaryImg =
+      collectionForm.galleryImages.length > 0
+        ? collectionForm.galleryImages[0].url
+        : editingCollection.overviewImage;
 
     const payload = {
       number: collectionForm.number,
@@ -523,10 +670,9 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
       materialsSummary: { vi: collectionForm.materialsSummaryVi, en: collectionForm.materialsSummaryEn },
       materials_summary_vi: collectionForm.materialsSummaryVi,
       materials_summary_en: collectionForm.materialsSummaryEn,
-      overviewImage: collectionForm.overviewImage,
-      overview_image: collectionForm.overviewImage,
-      detailImage: collectionForm.detailImage,
-      detail_image: collectionForm.detailImage,
+      overviewImage: primaryImg,
+      overview_image: primaryImg,
+      galleryImages: collectionForm.galleryImages,
     };
 
     try {
@@ -538,6 +684,79 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
       }, 800);
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Lỗi khi lưu bộ sưu tập');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Open Edit Millwork Project Modal
+  const openEditProject = (proj: ProjectItem) => {
+    setEditingProject(proj);
+    setProjectForm({
+      client: proj.client,
+      badgeVi: proj.badge.vi,
+      badgeEn: proj.badge.en,
+      titleVi: proj.title.vi,
+      titleEn: proj.title.en,
+      descVi: proj.desc.vi,
+      descEn: proj.desc.en,
+      scopeVi: proj.scope.vi,
+      scopeEn: proj.scope.en,
+      materialsVi: proj.materials.vi,
+      materialsEn: proj.materials.en,
+      standardsVi: proj.standards.vi,
+      standardsEn: proj.standards.en,
+      galleryImages: [...proj.galleryImages],
+    });
+    setFormLangTab('vi');
+    setSaveSuccessMessage('');
+  };
+
+  // Save Millwork Project
+  const handleSaveProject = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProject) return;
+    setIsSaving(true);
+    setSaveSuccessMessage('');
+
+    const primaryImg =
+      projectForm.galleryImages.length > 0
+        ? projectForm.galleryImages[0].url
+        : editingProject.image;
+
+    const payload = {
+      client: projectForm.client,
+      badge: { vi: projectForm.badgeVi, en: projectForm.badgeEn },
+      badge_vi: projectForm.badgeVi,
+      badge_en: projectForm.badgeEn,
+      title: { vi: projectForm.titleVi, en: projectForm.titleEn },
+      title_vi: projectForm.titleVi,
+      title_en: projectForm.titleEn,
+      desc: { vi: projectForm.descVi, en: projectForm.descEn },
+      desc_vi: projectForm.descVi,
+      desc_en: projectForm.descEn,
+      scope: { vi: projectForm.scopeVi, en: projectForm.scopeEn },
+      scope_vi: projectForm.scopeVi,
+      scope_en: projectForm.scopeEn,
+      materials: { vi: projectForm.materialsVi, en: projectForm.materialsEn },
+      materials_vi: projectForm.materialsVi,
+      materials_en: projectForm.materialsEn,
+      standards: { vi: projectForm.standardsVi, en: projectForm.standardsEn },
+      standards_vi: projectForm.standardsVi,
+      standards_en: projectForm.standardsEn,
+      image: primaryImg,
+      galleryImages: projectForm.galleryImages,
+    };
+
+    try {
+      const updated = await adminUpdateMillworkProject(editingProject.id, payload);
+      setMillworkProjects((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+      setSaveSuccessMessage('Đã cập nhật dự án mộc kiến trúc và thư viện ảnh thành công!');
+      setTimeout(() => {
+        setEditingProject(null);
+      }, 800);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Lỗi khi lưu dự án');
     } finally {
       setIsSaving(false);
     }
@@ -680,13 +899,29 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
 
         <div className="flex items-center gap-3">
           {isAuthenticated && (
-            <button
-              onClick={handleLogout}
-              className="px-3 py-1.5 rounded-lg border border-white/15 hover:bg-white/10 text-xs font-mono text-white/80 flex items-center gap-1.5 transition-colors cursor-pointer"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Đăng xuất</span>
-            </button>
+            <>
+              {/* CHANGE PASSWORD BUTTON */}
+              <button
+                onClick={() => {
+                  setIsPasswordModalOpen(true);
+                  setPasswordChangeError('');
+                  setPasswordChangeMessage('');
+                }}
+                className="px-3 py-1.5 rounded-lg border border-white/15 hover:bg-white/10 text-xs font-mono text-[#C5A880] flex items-center gap-1.5 transition-colors cursor-pointer"
+                title="Thay đổi mật khẩu quản trị viên"
+              >
+                <KeyRound className="w-3.5 h-3.5" />
+                <span>Đổi Mật Khẩu</span>
+              </button>
+
+              <button
+                onClick={handleLogout}
+                className="px-3 py-1.5 rounded-lg border border-white/15 hover:bg-white/10 text-xs font-mono text-white/80 flex items-center gap-1.5 transition-colors cursor-pointer"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Đăng xuất</span>
+              </button>
+            </>
           )}
 
           <button
@@ -710,7 +945,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
               </span>
               <h2 className="font-serif text-3xl font-normal text-white">Đăng Nhập Hệ Thống</h2>
               <p className="text-xs text-white/60 font-light">
-                Quản lý 29 sản phẩm, 6 bộ sưu tập và yêu cầu báo giá dự án (RFQ)
+                Quản lý 29 sản phẩm, 6 bộ sưu tập, dự án mộc kiến trúc và báo giá dự án (RFQ)
               </p>
             </div>
 
@@ -820,6 +1055,19 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                 <span>Bộ Sưu Tập (6 BST)</span>
               </button>
 
+              {/* NEW: Millwork & Commercial Projects Tab */}
+              <button
+                onClick={() => setActiveTab('millwork')}
+                className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
+                  activeTab === 'millwork'
+                    ? 'bg-[#C5A880] text-[#191919] font-bold shadow-xs'
+                    : 'text-white/70 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <Building2 className="w-4 h-4" />
+                <span>Dự Án Mộc Kiến Trúc</span>
+              </button>
+
               <button
                 onClick={() => setActiveTab('contacts')}
                 className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
@@ -847,15 +1095,17 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                 <h1 className="font-serif text-2xl sm:text-3xl font-normal text-white">
                   {activeTab === 'overview' && 'Bảng Điều Khiển Tổng Quan'}
                   {activeTab === 'rfqs' && 'Quản Lý Hồ Sơ Báo Giá Dự Án (RFQ)'}
-                  {activeTab === 'products' && 'Quản Lý & Chỉnh Sửa 29 Sản Phẩm'}
+                  {activeTab === 'products' && 'Quản Lý & Chỉnh Sửa 29 Sản Phẩm (Đa Ảnh)'}
                   {activeTab === 'collections' && 'Quản Lý 6 Bộ Sưu Tập Thiết Kế'}
+                  {activeTab === 'millwork' && 'Mộc Kiến Trúc & Thương Hiệu Quốc Tế'}
                   {activeTab === 'contacts' && 'Hộp Thư Liên Hệ Khách Hàng'}
                 </h1>
                 <span className="text-xs text-white/50 font-light">
                   {activeTab === 'overview' && 'Theo dõi tiến độ báo giá, năng lực sản xuất và thông báo'}
                   {activeTab === 'rfqs' && 'Rà soát bản vẽ kỹ thuật CAD/DWG/BOQ và phân loại trạng thái'}
-                  {activeTab === 'products' && 'Chỉnh sửa thông số song ngữ, quy cách mm, tải ảnh từ máy tính & phân trang'}
-                  {activeTab === 'collections' && 'Chỉnh sửa thông điệp thiết kế, hình ảnh tổng thể và tải ảnh trực quan'}
+                  {activeTab === 'products' && 'Hỗ trợ 1 sản phẩm nhiều ảnh, ảnh đầu tiên làm ảnh bìa, tải ảnh từ máy tính'}
+                  {activeTab === 'collections' && 'Chỉnh sửa thông điệp thiết kế, hình ảnh tổng thể và vật liệu đại diện'}
+                  {activeTab === 'millwork' && 'Quản lý thông tin, vật liệu, tiêu chuẩn và thư viện ảnh chi tiết từng công trình'}
                   {activeTab === 'contacts' && 'Tin nhắn trao đổi trực tiếp từ khách hàng'}
                 </span>
               </div>
@@ -983,10 +1233,9 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
               </div>
             )}
 
-            {/* TAB 2: RFQ MANAGEMENT (WITH SORTING & PAGINATION) */}
+            {/* TAB 2: RFQ MANAGEMENT */}
             {activeTab === 'rfqs' && (
               <div className="space-y-4">
-                {/* Filters */}
                 <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
                   <div className="flex items-center gap-2 overflow-x-auto text-xs font-mono">
                     {['all', 'pending', 'reviewing', 'quoted', 'contracted'].map((st) => (
@@ -1022,24 +1271,17 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                   </div>
                 </div>
 
-                {/* RFQs List Table with Clickable Sort Headers */}
                 <div className="rounded-2xl bg-[#181615] border border-white/10 overflow-hidden">
                   <table className="w-full text-left text-xs">
                     <thead>
                       <tr className="border-b border-white/10 bg-black/40 text-white/50 font-mono uppercase text-[10px]">
-                        <th
-                          className="p-4 cursor-pointer hover:text-white"
-                          onClick={() => toggleRfqSort('trackingCode')}
-                        >
+                        <th className="p-4 cursor-pointer hover:text-white" onClick={() => toggleRfqSort('trackingCode')}>
                           <div className="flex items-center gap-1">
                             <span>Mã RFQ</span>
                             <ArrowUpDown className="w-3 h-3 text-[#C5A880]" />
                           </div>
                         </th>
-                        <th
-                          className="p-4 cursor-pointer hover:text-white"
-                          onClick={() => toggleRfqSort('fullName')}
-                        >
+                        <th className="p-4 cursor-pointer hover:text-white" onClick={() => toggleRfqSort('fullName')}>
                           <div className="flex items-center gap-1">
                             <span>Người Liên Hệ</span>
                             <ArrowUpDown className="w-3 h-3 text-[#C5A880]" />
@@ -1047,19 +1289,13 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                         </th>
                         <th className="p-4">Điện Thoại / Email</th>
                         <th className="p-4">Sản Phẩm & Bản Vẽ</th>
-                        <th
-                          className="p-4 cursor-pointer hover:text-white"
-                          onClick={() => toggleRfqSort('status')}
-                        >
+                        <th className="p-4 cursor-pointer hover:text-white" onClick={() => toggleRfqSort('status')}>
                           <div className="flex items-center gap-1">
                             <span>Trạng Thái</span>
                             <ArrowUpDown className="w-3 h-3 text-[#C5A880]" />
                           </div>
                         </th>
-                        <th
-                          className="p-4 cursor-pointer hover:text-white"
-                          onClick={() => toggleRfqSort('createdAt')}
-                        >
+                        <th className="p-4 cursor-pointer hover:text-white" onClick={() => toggleRfqSort('createdAt')}>
                           <div className="flex items-center gap-1">
                             <span>Thời Gian</span>
                             <ArrowUpDown className="w-3 h-3 text-[#C5A880]" />
@@ -1081,12 +1317,8 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                             <div className="text-white/50 text-[11px]">{r.email}</div>
                           </td>
                           <td className="p-4">
-                            <div className="text-xs text-white/80">
-                              {r.selectedProducts.length} sản phẩm chọn
-                            </div>
-                            <div className="text-[11px] text-[#C5A880]">
-                              📎 {r.attachments.length} bản vẽ đính kèm
-                            </div>
+                            <div className="text-xs text-white/80">{r.selectedProducts.length} sản phẩm chọn</div>
+                            <div className="text-[11px] text-[#C5A880]">📎 {r.attachments.length} bản vẽ đính kèm</div>
                           </td>
                           <td className="p-4">
                             <select
@@ -1115,7 +1347,6 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                     </tbody>
                   </table>
 
-                  {/* Pagination Footer */}
                   <div className="p-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-white/60 bg-black/30">
                     <div>
                       Hiển thị {Math.min(sortedRfqs.length, (rfqPage - 1) * rfqPageSize + 1)} -{' '}
@@ -1130,11 +1361,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                       >
                         <ChevronLeft className="w-3.5 h-3.5" />
                       </button>
-
-                      <span>
-                        Trang {rfqPage} / {totalRfqPages}
-                      </span>
-
+                      <span>Trang {rfqPage} / {totalRfqPages}</span>
                       <button
                         onClick={() => setRfqPage((p) => Math.min(totalRfqPages, p + 1))}
                         disabled={rfqPage >= totalRfqPages}
@@ -1148,10 +1375,9 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
               </div>
             )}
 
-            {/* TAB 3: PRODUCTS MANAGEMENT (WITH SORTING & PAGINATION) */}
+            {/* TAB 3: PRODUCTS MANAGEMENT (MULTI-IMAGE GALLERY & VISUAL MANAGEMENT) */}
             {activeTab === 'products' && (
               <div className="space-y-4">
-                {/* Search & Category Filter */}
                 <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
                   <div className="flex items-center gap-2 overflow-x-auto text-xs font-mono">
                     {[
@@ -1195,52 +1421,36 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                   </div>
                 </div>
 
-                {/* Products Table with Sortable Headers */}
                 <div className="rounded-2xl bg-[#181615] border border-white/10 overflow-hidden">
                   <table className="w-full text-left text-xs">
                     <thead>
                       <tr className="border-b border-white/10 bg-black/40 text-white/50 font-mono uppercase text-[10px]">
-                        <th className="p-4">Ảnh</th>
-                        <th
-                          className="p-4 cursor-pointer hover:text-white"
-                          onClick={() => toggleProductSort('sku')}
-                        >
+                        <th className="p-4">Ảnh Bìa</th>
+                        <th className="p-4 cursor-pointer hover:text-white" onClick={() => toggleProductSort('sku')}>
                           <div className="flex items-center gap-1">
                             <span>SKU</span>
                             <ArrowUpDown className="w-3 h-3 text-[#C5A880]" />
                           </div>
                         </th>
-                        <th
-                          className="p-4 cursor-pointer hover:text-white"
-                          onClick={() => toggleProductSort('name')}
-                        >
+                        <th className="p-4 cursor-pointer hover:text-white" onClick={() => toggleProductSort('name')}>
                           <div className="flex items-center gap-1">
                             <span>Tên Sản Phẩm (VI / EN)</span>
                             <ArrowUpDown className="w-3 h-3 text-[#C5A880]" />
                           </div>
                         </th>
-                        <th
-                          className="p-4 cursor-pointer hover:text-white"
-                          onClick={() => toggleProductSort('dimensions')}
-                        >
+                        <th className="p-4 cursor-pointer hover:text-white" onClick={() => toggleProductSort('dimensions')}>
                           <div className="flex items-center gap-1">
                             <span>Kích Thước</span>
                             <ArrowUpDown className="w-3 h-3 text-[#C5A880]" />
                           </div>
                         </th>
-                        <th
-                          className="p-4 cursor-pointer hover:text-white"
-                          onClick={() => toggleProductSort('category')}
-                        >
+                        <th className="p-4 cursor-pointer hover:text-white" onClick={() => toggleProductSort('category')}>
                           <div className="flex items-center gap-1">
                             <span>Bộ Sưu Tập</span>
                             <ArrowUpDown className="w-3 h-3 text-[#C5A880]" />
                           </div>
                         </th>
-                        <th
-                          className="p-4 cursor-pointer hover:text-white"
-                          onClick={() => toggleProductSort('isPublished')}
-                        >
+                        <th className="p-4 cursor-pointer hover:text-white" onClick={() => toggleProductSort('isPublished')}>
                           <div className="flex items-center gap-1">
                             <span>Hiển Thị</span>
                             <ArrowUpDown className="w-3 h-3 text-[#C5A880]" />
@@ -1280,7 +1490,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                             <button
                               onClick={() => openEditProduct(p)}
                               className="px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-[#C5A880] hover:text-[#191919] font-mono text-xs transition-colors cursor-pointer inline-flex items-center gap-1"
-                              title="Chỉnh sửa chi tiết & ảnh sản phẩm"
+                              title="Chỉnh sửa chi tiết & quản lý nhiều ảnh"
                             >
                               <Edit3 className="w-3.5 h-3.5" />
                               <span>Sửa</span>
@@ -1299,7 +1509,6 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                     </tbody>
                   </table>
 
-                  {/* Pagination Footer */}
                   <div className="p-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-white/60 bg-black/30">
                     <div>
                       Hiển thị {Math.min(sortedProducts.length, (productPage - 1) * productPageSize + 1)} -{' '}
@@ -1314,11 +1523,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                       >
                         <ChevronLeft className="w-3.5 h-3.5" />
                       </button>
-
-                      <span>
-                        Trang {productPage} / {totalProductPages}
-                      </span>
-
+                      <span>Trang {productPage} / {totalProductPages}</span>
                       <button
                         onClick={() => setProductPage((p) => Math.min(totalProductPages, p + 1))}
                         disabled={productPage >= totalProductPages}
@@ -1342,42 +1547,28 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                       className="p-6 rounded-3xl bg-[#181615] border border-white/10 flex flex-col justify-between space-y-4"
                     >
                       <div>
-                        {/* Top Badge & Number */}
                         <div className="flex items-center justify-between pb-3 border-b border-white/10 text-xs font-mono">
                           <span className="text-[#C5A880] font-bold">COLLECTION {col.number}</span>
                           <span className="text-white/40">ID: {col.id}</span>
                         </div>
 
-                        {/* Image & Titles */}
                         <div className="mt-4 flex gap-4">
                           <div className="w-28 h-20 rounded-xl overflow-hidden bg-white/5 shrink-0 border border-white/10 p-1">
-                            <img
-                              src={col.overviewImage}
-                              alt={col.title.vi}
-                              className="w-full h-full object-cover rounded-lg"
-                            />
+                            <img src={col.overviewImage} alt={col.title.vi} className="w-full h-full object-cover rounded-lg" />
                           </div>
                           <div>
-                            <h3 className="font-serif text-lg font-normal text-white">
-                              {col.title.vi}
-                            </h3>
-                            <h4 className="font-serif text-xs italic text-white/50">
-                              {col.title.en}
-                            </h4>
-                            <p className="mt-2 text-xs text-white/70 line-clamp-2 font-light">
-                              {col.subtitle.vi}
-                            </p>
+                            <h3 className="font-serif text-lg font-normal text-white">{col.title.vi}</h3>
+                            <h4 className="font-serif text-xs italic text-white/50">{col.title.en}</h4>
+                            <p className="mt-2 text-xs text-white/70 line-clamp-2 font-light">{col.subtitle.vi}</p>
                           </div>
                         </div>
 
-                        {/* Pieces Summary */}
                         <div className="mt-4 p-3 rounded-xl bg-black/40 border border-white/10 text-[11px] font-mono text-white/70">
                           <span className="text-white/40 block text-[9px] uppercase">Hạng mục chính:</span>
                           <span className="text-[#C5A880]">{col.pieces}</span>
                         </div>
                       </div>
 
-                      {/* Edit Collection Button */}
                       <button
                         onClick={() => openEditCollection(col)}
                         className="w-full py-2.5 px-4 rounded-xl bg-white/10 hover:bg-[#C5A880] hover:text-[#191919] text-white text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-2"
@@ -1391,7 +1582,66 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
               </div>
             )}
 
-            {/* TAB 5: CONTACTS (WITH PAGINATION) */}
+            {/* TAB 5: MILLWORK & COMMERCIAL PROJECTS (NEW: FULL MANAGEMENT & SUB-IMAGE GALLERY) */}
+            {activeTab === 'millwork' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {millworkProjects.map((proj) => (
+                    <div
+                      key={proj.id}
+                      className="p-6 rounded-3xl bg-[#181615] border border-white/10 flex flex-col justify-between space-y-4"
+                    >
+                      <div>
+                        {/* Project Header */}
+                        <div className="flex items-center justify-between pb-3 border-b border-white/10 text-xs font-mono">
+                          <span className="text-[#C5A880] font-bold">{proj.badge.vi}</span>
+                          <span className="text-white/40">{proj.galleryImages.length} ảnh con</span>
+                        </div>
+
+                        {/* Project Cover Image */}
+                        <div className="mt-4 aspect-16/10 rounded-xl overflow-hidden bg-black/40 border border-white/10 relative">
+                          <img src={proj.image} alt={proj.title.vi} className="w-full h-full object-cover" />
+                          <div className="absolute top-2 left-2 px-2 py-0.5 rounded-sm bg-black/75 text-[10px] font-mono text-[#C5A880] border border-white/10">
+                            {proj.client}
+                          </div>
+                        </div>
+
+                        <div className="mt-4 space-y-2">
+                          <h3 className="font-serif text-lg font-normal text-white">{proj.title.vi}</h3>
+                          <h4 className="font-serif text-xs italic text-white/50">{proj.title.en}</h4>
+                          <p className="text-xs text-white/70 line-clamp-3 font-light leading-relaxed">
+                            {proj.desc.vi}
+                          </p>
+                        </div>
+
+                        {/* Specs overview */}
+                        <div className="mt-4 p-3 rounded-xl bg-black/40 border border-white/10 space-y-1.5 text-[11px] font-mono text-white/70">
+                          <div>
+                            <span className="text-white/40">Phạm vi: </span>
+                            <span className="text-white/90 line-clamp-1">{proj.scope.vi}</span>
+                          </div>
+                          <div>
+                            <span className="text-white/40">Vật liệu: </span>
+                            <span className="text-white/90 line-clamp-1">{proj.materials.vi}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Edit Project Button */}
+                      <button
+                        onClick={() => openEditProject(proj)}
+                        className="w-full py-2.5 px-4 rounded-xl bg-white/10 hover:bg-[#C5A880] hover:text-[#191919] text-white text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-2"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                        <span>Chỉnh Sửa Thông Tin & Đa Ảnh ({proj.galleryImages.length})</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 6: CONTACTS */}
             {activeTab === 'contacts' && (
               <div className="rounded-2xl bg-[#181615] border border-white/10 overflow-hidden">
                 <table className="w-full text-left text-xs">
@@ -1435,7 +1685,6 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                   </tbody>
                 </table>
 
-                {/* Contacts Pagination */}
                 <div className="p-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-white/60 bg-black/30">
                   <div>
                     Hiển thị {Math.min(contacts.length, (contactPage - 1) * contactPageSize + 1)} -{' '}
@@ -1450,9 +1699,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                     >
                       <ChevronLeft className="w-3.5 h-3.5" />
                     </button>
-                    <span>
-                      Trang {contactPage} / {totalContactPages}
-                    </span>
+                    <span>Trang {contactPage} / {totalContactPages}</span>
                     <button
                       onClick={() => setContactPage((p) => Math.min(totalContactPages, p + 1))}
                       disabled={contactPage >= totalContactPages}
@@ -1468,7 +1715,105 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
         </div>
       )}
 
-      {/* ── PRODUCT EDIT / CREATE MODAL WITH VISUAL IMAGE UPLOAD & PREVIEW ── */}
+      {/* ── CHANGE PASSWORD MODAL ── */}
+      {isPasswordModalOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-[140] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
+          onClick={() => setIsPasswordModalOpen(false)}
+        >
+          <div
+            data-lenis-prevent
+            className="w-full max-w-md bg-[#181615] rounded-3xl border border-white/20 p-6 sm:p-8 space-y-5 text-white"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <KeyRound className="w-5 h-5 text-[#C5A880]" />
+                <h3 className="font-serif text-xl font-normal text-white">Đổi Mật Khẩu Quản Trị</h3>
+              </div>
+              <button
+                onClick={() => setIsPasswordModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {passwordChangeError && (
+              <div className="p-3 rounded-xl bg-red-900/40 border border-red-500/40 text-red-200 text-xs text-center font-mono">
+                {passwordChangeError}
+              </div>
+            )}
+
+            {passwordChangeMessage && (
+              <div className="p-3 rounded-xl bg-emerald-900/40 border border-emerald-500/40 text-emerald-300 text-xs text-center font-mono">
+                ✓ {passwordChangeMessage}
+              </div>
+            )}
+
+            <form onSubmit={handleChangePasswordSubmit} className="space-y-4 text-xs font-mono">
+              <div>
+                <label className="block text-white/70 mb-1">Mật khẩu hiện tại *:</label>
+                <input
+                  type="password"
+                  required
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  placeholder="Nhập mật khẩu hiện tại"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/40 border border-white/15 text-white focus:border-[#C5A880]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-white/70 mb-1">Mật khẩu mới (ít nhất 8 ký tự) *:</label>
+                <input
+                  type="password"
+                  required
+                  minLength={8}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Mật khẩu mới an toàn"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/40 border border-white/15 text-white focus:border-[#C5A880]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-white/70 mb-1">Xác nhận mật khẩu mới *:</label>
+                <input
+                  type="password"
+                  required
+                  minLength={8}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Nhập lại mật khẩu mới"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/40 border border-white/15 text-white focus:border-[#C5A880]"
+                />
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsPasswordModalOpen(false)}
+                  className="px-4 py-2 rounded-xl border border-white/20 text-white/70 hover:bg-white/10 text-xs transition-colors cursor-pointer"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  disabled={isChangingPassword}
+                  className="px-5 py-2.5 rounded-xl bg-[#C5A880] hover:bg-white text-[#191919] font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer shadow-md disabled:opacity-50"
+                >
+                  {isChangingPassword ? 'Đang lưu...' : 'Lưu Mật Khẩu'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── PRODUCT EDIT / CREATE MODAL (WITH MULTI-IMAGE GALLERY MANAGER) ── */}
       {(editingProduct || isAddProductOpen) && (
         <div
           role="dialog"
@@ -1706,35 +2051,19 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                 />
               </div>
 
-              {/* ── VISUAL IMAGE UPLOAD & PREVIEW SECTION ── */}
-              <div className="space-y-3 pt-2 border-t border-white/10">
-                <span className="text-xs font-mono text-[#C5A880] uppercase tracking-wider block">
-                  Quản lý hình ảnh trực quan (Tải từ máy tính):
-                </span>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Visual Image 1: Studio Shot */}
-                  <ImageUploadField
-                    label="Ảnh đại diện Studio (1:1)"
-                    subLabel="Hiển thị trên catalog & thẻ sản phẩm"
-                    value={productForm.image}
-                    onChange={(url) => setProductForm({ ...productForm, image: url })}
-                    recommendedRatio="1:1 Vuông (1200x1200px)"
-                  />
-
-                  {/* Visual Image 2: Cutout PNG */}
-                  <ImageUploadField
-                    label="Ảnh tách nền (Cutout PNG)"
-                    subLabel="Dùng cho bản vẽ phối cảnh kiến trúc"
-                    value={productForm.cutoutImage}
-                    onChange={(url) => setProductForm({ ...productForm, cutoutImage: url })}
-                    recommendedRatio="PNG Trong suốt"
-                  />
-                </div>
+              {/* ── MULTI-IMAGE GALLERY MANAGER (1st image is Cover photo, subsequent are other angles) ── */}
+              <div className="pt-2 border-t border-white/10">
+                <MultiImageGalleryManager
+                  label="Bộ Sưu Tập Hình Ảnh Sản Phẩm (Nhiều Góc Chụp)"
+                  subLabel="Tải ảnh từ máy tính. Kéo/chọn ảnh đầu tiên làm ảnh đại diện sản phẩm."
+                  images={productForm.galleryImages}
+                  onChange={(updatedImages) => setProductForm({ ...productForm, galleryImages: updatedImages })}
+                  maxImages={12}
+                />
               </div>
 
               {/* Published toggle */}
-              <div className="flex items-center gap-2 pt-2">
+              <div className="flex items-center gap-2 pt-1">
                 <input
                   type="checkbox"
                   id="prod-published"
@@ -1775,7 +2104,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
         </div>
       )}
 
-      {/* ── COLLECTION EDIT MODAL WITH VISUAL IMAGE UPLOAD ── */}
+      {/* ── COLLECTION EDIT MODAL WITH MULTI-IMAGE GALLERY ── */}
       {editingCollection && (
         <div
           role="dialog"
@@ -1902,17 +2231,14 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                 />
               </div>
 
-              {/* Visual Collection Image Upload */}
-              <div className="pt-2 border-t border-white/10 space-y-2">
-                <span className="text-xs font-mono text-[#C5A880] uppercase tracking-wider block">
-                  Hình ảnh tổng thể bộ sưu tập (Moodboard):
-                </span>
-                <ImageUploadField
-                  label="Ảnh phối cảnh tổng thể (Overview Board)"
-                  subLabel="Ảnh ngang kích thước lớn"
-                  value={collectionForm.overviewImage}
-                  onChange={(url) => setCollectionForm({ ...collectionForm, overviewImage: url })}
-                  recommendedRatio="16:10 hoặc 16:9"
+              {/* Multi-Image Gallery Manager for Collection */}
+              <div className="pt-2 border-t border-white/10">
+                <MultiImageGalleryManager
+                  label="Bộ Sưu Tập Hình Ảnh (Moodboard, Bối Cảnh & Bề Mặt)"
+                  subLabel="Ảnh đầu tiên làm ảnh đại diện chính của bộ sưu tập."
+                  images={collectionForm.galleryImages}
+                  onChange={(imgs) => setCollectionForm({ ...collectionForm, galleryImages: imgs })}
+                  maxImages={8}
                 />
               </div>
             </form>
@@ -1935,6 +2261,219 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
               >
                 <Save className="w-4 h-4" />
                 <span>{isSaving ? 'Đang lưu...' : 'Lưu Thay Đổi BST'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MILLWORK & PROJECT EDIT MODAL (WITH MULTI-IMAGE GALLERY MANAGER) ── */}
+      {editingProject && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-[130] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
+          onClick={() => setEditingProject(null)}
+        >
+          <div
+            data-lenis-prevent
+            className="w-full max-w-3xl bg-[#181615] rounded-3xl border border-white/20 p-6 sm:p-8 space-y-5 text-white max-h-[92vh] flex flex-col justify-between overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-white/10 shrink-0">
+              <div>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-[#C5A880]">
+                  QUẢN LÝ DỰ ÁN MỘC KIẾN TRÚC & F&B
+                </span>
+                <h3 className="font-serif text-2xl font-normal text-white">
+                  {projectForm.titleVi || editingProject.client}
+                </h3>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="flex rounded-lg bg-black/50 p-1 border border-white/15 text-xs font-mono">
+                  <button
+                    type="button"
+                    onClick={() => setFormLangTab('vi')}
+                    className={`px-3 py-1 rounded-md transition-colors cursor-pointer ${
+                      formLangTab === 'vi' ? 'bg-[#C5A880] text-[#191919] font-bold' : 'text-white/60'
+                    }`}
+                  >
+                    Tiếng Việt
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormLangTab('en')}
+                    className={`px-3 py-1 rounded-md transition-colors cursor-pointer ${
+                      formLangTab === 'en' ? 'bg-[#C5A880] text-[#191919] font-bold' : 'text-white/60'
+                    }`}
+                  >
+                    English
+                  </button>
+                </div>
+
+                <button
+                  onClick={() => setEditingProject(null)}
+                  className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20 cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {saveSuccessMessage && (
+              <div className="p-3 rounded-xl bg-emerald-900/40 border border-emerald-500/40 text-emerald-300 text-xs text-center font-mono">
+                ✓ {saveSuccessMessage}
+              </div>
+            )}
+
+            {/* Scrollable Form Body */}
+            <form
+              id="proj-edit-form"
+              onSubmit={handleSaveProject}
+              className="flex-1 overflow-y-auto overscroll-contain space-y-4 pr-1 text-xs"
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-mono text-white/70 mb-1">Tên khách hàng / Chuỗi thương hiệu *:</label>
+                  <input
+                    type="text"
+                    required
+                    value={projectForm.client}
+                    onChange={(e) => setProjectForm({ ...projectForm, client: e.target.value })}
+                    className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white focus:border-[#C5A880]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-mono text-white/70 mb-1">
+                    {formLangTab === 'vi' ? 'Huy hiệu phân loại (VI):' : 'Classification Badge (EN):'}
+                  </label>
+                  <input
+                    type="text"
+                    value={formLangTab === 'vi' ? projectForm.badgeVi : projectForm.badgeEn}
+                    onChange={(e) =>
+                      formLangTab === 'vi'
+                        ? setProjectForm({ ...projectForm, badgeVi: e.target.value })
+                        : setProjectForm({ ...projectForm, badgeEn: e.target.value })
+                    }
+                    className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white focus:border-[#C5A880]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-mono text-white/70 mb-1">
+                  {formLangTab === 'vi' ? 'Tiêu đề dự án (Tiếng Việt) *:' : 'Project Title (English) *:'}
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formLangTab === 'vi' ? projectForm.titleVi : projectForm.titleEn}
+                  onChange={(e) =>
+                    formLangTab === 'vi'
+                      ? setProjectForm({ ...projectForm, titleVi: e.target.value })
+                      : setProjectForm({ ...projectForm, titleEn: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white focus:border-[#C5A880]"
+                />
+              </div>
+
+              <div>
+                <label className="block font-mono text-white/70 mb-1">
+                  {formLangTab === 'vi' ? 'Mô tả tóm tắt (Tiếng Việt):' : 'Summary Description (English):'}
+                </label>
+                <textarea
+                  rows={2}
+                  value={formLangTab === 'vi' ? projectForm.descVi : projectForm.descEn}
+                  onChange={(e) =>
+                    formLangTab === 'vi'
+                      ? setProjectForm({ ...projectForm, descVi: e.target.value })
+                      : setProjectForm({ ...projectForm, descEn: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white focus:border-[#C5A880]"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-mono text-white/70 mb-1">
+                    {formLangTab === 'vi' ? 'Phạm vi công việc (VI):' : 'Scope of Work (EN):'}
+                  </label>
+                  <input
+                    type="text"
+                    value={formLangTab === 'vi' ? projectForm.scopeVi : projectForm.scopeEn}
+                    onChange={(e) =>
+                      formLangTab === 'vi'
+                        ? setProjectForm({ ...projectForm, scopeVi: e.target.value })
+                        : setProjectForm({ ...projectForm, scopeEn: e.target.value })
+                    }
+                    className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white focus:border-[#C5A880]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-mono text-white/70 mb-1">
+                    {formLangTab === 'vi' ? 'Vật liệu chỉ định (VI):' : 'Materials Schedule (EN):'}
+                  </label>
+                  <input
+                    type="text"
+                    value={formLangTab === 'vi' ? projectForm.materialsVi : projectForm.materialsEn}
+                    onChange={(e) =>
+                      formLangTab === 'vi'
+                        ? setProjectForm({ ...projectForm, materialsVi: e.target.value })
+                        : setProjectForm({ ...projectForm, materialsEn: e.target.value })
+                    }
+                    className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white focus:border-[#C5A880]"
+                  />
+                </div>
+              </div>
+
+              {/* Multi-Image Gallery Manager for Millwork Project Photos */}
+              <div className="pt-2 border-t border-white/10">
+                <MultiImageGalleryManager
+                  label="Thư Viện Ảnh Chi Tiết Công Trình (Phóng To & SlideShow)"
+                  subLabel="Ảnh đầu tiên là ảnh bìa công trình. Các ảnh sau là từng góc chụp chi tiết cho phép khách phóng to."
+                  images={projectForm.galleryImages.map((g) => ({
+                    url: g.url,
+                    caption: g.caption?.vi || g.caption?.en || '',
+                  }))}
+                  onChange={(updated) =>
+                    setProjectForm({
+                      ...projectForm,
+                      galleryImages: updated.map((u) => ({
+                        url: u.url,
+                        caption: {
+                          vi: typeof u.caption === 'string' ? u.caption : u.caption?.vi || '',
+                          en: typeof u.caption === 'string' ? u.caption : u.caption?.en || '',
+                        },
+                      })),
+                    })
+                  }
+                  maxImages={20}
+                />
+              </div>
+            </form>
+
+            {/* Pinned Modal Footer */}
+            <div className="pt-4 border-t border-white/10 flex items-center justify-between shrink-0">
+              <button
+                type="button"
+                onClick={() => setEditingProject(null)}
+                className="px-4 py-2 rounded-xl border border-white/20 text-white/70 hover:bg-white/10 text-xs font-mono transition-colors cursor-pointer"
+              >
+                Hủy bỏ
+              </button>
+
+              <button
+                type="submit"
+                form="proj-edit-form"
+                disabled={isSaving}
+                className="px-6 py-2.5 rounded-xl bg-[#C5A880] hover:bg-white text-[#191919] text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer flex items-center gap-2 shadow-md disabled:opacity-50"
+              >
+                <Save className="w-4 h-4" />
+                <span>{isSaving ? 'Đang lưu...' : 'Lưu Thay Đổi Dự Án'}</span>
               </button>
             </div>
           </div>

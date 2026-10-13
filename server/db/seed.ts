@@ -1,9 +1,14 @@
 import { initDatabase, db } from './index';
-import { COLLECTIONS_OVERVIEW, PRODUCTS_CATALOG } from '../../src/data/content';
+import {
+  COLLECTIONS_OVERVIEW,
+  PRODUCTS_CATALOG,
+  MILLWORK_PROJECTS,
+  COMMERCIAL_CLIENTS,
+} from '../../src/data/content';
 import { hashPassword } from '../services/auth.service';
 
 export function seedDatabase(): void {
-  // 1. Initialize schema
+  // 1. Initialize schema and column migrations
   initDatabase();
 
   // 2. Seed Admin User
@@ -22,10 +27,19 @@ export function seedDatabase(): void {
   for (let i = 0; i < COLLECTIONS_OVERVIEW.length; i++) {
     const c = COLLECTIONS_OVERVIEW[i];
     const exists = db.get<{ id: string }>('SELECT id FROM collections WHERE id = ?', [c.id]);
+    const gallery = [
+      { url: c.overviewImage, caption: c.title.vi, isCover: true },
+      ...(c.detailImage ? [{ url: c.detailImage, caption: 'Mẫu vật liệu tuyển chọn', isCover: false }] : []),
+    ];
+    const galleryJson = JSON.stringify(gallery);
+
     if (!exists) {
       db.run(
-        `INSERT INTO collections (id, number, title_vi, title_en, subtitle_vi, subtitle_en, pieces_summary, overview_image, detail_image, materials_summary_vi, materials_summary_en, sort_order, is_active)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+        `INSERT INTO collections (
+          id, number, title_vi, title_en, subtitle_vi, subtitle_en, pieces_summary,
+          overview_image, detail_image, materials_summary_vi, materials_summary_en,
+          gallery_images_json, sort_order, is_active
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
         [
           c.id,
           c.number,
@@ -38,18 +52,33 @@ export function seedDatabase(): void {
           c.detailImage || null,
           c.materialsSummary?.vi || null,
           c.materialsSummary?.en || null,
+          galleryJson,
           i + 1,
         ]
       );
+    } else {
+      // Update gallery if empty
+      db.run('UPDATE collections SET gallery_images_json = COALESCE(gallery_images_json, ?) WHERE id = ?', [
+        galleryJson,
+        c.id,
+      ]);
     }
   }
   console.log(`[Seed] Synced ${COLLECTIONS_OVERVIEW.length} collections.`);
 
-  // 4. Seed Products
+  // 4. Seed Products with Multi-Image Gallery
   let inserted = 0;
   for (const p of PRODUCTS_CATALOG) {
     const exists = db.get<{ id: string }>('SELECT id FROM products WHERE id = ?', [p.id]);
     const tagsStr = Array.isArray(p.tags) ? p.tags.join(', ') : '';
+
+    const gallery = [
+      { url: p.image, caption: p.name.vi, isCover: true },
+      ...(p.cutoutImage ? [{ url: p.cutoutImage, caption: 'Bản vẽ tách nền kiến trúc', isCover: false }] : []),
+      ...(p.collectionImage ? [{ url: p.collectionImage, caption: 'Phối cảnh không gian nội thất', isCover: false }] : []),
+      ...(p.detailImage ? [{ url: p.detailImage, caption: 'Cận cảnh thớ gỗ & vật liệu đá', isCover: false }] : []),
+    ];
+    const galleryJson = JSON.stringify(gallery);
 
     if (!exists) {
       db.run(
@@ -58,13 +87,13 @@ export function seedDatabase(): void {
           dimensions, dimensions_cm, materials_vi, materials_en, finish_vi, finish_en,
           color_vi, color_en, hardware_vi, hardware_en, design_style_vi, design_style_en,
           description_vi, description_en, image, cutout_image, collection_image, detail_image,
-          tags, seo_keywords, is_published
+          gallery_images_json, tags, seo_keywords, is_published
         ) VALUES (
           ?, ?, ?, ?, ?, ?, ?, ?,
           ?, ?, ?, ?, ?, ?,
           ?, ?, ?, ?, ?, ?,
           ?, ?, ?, ?, ?, ?,
-          ?, ?, 1
+          ?, ?, ?, 1
         )`,
         [
           p.id,
@@ -93,14 +122,81 @@ export function seedDatabase(): void {
           p.cutoutImage || null,
           p.collectionImage || null,
           p.detailImage || null,
+          galleryJson,
           tagsStr,
           p.seoKeywords || null,
         ]
       );
       inserted++;
+    } else {
+      // Ensure gallery_images_json is populated
+      db.run('UPDATE products SET gallery_images_json = COALESCE(gallery_images_json, ?) WHERE id = ?', [
+        galleryJson,
+        p.id,
+      ]);
     }
   }
   console.log(`[Seed] Synced ${PRODUCTS_CATALOG.length} products (inserted: ${inserted}).`);
+
+  // 5. Seed Millwork Projects (Mộc Kiến Trúc & Dự Án Thương Mại)
+  for (let i = 0; i < MILLWORK_PROJECTS.length; i++) {
+    const proj = MILLWORK_PROJECTS[i];
+    const exists = db.get<{ id: string }>('SELECT id FROM millwork_projects WHERE id = ?', [proj.id]);
+    const galleryJson = JSON.stringify(proj.galleryImages);
+
+    if (!exists) {
+      db.run(
+        `INSERT INTO millwork_projects (
+          id, client, badge_vi, badge_en, title_vi, title_en, desc_vi, desc_en,
+          scope_vi, scope_en, materials_vi, materials_en, standards_vi, standards_en,
+          image, gallery_images_json, sort_order, is_active
+        ) VALUES (
+          ?, ?, ?, ?, ?, ?, ?, ?,
+          ?, ?, ?, ?, ?, ?,
+          ?, ?, ?, 1
+        )`,
+        [
+          proj.id,
+          proj.client,
+          proj.badge.vi,
+          proj.badge.en,
+          proj.title.vi,
+          proj.title.en,
+          proj.desc.vi,
+          proj.desc.en,
+          proj.scope.vi,
+          proj.scope.en,
+          proj.materials.vi,
+          proj.materials.en,
+          proj.standards.vi,
+          proj.standards.en,
+          proj.image,
+          galleryJson,
+          i + 1,
+        ]
+      );
+    } else {
+      db.run('UPDATE millwork_projects SET gallery_images_json = COALESCE(gallery_images_json, ?) WHERE id = ?', [
+        galleryJson,
+        proj.id,
+      ]);
+    }
+  }
+  console.log(`[Seed] Synced ${MILLWORK_PROJECTS.length} millwork projects.`);
+
+  // 6. Seed Commercial Clients (Logo đối tác F&B)
+  const clientCount = db.get<{ count: number }>('SELECT count(*) as count FROM commercial_clients');
+  if (!clientCount || clientCount.count === 0) {
+    for (let i = 0; i < COMMERCIAL_CLIENTS.length; i++) {
+      const cl = COMMERCIAL_CLIENTS[i];
+      db.run(
+        `INSERT INTO commercial_clients (name, role, logo_text, sort_order)
+         VALUES (?, ?, ?, ?)`,
+        [cl.name, cl.role, cl.logoText, i + 1]
+      );
+    }
+    console.log(`[Seed] Synced ${COMMERCIAL_CLIENTS.length} commercial partner brands.`);
+  }
 }
 
 // Run standalone if invoked directly

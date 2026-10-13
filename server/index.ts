@@ -12,6 +12,7 @@ import rfqRoutes from './routes/rfq.routes';
 import contactsRoutes from './routes/contacts.routes';
 import mediaRoutes from './routes/media.routes';
 import statsRoutes from './routes/stats.routes';
+import millworkRoutes from './routes/millwork.routes';
 
 dotenv.config();
 
@@ -71,6 +72,7 @@ app.use('/api/v1/rfqs', rfqRoutes);
 app.use('/api/v1/contacts', contactsRoutes);
 app.use('/api/v1/media', mediaRoutes);
 app.use('/api/v1/dashboard/stats', statsRoutes);
+app.use('/api/v1/millwork', millworkRoutes);
 
 // 6. Production Static Build Serving
 const distDir = path.resolve(process.cwd(), 'dist');
