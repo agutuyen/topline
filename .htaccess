@@ -1,0 +1,27 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Don't rewrite if request is already targeting dist/
+  RewriteCond %{REQUEST_URI} ^/dist/ [NC]
+  RewriteRule ^ - [L]
+
+  # If the requested file or directory exists in dist/, serve it from dist/
+  RewriteCond %{DOCUMENT_ROOT}/dist/$1 -f [OR]
+  RewriteCond %{DOCUMENT_ROOT}/dist/$1 -d
+  RewriteRule ^(.*)$ /dist/$1 [L]
+
+  # Otherwise, route all requests to /dist/index.html
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^(.*)$ /dist/index.html [L]
+</IfModule>
+
+<IfModule mod_mime.c>
+  AddType text/javascript .js
+  AddType text/javascript .mjs
+  AddType text/css .css
+  AddType image/svg+xml .svg
+  AddType image/webp .webp
+  AddType image/png .png
+  AddType image/jpeg .jpg .jpeg
+</IfModule>
