@@ -7,6 +7,7 @@
 
 html {
   scroll-behavior: smooth;
+  font-variant-numeric: tabular-nums;
 }
 
 body {
@@ -18,11 +19,17 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  caret-color: #C5A880;
+}
+
+::selection {
+  background-color: #C5A880;
+  color: #191919;
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
@@ -36,4 +43,9 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #a68a56;
+}
+
+:focus-visible {
+  outline: 2px solid #C5A880;
+  outline-offset: 3px;
 }

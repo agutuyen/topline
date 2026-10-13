@@ -15,9 +15,6 @@ export default function AboutSection({ lang, onOpenRFQ }: AboutSectionProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
         {/* Section Header */}
         <div className="max-w-3xl">
-          <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.22em] text-[#A68A56]">
-            01 / {lang === 'vi' ? 'VỀ CHÚNG TÔI' : 'COMPANY PROFILE'}
-          </span>
           <h2 className="mt-3 font-serif text-3xl sm:text-4xl md:text-5xl font-normal tracking-tight text-[#191919]">
             {lang === 'vi' ? 'Nhà Xưởng Chế Tác May Đo Chuẩn Quốc Tế' : 'Our Manufacturing Base & Vision'}
           </h2>
@@ -128,9 +125,6 @@ export default function AboutSection({ lang, onOpenRFQ }: AboutSectionProps) {
         {/* 3 Core Sectors Cards (Hospitality | Millwork | Retail) */}
         <div id="capabilities" className="mt-20">
           <div className="text-center max-w-2xl mx-auto mb-12">
-            <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.22em] text-[#A68A56]">
-              02 / {lang === 'vi' ? 'LĨNH VỰC NĂNG LỰC CỐT LÕI' : 'CORE SECTORS'}
-            </span>
             <h3 className="mt-2 font-serif text-2xl sm:text-3xl md:text-4xl text-[#191919]">
               {lang === 'vi' ? 'Chuyên Môn Hóa Theo Từng Dự Án' : 'Tailored For Demanding Environments'}
             </h3>

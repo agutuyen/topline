@@ -46,9 +46,6 @@ export default function CollectionsExplorer({
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-10 border-b border-gray-200">
           <div>
-            <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.22em] text-[#A68A56]">
-              03 / {lang === 'vi' ? 'BỘ SƯU TẬP & DANH MỤC' : 'CURATED COLLECTIONS'}
-            </span>
             <h2 className="mt-2 font-serif text-3xl sm:text-4xl md:text-5xl font-normal tracking-tight text-[#191919]">
               {lang === 'vi' ? 'Ngôn Ngữ Thiết Kế Đồng Bộ' : 'Design-Led Furniture Families'}
             </h2>

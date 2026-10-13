@@ -11,9 +11,6 @@ export default function WorkflowSection({ lang }: WorkflowSectionProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto">
-          <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.22em] text-[#A68A56]">
-            05 / {lang === 'vi' ? 'QUY TRÌNH KIỂM SOÁT 5 BƯỚC' : 'CONTROLLED WORKFLOW'}
-          </span>
           <h2 className="mt-3 font-serif text-3xl sm:text-4xl md:text-5xl font-normal tracking-tight text-[#191919]">
             {lang === 'vi' ? 'Từ Bản Vẽ Thiết Kế Đến Bàn Giao' : 'From Development to Delivery'}
           </h2>

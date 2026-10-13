@@ -44,9 +44,6 @@ export default function MillworkShowcase({ lang, onOpenRFQ }: MillworkShowcasePr
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-12 border-b border-white/10">
           <div>
-            <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.22em] text-[#C5A880]">
-              04 / {lang === 'vi' ? 'DỰ ÁN & ĐỐI TÁC THƯƠNG MẠI' : 'PROJECT EXECUTION & COMMERCIAL PARTNERS'}
-            </span>
             <h2 className="mt-3 font-serif text-3xl sm:text-4xl md:text-5xl font-normal tracking-tight text-white">
               {lang === 'vi' ? 'Mộc Kiến Trúc & Thương Hiệu Quốc Tế' : 'Architectural Fit-Out at Scale'}
             </h2>
