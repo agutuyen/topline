@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ArrowRight, Menu, X, Phone } from 'lucide-react';
 import { Language } from '../types';
+import TopLineLogo from './TopLineLogo';
 
 interface NavbarProps {
   lang: Language;
@@ -43,30 +44,11 @@ export default function Navbar({ lang, onToggleLang, onOpenRFQ }: NavbarProps) {
             className="flex items-center gap-3 shrink-0 group cursor-pointer"
             aria-label="Top Line Furniture Home"
           >
-            {/* Elegant Monogram Mark */}
-            <div
-              className={`w-9 h-9 rounded-full flex items-center justify-center font-serif text-sm font-bold tracking-tight transition-all duration-300 ${
-                scrolled
-                  ? 'bg-[#191919] text-[#C5A880] group-hover:bg-[#C5A880] group-hover:text-[#191919]'
-                  : 'bg-white/15 text-[#C5A880] border border-white/20 group-hover:bg-[#C5A880] group-hover:text-[#191919]'
-              }`}
-            >
-              TL
-            </div>
-
-            {/* Brand Wordmark */}
-            <div className="flex flex-col">
-              <span
-                className={`font-serif text-sm sm:text-base font-medium tracking-[0.2em] uppercase leading-none transition-colors ${
-                  scrolled ? 'text-[#191919]' : 'text-white'
-                }`}
-              >
-                Top Line
-              </span>
-              <span className="hidden sm:block text-[9px] font-sans tracking-[0.24em] uppercase text-[#C5A880] mt-0.5 leading-none font-medium">
-                Hospitality Furniture
-              </span>
-            </div>
+            <TopLineLogo
+              variant="compact"
+              theme={scrolled ? 'dark' : 'light'}
+              className="scale-95 sm:scale-100 origin-left"
+            />
           </a>
 
           {/* Desktop Navigation Links — Architectural Kerning */}

@@ -23,15 +23,17 @@ export const COMPANY_INFO = {
     techEmail: 'tech@toplinefurniture.vn',
     supportEmail: 'support@toplinefurniture.vn',
     accountingEmail: 'accounting@toplinefurniture.vn',
-    tagline: 'NỘI THẤT MAY ĐO THEO BẢN VẼ KIẾN TRÚC',
-    subTagline: 'BESPOKE ARCHITECTURAL FURNITURE, MADE TO SCALE.',
+    tagline: 'NỘI THẤT CAO CẤP THEO YÊU CẦU',
+    subTagline: 'TỪ BẢN VẼ ĐẾN THÀNH PHẨM, HOÀN THIỆN TRONG TỪNG CHI TIẾT',
     heritageYear: '2013',
     incorporationDate: '09/10/2026',
     heritageNote: 'Thương hiệu TopLine được Don Winston khởi xướng từ năm 2013. Pháp nhân sản xuất tại Việt Nam thành lập ngày 09/10/2026.',
     foundingStory:
       'Được khởi xướng bởi Don Winston từ năm 2013, TopLine Furniture vận hành như một đối tác sản xuất chiến lược: kết hợp sự tỉ mỉ của tay nghề mộc truyền thống với quy trình gia công chính xác trên quy mô lớn. Pháp nhân sản xuất tại Việt Nam (CÔNG TY TNHH NỘI THẤT TOP LINE HOSPITALITY) được đăng ký chính thức ngày 09/10/2026.',
     foundingSub:
-      'Xưởng chế tác chuyên sâu về đồ gỗ buồng phòng khách sạn, vách ốp mộc kiến trúc (millwork) và các bộ sưu tập nội thất xuất khẩu theo tiêu chuẩn khắt khe của các nhà thiết kế và chủ đầu tư quốc tế.',
+      'TOPLINE phát triển, sản xuất và cung cấp nội thất theo bản vẽ, thông số kỹ thuật và yêu cầu riêng cho từng dự án.',
+    footerDesc:
+      'Chuyên phát triển, sản xuất và cung cấp nội thất theo thiết kế cho các dự án khách sạn, không gian thương mại và thị trường quốc tế.',
   },
   en: {
     officialName: 'TOP LINE HOSPITALITY FURNITURE COMPANY LIMITED',
@@ -55,15 +57,17 @@ export const COMPANY_INFO = {
     techEmail: 'tech@toplinefurniture.vn',
     supportEmail: 'support@toplinefurniture.vn',
     accountingEmail: 'accounting@toplinefurniture.vn',
-    tagline: 'BESPOKE ARCHITECTURAL FURNITURE, MADE TO SCALE.',
-    subTagline: 'HOSPITALITY | ARCHITECTURAL MILLWORK | RETAIL FAMILIES',
+    tagline: 'HIGH-END BESPOKE FURNITURE',
+    subTagline: 'FROM BLUEPRINT TO FINISHED PIECE, REFINED IN EVERY DETAIL',
     heritageYear: '2013',
     incorporationDate: 'October 09, 2026',
     heritageNote: 'Brand heritage initiated by Don Winston in 2013. The operating legal entity in Vietnam was incorporated on October 09, 2026.',
     foundingStory:
       'Initiated by Don Winston in 2013, TopLine Furniture was built on a foundational principle: to make custom furniture truly scalable without sacrificing the bench-made craftsmanship, material honesty, and exacting tolerances that define heirloom contract joinery. Our dedicated manufacturing entity in Vietnam (TOP LINE HOSPITALITY FURNITURE CO., LTD) was incorporated on October 09, 2026.',
     foundingSub:
-      'From our manufacturing facility in Vietnam, TopLine develops and crafts bespoke guestroom casegoods, complex architectural millwork, and coordinated retail collections for premier hospitality developers and designers worldwide.',
+      'TOPLINE develops, manufactures, and supplies custom furniture based on architectural drawings, technical specifications, and bespoke project requirements.',
+    footerDesc:
+      'Specialized in developing, manufacturing, and supplying design-led furniture for hospitality projects, commercial spaces, and international export markets.',
   },
 };
 

@@ -47,12 +47,12 @@ export default function TopLineLogo({
         {MonogramSvg}
         <div className="flex flex-col text-left">
           <span
-            className={`font-serif text-lg tracking-[0.18em] font-medium leading-none ${textColor}`}
+            className={`font-serif text-sm sm:text-base tracking-[0.18em] font-medium leading-none ${textColor}`}
           >
             TOP LINE
           </span>
           <span
-            className="text-[9px] tracking-[0.24em] uppercase font-sans font-medium text-[#C5A880] mt-1"
+            className="hidden sm:block text-[8px] tracking-[0.22em] uppercase font-sans font-medium text-[#C5A880] mt-0.5"
           >
             HOSPITALITY FURNITURE
           </span>

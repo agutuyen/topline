@@ -23,8 +23,8 @@ export default function Footer({ lang, onOpenRFQ, onOpenPrivacy, onOpenTerms }: 
               <TopLineLogo variant="compact" theme="light" />
               <p className="mt-5 text-xs sm:text-sm text-white/70 leading-relaxed font-light max-w-sm">
                 {lang === 'vi'
-                  ? 'Công ty sản xuất nội thất may đo cao cấp cho các công trình khách sạn, kiến trúc ốp gỗ (millwork) và bộ sưu tập xuất khẩu quốc tế từ Việt Nam.'
-                  : 'Bespoke hospitality casegoods, architectural millwork, and design-led furniture manufacturing from Vietnam for international clients.'}
+                  ? 'Chuyên phát triển, sản xuất và cung cấp nội thất theo thiết kế cho các dự án khách sạn, không gian thương mại và thị trường quốc tế.'
+                  : 'Specialized in developing, manufacturing, and supplying design-led furniture for hospitality projects, commercial spaces, and international export markets.'}
               </p>
             </div>
 

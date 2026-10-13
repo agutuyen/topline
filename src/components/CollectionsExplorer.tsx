@@ -47,11 +47,11 @@ export default function CollectionsExplorer({
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-10 border-b border-gray-200">
           <div>
             <h2 className="mt-2 font-serif text-3xl sm:text-4xl md:text-5xl font-normal tracking-tight text-[#191919]">
-              {lang === 'vi' ? 'Ngôn Ngữ Thiết Kế Đồng Bộ' : 'Design-Led Furniture Families'}
+              {lang === 'vi' ? 'Bộ Sưu Tập Nội Thất' : 'Furniture Collections'}
             </h2>
             <p className="mt-3 text-sm sm:text-base text-[#191919]/70 max-w-xl font-light">
               {lang === 'vi'
-                ? 'Mỗi bộ sưu tập được tổ chức nhất quán về chất liệu đá tự nhiên, gỗ sồi tuyển chọn, tỷ lệ hoàn mỹ và phụ kiện kim khí cao cấp.'
+                ? 'Các dòng sản phẩm được hoàn thiện đồng bộ về chất liệu gỗ sồi tuyển chọn, mặt đá tự nhiên và phụ kiện kim khí cao cấp theo tiêu chuẩn xuất khẩu.'
                 : 'Each collection is presented as a complete family — consistent in material, proportion, finish, hardware, and architectural design language.'}
             </p>
           </div>

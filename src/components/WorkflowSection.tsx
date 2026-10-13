@@ -12,11 +12,11 @@ export default function WorkflowSection({ lang }: WorkflowSectionProps) {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto">
           <h2 className="mt-3 font-serif text-3xl sm:text-4xl md:text-5xl font-normal tracking-tight text-[#191919]">
-            {lang === 'vi' ? 'Từ Bản Vẽ Thiết Kế Đến Bàn Giao' : 'From Development to Delivery'}
+            {lang === 'vi' ? 'Quy Trình Phát Triển Và Sản Xuất' : 'Development & Manufacturing Workflow'}
           </h2>
           <p className="mt-4 text-sm sm:text-base text-[#191919]/75 font-light leading-relaxed">
             {lang === 'vi'
-              ? 'Quy trình 5 bước kiểm soát từ bản vẽ kỹ thuật đến khi đóng kiện xuất xưởng: đảm bảo độ chính xác của mộng gỗ, độ khít mối ghép và độ phẳng mặt đá trước khi bàn giao.'
+              ? 'Quy trình kiểm soát toàn diện từ tiếp nhận bản vẽ kỹ thuật đến khi đóng kiện xuất xưởng: đảm bảo độ chính xác của mộng gỗ, độ khít mối ghép và độ phẳng mặt đá trước khi bàn giao.'
               : 'A structured 5-stage contract manufacturing protocol: ensuring joinery precision, moisture stability, and stone surface alignment prior to export dispatch.'}
           </p>
         </div>

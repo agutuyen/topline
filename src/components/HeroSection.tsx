@@ -73,25 +73,25 @@ export default function HeroSection({
               <span className="w-1.5 h-1.5 rounded-full bg-[#C5A880] animate-pulse" />
               <span>
                 {lang === 'vi'
-                  ? 'NHÀ MÁY SẢN XUẤT NỘI THẤT MAY ĐO · VIỆT NAM'
-                  : 'BESPOKE CONTRACT FURNITURE FACILITY · VIETNAM'}
+                  ? 'NỘI THẤT CAO CẤP THEO YÊU CẦU'
+                  : 'HIGH-END BESPOKE FURNITURE'}
               </span>
             </div>
 
             {/* Grand Headline with Cormorant Garamond Serif */}
-            <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl xl:text-[4rem] font-normal tracking-tight leading-[1.1] text-white">
+            <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl xl:text-[3.85rem] font-normal tracking-tight leading-[1.12] text-white">
               {lang === 'vi' ? (
                 <>
-                  Nội Thất May Đo, <br />
+                  Từ Bản Vẽ Đến Thành Phẩm, <br />
                   <span className="italic font-light text-[#C5A880]">
-                    Chuẩn Mực Mọi Quy Mô.
+                    Hoàn Thiện Trong Từng Chi Tiết.
                   </span>
                 </>
               ) : (
                 <>
-                  Architectural Furniture, <br />
+                  From Blueprint to Finished Piece, <br />
                   <span className="italic font-light text-[#C5A880]">
-                    Engineered to Scale.
+                    Refined in Every Detail.
                   </span>
                 </>
               )}
@@ -102,19 +102,19 @@ export default function HeroSection({
               {content.foundingSub}
             </p>
 
-            {/* Architectural Engineering Tags */}
+            {/* Core Values / Giá Trị Cốt Lõi Replacing Image #1 */}
             <div className="flex flex-wrap items-center gap-2.5 pt-2">
-              <div className="px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-white/90 text-xs font-mono flex items-center gap-2">
+              <div className="px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/95 text-xs font-sans font-medium flex items-center gap-2 shadow-sm">
                 <CheckCircle2 className="w-3.5 h-3.5 text-[#C5A880]" />
-                <span>±1.0 mm BOM Tolerance</span>
+                <span>{lang === 'vi' ? 'Sản Xuất Theo Yêu Cầu' : 'Bespoke Manufacturing'}</span>
               </div>
-              <div className="px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-white/90 text-xs font-mono flex items-center gap-2">
+              <div className="px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/95 text-xs font-sans font-medium flex items-center gap-2 shadow-sm">
                 <CheckCircle2 className="w-3.5 h-3.5 text-[#C5A880]" />
-                <span>Kiln Moisture &lt; 10–12%</span>
+                <span>{lang === 'vi' ? 'Kiểm Soát Chất Lượng' : 'Strict Quality Control'}</span>
               </div>
-              <div className="px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-white/90 text-xs font-mono flex items-center gap-2">
+              <div className="px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/95 text-xs font-sans font-medium flex items-center gap-2 shadow-sm">
                 <CheckCircle2 className="w-3.5 h-3.5 text-[#C5A880]" />
-                <span>100% Bench Inspection</span>
+                <span>{lang === 'vi' ? 'Đúng Bản Vẽ & Kỹ Thuật' : 'Exact Blueprint Precision'}</span>
               </div>
             </div>
 
