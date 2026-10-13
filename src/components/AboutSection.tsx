@@ -26,33 +26,35 @@ export default function AboutSection({ lang, onOpenRFQ }: AboutSectionProps) {
         {/* Factory Facility Feature Bento */}
         <div className="mt-12 md:mt-16 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           {/* Factory Image & Badge (7 cols) */}
-          <div className="lg:col-span-7 relative group overflow-hidden rounded-2xl shadow-md border border-gray-200/80 bg-white">
-            <img
-              src="/images/profile/factory-overview.png"
-              alt="TopLine Furniture Factory Vietnam"
-              className="w-full h-80 sm:h-96 md:h-110 object-cover object-center group-hover:scale-103 transition-transform duration-700"
-            />
-            {/* Overlay Caption */}
-            <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6 sm:p-8 text-white">
-              <span className="text-xs font-mono uppercase tracking-widest text-[#C5A880]">
-                {lang === 'vi' ? 'CƠ SỞ SẢN XUẤT VIỆT NAM' : 'MANUFACTURING FACILITY - VIETNAM'}
-              </span>
-              <h3 className="mt-1 font-serif text-xl sm:text-2xl font-normal">
-                {lang === 'vi'
-                  ? 'Đội ngũ kỹ thuật, thợ mộc mộc bản & dây chuyền hoàn thiện xuất khẩu'
-                  : 'Custom development, precision machining & export finishing lines'}
-              </h3>
-              <p className="mt-2 text-xs sm:text-sm text-white/80 max-w-xl">
-                {lang === 'vi'
-                  ? 'Quy trình sản xuất khép kín tại nhà xưởng: từ bản vẽ kiến trúc, làm mẫu thử (mock-up), chọn lọc tom gỗ sồi và đá tự nhiên đến công đoạn hoàn thiện và đóng kiện xuất khẩu.'
-                  : 'Direct manufacturing execution: CAD shop drawings, golden mock-ups, hand-selected timber and stone, precision assembly, and export-grade crating.'}
-              </p>
+          <div className="lg:col-span-7 luxury-card">
+            <div className="luxury-card-inner relative group overflow-hidden bg-white">
+              <img
+                src="/images/profile/factory-overview.png"
+                alt="TopLine Furniture Factory Vietnam"
+                className="w-full h-80 sm:h-96 md:h-110 object-cover object-center group-hover:scale-103 transition-transform duration-700"
+              />
+              {/* Overlay Caption */}
+              <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6 sm:p-8 text-white">
+                <span className="text-xs font-mono uppercase tracking-widest text-[#C5A880]">
+                  {lang === 'vi' ? 'CƠ SỞ SẢN XUẤT VIỆT NAM' : 'MANUFACTURING FACILITY - VIETNAM'}
+                </span>
+                <h3 className="mt-1 font-serif text-xl sm:text-2xl font-normal">
+                  {lang === 'vi'
+                    ? 'Đội ngũ kỹ thuật, thợ mộc mộc bản & dây chuyền hoàn thiện xuất khẩu'
+                    : 'Custom development, precision machining & export finishing lines'}
+                </h3>
+                <p className="mt-2 text-xs sm:text-sm text-white/80 max-w-xl">
+                  {lang === 'vi'
+                    ? 'Quy trình sản xuất khép kín tại nhà xưởng: từ bản vẽ kiến trúc, làm mẫu thử (mock-up), chọn lọc tom gỗ sồi và đá tự nhiên đến công đoạn hoàn thiện và đóng kiện xuất khẩu.'
+                    : 'Direct manufacturing execution: CAD shop drawings, golden mock-ups, hand-selected timber and stone, precision assembly, and export-grade crating.'}
+                </p>
+              </div>
             </div>
           </div>
 
           {/* Legal Identity & Institutional Trust Card (5 cols) */}
-          <div className="lg:col-span-5 flex flex-col justify-between h-full bg-white p-7 sm:p-9 rounded-2xl border border-gray-200 shadow-sm space-y-6">
-            <div>
+          <div className="lg:col-span-5 luxury-card">
+            <div className="luxury-card-inner flex flex-col justify-between h-full bg-white p-7 sm:p-9 space-y-6">
               <div className="flex items-center justify-between pb-4 border-b border-gray-100">
                 <span className="text-[11px] font-mono uppercase tracking-widest text-emerald-700 font-semibold flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -134,49 +136,51 @@ export default function AboutSection({ lang, onOpenRFQ }: AboutSectionProps) {
             {CORE_SECTORS.map((sector) => (
               <div
                 key={sector.id}
-                className="bg-white rounded-xl p-7 sm:p-8 border border-gray-200/90 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col justify-between"
+                className="luxury-card"
               >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono tracking-widest font-semibold px-2.5 py-1 rounded-sm bg-[#F4F3F0] text-[#A68A56]">
-                      {sector.badge}
-                    </span>
-                    <span className="text-xs text-gray-400 font-mono">0{CORE_SECTORS.indexOf(sector) + 1}</span>
+                <div className="luxury-card-inner p-7 sm:p-8 flex flex-col justify-between h-full">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-mono tracking-widest font-semibold px-2.5 py-1 rounded-sm bg-[#F4F3F0] text-[#A68A56]">
+                        {sector.badge}
+                      </span>
+                      <span className="text-xs text-gray-400 font-mono">0{CORE_SECTORS.indexOf(sector) + 1}</span>
+                    </div>
+
+                    <h4 className="mt-5 font-serif text-xl sm:text-2xl font-normal text-[#191919]">
+                      {sector.title[lang]}
+                    </h4>
+                    <p className="text-xs font-medium text-[#A68A56] mt-1">
+                      {sector.subtitle[lang]}
+                    </p>
+
+                    <p className="mt-4 text-xs sm:text-sm text-[#191919]/70 leading-relaxed font-light">
+                      {sector.desc[lang]}
+                    </p>
+
+                    <div className="mt-6 pt-5 border-t border-gray-100">
+                      <span className="text-[11px] uppercase tracking-wider font-semibold text-[#191919]/60 block mb-2.5">
+                        {lang === 'vi' ? 'Hạng mục tiêu biểu:' : 'Key Deliverables:'}
+                      </span>
+                      <ul className="space-y-2 text-xs text-[#191919]/80">
+                        {sector.capabilities.map((cap, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <span className="text-[#C5A880] font-bold">―</span>
+                            <span>{cap[lang]}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
 
-                  <h4 className="mt-5 font-serif text-xl sm:text-2xl font-normal text-[#191919]">
-                    {sector.title[lang]}
-                  </h4>
-                  <p className="text-xs font-medium text-[#A68A56] mt-1">
-                    {sector.subtitle[lang]}
-                  </p>
-
-                  <p className="mt-4 text-xs sm:text-sm text-[#191919]/70 leading-relaxed font-light">
-                    {sector.desc[lang]}
-                  </p>
-
-                  <div className="mt-6 pt-5 border-t border-gray-100">
-                    <span className="text-[11px] uppercase tracking-wider font-semibold text-[#191919]/60 block mb-2.5">
-                      {lang === 'vi' ? 'Hạng mục tiêu biểu:' : 'Key Deliverables:'}
-                    </span>
-                    <ul className="space-y-2 text-xs text-[#191919]/80">
-                      {sector.capabilities.map((cap, i) => (
-                        <li key={i} className="flex items-start gap-2">
-                          <span className="text-[#C5A880] font-bold">―</span>
-                          <span>{cap[lang]}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  <button
+                    onClick={onOpenRFQ}
+                    className="mt-8 w-full py-2.5 px-4 rounded-lg bg-[#FAF9F6] hover:bg-[#191919] hover:text-white text-[#191919] text-xs font-semibold tracking-wider uppercase transition-colors duration-200 cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <span>{lang === 'vi' ? 'Báo Giá Mảng Này' : 'Inquire This Sector'}</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
                 </div>
-
-                <button
-                  onClick={onOpenRFQ}
-                  className="mt-8 w-full py-2.5 px-4 rounded-lg bg-[#FAF9F6] hover:bg-[#191919] hover:text-white text-[#191919] text-xs font-semibold tracking-wider uppercase transition-colors duration-200 cursor-pointer flex items-center justify-center gap-1.5"
-                >
-                  <span>{lang === 'vi' ? 'Báo Giá Mảng Này' : 'Inquire This Sector'}</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
               </div>
             ))}
           </div>

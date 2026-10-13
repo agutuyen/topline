@@ -85,38 +85,40 @@ export default function MillworkShowcase({ lang, onOpenRFQ }: MillworkShowcasePr
           {millworkProjects.map((proj, i) => (
             <div
               key={i}
-              className="group bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-[#C5A880]/50 transition-all duration-300 flex flex-col justify-between"
+              className="luxury-card luxury-card-dark group"
             >
-              <div>
-                <div className="aspect-16/10 overflow-hidden relative">
-                  <img
-                    src={proj.image}
-                    alt={proj.title[lang]}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-sm text-[10px] font-mono uppercase tracking-wider text-[#C5A880]">
-                    {proj.client}
+              <div className="luxury-card-inner flex flex-col justify-between h-full">
+                <div>
+                  <div className="aspect-16/10 overflow-hidden relative">
+                    <img
+                      src={proj.image}
+                      alt={proj.title[lang]}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-sm text-[10px] font-mono uppercase tracking-wider text-[#C5A880]">
+                      {proj.client}
+                    </div>
+                  </div>
+
+                  <div className="p-6 sm:p-7">
+                    <h3 className="font-serif text-xl sm:text-2xl text-white font-normal group-hover:text-[#C5A880] transition-colors">
+                      {proj.title[lang]}
+                    </h3>
+                    <p className="mt-3 text-xs sm:text-sm text-white/70 leading-relaxed font-light">
+                      {proj.desc[lang]}
+                    </p>
                   </div>
                 </div>
 
-                <div className="p-6 sm:p-7">
-                  <h3 className="font-serif text-xl sm:text-2xl text-white font-normal group-hover:text-[#C5A880] transition-colors">
-                    {proj.title[lang]}
-                  </h3>
-                  <p className="mt-3 text-xs sm:text-sm text-white/70 leading-relaxed font-light">
-                    {proj.desc[lang]}
-                  </p>
+                <div className="p-6 pt-0 sm:p-7 sm:pt-0">
+                  <button
+                    onClick={onOpenRFQ}
+                    className="w-full py-2.5 px-4 rounded-lg bg-white/10 hover:bg-[#C5A880] hover:text-[#191919] text-white text-xs font-semibold uppercase tracking-wider transition-colors duration-200 cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <span>{lang === 'vi' ? 'Tư Vấn Hạng Mục Này' : 'Request Specifications'}</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
                 </div>
-              </div>
-
-              <div className="p-6 pt-0 sm:p-7 sm:pt-0">
-                <button
-                  onClick={onOpenRFQ}
-                  className="w-full py-2.5 px-4 rounded-lg bg-white/10 hover:bg-[#C5A880] hover:text-[#191919] text-white text-xs font-semibold uppercase tracking-wider transition-colors duration-200 cursor-pointer flex items-center justify-center gap-1.5"
-                >
-                  <span>{lang === 'vi' ? 'Tư Vấn Hạng Mục Này' : 'Request Specifications'}</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
               </div>
             </div>
           ))}

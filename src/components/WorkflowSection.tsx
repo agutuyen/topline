@@ -29,25 +29,27 @@ export default function WorkflowSection({ lang }: WorkflowSectionProps) {
           {WORKFLOW_STEPS.map((step) => (
             <div
               key={step.step}
-              className="relative z-10 bg-white p-6 sm:p-7 rounded-2xl border border-gray-200/90 shadow-2xs hover:shadow-md transition-shadow flex flex-col justify-between"
+              className="luxury-card relative z-10"
             >
-              <div>
-                {/* Number Badge */}
-                <div className="w-12 h-12 rounded-xl bg-[#FAF9F6] border border-[#C5A880]/40 flex items-center justify-center font-serif text-lg font-bold text-[#A68A56] mb-5">
-                  {step.step}
+              <div className="luxury-card-inner p-6 sm:p-7 flex flex-col justify-between h-full">
+                <div>
+                  {/* Number Badge */}
+                  <div className="w-12 h-12 rounded-xl bg-[#FAF9F6] border border-[#C5A880]/40 flex items-center justify-center font-serif text-lg font-bold text-[#A68A56] mb-5">
+                    {step.step}
+                  </div>
+
+                  <h3 className="font-serif text-lg sm:text-xl font-normal text-[#191919]">
+                    {step.title[lang]}
+                  </h3>
+
+                  <p className="mt-3 text-xs sm:text-sm text-[#191919]/70 leading-relaxed font-light">
+                    {step.desc[lang]}
+                  </p>
                 </div>
 
-                <h3 className="font-serif text-lg sm:text-xl font-normal text-[#191919]">
-                  {step.title[lang]}
-                </h3>
-
-                <p className="mt-3 text-xs sm:text-sm text-[#191919]/70 leading-relaxed font-light">
-                  {step.desc[lang]}
-                </p>
-              </div>
-
-              <div className="mt-6 pt-4 border-t border-gray-100 text-[11px] font-mono text-[#A68A56]">
-                ✓ {step.details[lang]}
+                <div className="mt-6 pt-4 border-t border-gray-100 text-[11px] font-mono text-[#A68A56]">
+                  ✓ {step.details[lang]}
+                </div>
               </div>
             </div>
           ))}

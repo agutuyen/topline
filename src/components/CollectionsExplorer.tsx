@@ -132,8 +132,9 @@ export default function CollectionsExplorer({
           {filteredProducts.map((product) => (
             <div
               key={product.id}
-              className="group bg-white rounded-xl border border-gray-200/80 overflow-hidden shadow-2xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between"
+              className="luxury-card group"
             >
+              <div className="luxury-card-inner flex flex-col justify-between h-full">
               <div>
                 {/* Product Image Stage */}
                 {/* Product Image Stage — Clean object containment with white background */}
@@ -203,6 +204,7 @@ export default function CollectionsExplorer({
                   <span>{lang === 'vi' ? '+ Báo Giá' : '+ Add RFQ'}</span>
                   <ArrowRight className="w-3 h-3" />
                 </button>
+              </div>
               </div>
             </div>
           ))}
