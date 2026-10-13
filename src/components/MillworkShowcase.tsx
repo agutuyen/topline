@@ -1,45 +1,23 @@
-import { ArrowRight } from 'lucide-react';
-import { COMMERCIAL_CLIENTS } from '../data/content';
-import { Language } from '../types';
+import { useState } from 'react';
+import { ArrowRight, Eye, Maximize2 } from 'lucide-react';
+import { COMMERCIAL_CLIENTS, MILLWORK_PROJECTS } from '../data/content';
+import { Language, ProjectItem } from '../types';
 import { Reveal, StaggerContainer, StaggerItem } from './common/Reveal';
+import ProjectGalleryModal from './ProjectGalleryModal';
+
 interface MillworkShowcaseProps {
   lang: Language;
   onOpenRFQ: () => void;
+  onSelectProject: (project: ProjectItem) => void;
 }
 
-export default function MillworkShowcase({ lang, onOpenRFQ }: MillworkShowcaseProps) {
-  const millworkProjects = [
-    {
-      title: { vi: 'Hệ Quầy & Nội Thất Chuỗi Nhà Hàng Quốc Tế', en: 'International Chain Dining Millwork' },
-      client: 'Taco Bell / Five Guys / KFC Projects',
-      desc: {
-        vi: 'Chế tác module bàn quầy, vách ốp trang trí, hệ tủ pantry và quầy bar thương mại chuẩn kích thước fit-out khắt khe.',
-        en: 'Custom commercial service counters, branded wall systems, banquettes, and heavy-use joinery built to architectural specifications.',
-      },
-      image: '/images/profile/architectural-millwork.jpg',
-    },
-    {
-      title: { vi: 'Ốp Tường Kiến Trúc & Vách Gỗ Tiêu Âm', en: 'Architectural Wall Systems & Acoustical Paneling' },
-      client: 'Executive Workspaces & Lounges',
-      desc: {
-        vi: 'Hệ thống vách nan gỗ sồi cong, tủ kệ âm tường tích hợp ánh sáng LED giấu rãnh và cửa giấu khuôn hiện đại.',
-        en: 'Precision fluted oak tambour wall systems, integrated concealed LED channel shelving, and flush-mount hidden door assemblies.',
-      },
-      image: '/images/profile/hospitality-project.jpg',
-    },
-    {
-      title: { vi: 'Bàn Chậu Rửa Lavabo Mặt Đá May Đo', en: 'Custom Hospitality Vanities & Millwork' },
-      client: 'Resort & Luxury Hotel Suites',
-      desc: {
-        vi: 'Tủ lavabo kết hợp đá tự nhiên chống thấm 100%, khung gỗ chịu ẩm cao cấp và phụ kiện đồng mạ chống rỉ sét.',
-        en: 'Heavy natural stone integrated basin tops, moisture-sealed marine-grade subframes, and precision plumbing chases.',
-      },
-      image: '/images/profile/manufacturing-floor.jpg',
-    },
-  ];
-
+export default function MillworkShowcase({
+  lang,
+  onOpenRFQ,
+  onSelectProject,
+}: MillworkShowcaseProps) {
   return (
-    <section id="clients" className="py-20 md:py-28 bg-[#121212] text-white">
+    <section id="clients" className="py-20 md:py-28 bg-[#121212] text-white relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
         {/* Section Header with smooth entrance */}
         <Reveal className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-12 border-b border-white/10">
@@ -80,43 +58,72 @@ export default function MillworkShowcase({ lang, onOpenRFQ }: MillworkShowcasePr
           ))}
         </div>
 
-        {/* Millwork Project Cards with staggered cascade */}
+        {/* Millwork Project Cards with Interactive Gallery Triggers */}
         <StaggerContainer className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
-          {millworkProjects.map((proj, i) => (
-            <StaggerItem key={i} className="h-full">
+          {MILLWORK_PROJECTS.map((proj) => (
+            <StaggerItem key={proj.id} className="h-full">
               <div className="luxury-card luxury-card-dark group h-full">
-                <div className="luxury-card-inner flex flex-col justify-between h-full">
-                <div>
-                  <div className="aspect-16/10 overflow-hidden relative">
-                    <img
-                      src={proj.image}
-                      alt={proj.title[lang]}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-sm text-[10px] font-mono uppercase tracking-wider text-[#C5A880]">
-                      {proj.client}
+                <div className="luxury-card-inner flex flex-col justify-between h-full bg-[#141312]">
+                  <div>
+                    {/* Clickable Image Thumbnail Grid with Zoom Cue */}
+                    <div
+                      className="aspect-16/10 overflow-hidden relative cursor-pointer group/img"
+                      onClick={() => onSelectProject(proj)}
+                      title={lang === 'vi' ? 'Bấm để phóng to và xem từng ảnh' : 'Click to view gallery and enlarge'}
+                    >
+                      <img
+                        src={proj.image}
+                        alt={proj.title[lang]}
+                        className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-700"
+                      />
+                      <div className="absolute top-3 left-3 bg-black/75 backdrop-blur-md px-2.5 py-1 rounded-sm text-[10px] font-mono uppercase tracking-wider text-[#C5A880] border border-white/10">
+                        {proj.client}
+                      </div>
+
+                      <div className="absolute top-3 right-3 bg-white/20 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-mono text-white">
+                        {proj.galleryImages.length} {lang === 'vi' ? 'ảnh chi tiết' : 'photos'}
+                      </div>
+
+                      {/* Hover Overlay Prompter */}
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
+                        <span className="px-4 py-2 rounded-full bg-white text-[#191919] text-xs font-semibold shadow-xl uppercase tracking-wider flex items-center gap-1.5 transform translate-y-1 group-hover/img:translate-y-0 transition-transform">
+                          <Maximize2 className="w-3.5 h-3.5" />
+                          <span>{lang === 'vi' ? 'Phóng To Từng Ảnh' : 'View & Zoom Photos'}</span>
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="p-6 sm:p-7">
+                      <h3
+                        onClick={() => onSelectProject(proj)}
+                        className="font-serif text-xl sm:text-2xl text-white font-normal group-hover:text-[#C5A880] transition-colors cursor-pointer"
+                      >
+                        {proj.title[lang]}
+                      </h3>
+                      <p className="mt-3 text-xs sm:text-sm text-white/70 leading-relaxed font-light">
+                        {proj.desc[lang]}
+                      </p>
                     </div>
                   </div>
 
-                  <div className="p-6 sm:p-7">
-                    <h3 className="font-serif text-xl sm:text-2xl text-white font-normal group-hover:text-[#C5A880] transition-colors">
-                      {proj.title[lang]}
-                    </h3>
-                    <p className="mt-3 text-xs sm:text-sm text-white/70 leading-relaxed font-light">
-                      {proj.desc[lang]}
-                    </p>
+                  {/* Dual Action Buttons */}
+                  <div className="p-6 pt-0 sm:p-7 sm:pt-0 flex gap-2.5">
+                    <button
+                      onClick={() => onSelectProject(proj)}
+                      className="flex-1 py-2.5 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>{lang === 'vi' ? 'Xem Ảnh Chi Tiết' : 'View Gallery'}</span>
+                    </button>
+                    <button
+                      onClick={onOpenRFQ}
+                      className="py-2.5 px-4 rounded-lg bg-[#C5A880] hover:bg-white hover:text-[#191919] text-[#191919] text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-1"
+                      title={lang === 'vi' ? 'Yêu cầu báo giá hạng mục này' : 'Request RFQ for this scope'}
+                    >
+                      <span>{lang === 'vi' ? 'Báo Giá' : 'RFQ'}</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </button>
                   </div>
-                </div>
-
-                <div className="p-6 pt-0 sm:p-7 sm:pt-0">
-                  <button
-                    onClick={onOpenRFQ}
-                    className="w-full py-2.5 px-4 rounded-lg bg-white/10 hover:bg-[#C5A880] hover:text-[#191919] text-white text-xs font-semibold uppercase tracking-wider transition-colors duration-200 cursor-pointer flex items-center justify-center gap-1.5"
-                  >
-                    <span>{lang === 'vi' ? 'Tư Vấn Hạng Mục Này' : 'Request Specifications'}</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
                 </div>
               </div>
             </StaggerItem>

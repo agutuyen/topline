@@ -1,4 +1,4 @@
-import { CollectionGroup, ProductItem, WorkflowStep } from '../types';
+import { CollectionGroup, ProductItem, WorkflowStep, ProjectItem } from '../types';
 
 export const COMPANY_INFO = {
   vi: {
@@ -191,6 +191,112 @@ export const COMMERCIAL_CLIENTS = [
   { name: 'KFC', role: 'Seating Elements & Dining Surfaces', logoText: 'KFC' },
   { name: 'Boutique Hotel Suites', role: 'Custom Casegoods & Vanities', logoText: 'BOUTIQUE RESORTS' },
   { name: 'Stanley Furniture', role: 'Fine Woodworking & Export Collections', logoText: 'STANLEY' },
+];
+export const MILLWORK_PROJECTS: ProjectItem[] = [
+  {
+    id: 'chain-dining',
+    client: 'Taco Bell / Five Guys / KFC Projects',
+    badge: { vi: 'CHUỖI F&B QUỐC TẾ', en: 'INTERNATIONAL F&B CHAINS' },
+    title: {
+      vi: 'Hệ Quầy & Nội Thất Chuỗi Nhà Hàng Quốc Tế',
+      en: 'International Chain Dining Millwork',
+    },
+    desc: {
+      vi: 'Chế tác module bàn quầy, vách ốp trang trí, hệ tủ pantry và quầy bar thương mại chuẩn kích thước fit-out khắt khe.',
+      en: 'Custom commercial service counters, branded wall systems, banquettes, and heavy-use joinery built to architectural specifications.',
+    },
+    image: '/images/capabilities/Hospitality_Clients_TacoBell_FiveGuys_KFC.png',
+    scope: {
+      vi: 'Sản xuất module quầy order, bàn ăn chịu lực, vách lam gỗ tiêu âm và hệ ghế băng banquette cho chuỗi F&B toàn cầu.',
+      en: 'High-traffic commercial service counters, solid reinforced dining tables, acoustic slatted wall cladding, and upholstered banquettes.',
+    },
+    materials: {
+      vi: 'Gỗ sồi tự nhiên, HDF chống ẩm bề mặt Melamine chống trầy, nẹp kim loại inox mạ PVD, đá nhân tạo Solid Surface.',
+      en: 'Kiln-dried White Oak, high-pressure laminate & moisture-resistant HDF, PVD stainless steel trims, Solid Surface countertops.',
+    },
+    standards: {
+      vi: 'Chống cháy cấp B, bề mặt chống trầy xước chịu tần suất sử dụng cao, lắp ghép module linh hoạt theo mặt bằng.',
+      en: 'Class-B fire resistance, high-abrasion durability rating, modular assembly for expedited on-site handover.',
+    },
+    galleryImages: [
+      { url: '/images/capabilities/project_chain_dining_1.jpg', caption: { vi: 'Sảnh đón tiếp & vách ngăn kiến trúc hiện đại', en: 'Hospitality Lounge & Architectural Partitions' } },
+      { url: '/images/capabilities/project_chain_dining_2.jpg', caption: { vi: 'Bàn ghế ăn gỗ sồi khung gia cường chịu lực', en: 'Reinforced Solid Timber Dining Tables & Seating' } },
+      { url: '/images/capabilities/project_chain_dining_3.jpg', caption: { vi: 'Hệ đợt kệ trang trí & quầy dịch vụ trung tâm', en: 'Service Counter & Feature Display Shelving' } },
+      { url: '/images/capabilities/project_chain_dining_4.jpg', caption: { vi: 'Tủ trưng bày chiếu sáng LED âm rãnh', en: 'Concealed LED Channel Display Cabinetry' } },
+      { url: '/images/capabilities/project_chain_dining_5.jpg', caption: { vi: 'Bàn làm việc & ghế lãnh đạo dự án F&B', en: 'Operations Workstations & Commercial Chairs' } },
+      { url: '/images/capabilities/project_chain_dining_6.jpg', caption: { vi: 'Module văn phòng điều hành chuỗi nhà hàng', en: 'Corporate Operations Office Layout' } },
+      { url: '/images/capabilities/project_chain_dining_7.jpg', caption: { vi: 'Khu vực phòng họp điều hành & hội nghị', en: 'Executive Conference Room Fit-Out' } },
+      { url: '/images/capabilities/project_chain_dining_8.jpg', caption: { vi: 'Bàn họp chân đôi & vách tiêu âm', en: 'Conference Table & Acoustic Cladding' } },
+      { url: '/images/capabilities/project_chain_dining_9.jpg', caption: { vi: 'Sảnh tiếp khách VIP & quầy lễ tân', en: 'VIP Reception Lounge & Service Bar' } },
+      { url: '/images/capabilities/Hospitality_Clients_TacoBell_FiveGuys_KFC.png', caption: { vi: 'Tổng quan công trình chuỗi nhà hàng Taco Bell / KFC', en: 'Full Portfolio Overview — Taco Bell / KFC Fit-Out' } },
+    ],
+  },
+  {
+    id: 'wall-systems',
+    client: 'Executive Workspaces & Lounges',
+    badge: { vi: 'VĂN PHÒNG & LOUNGE CAO CẤP', en: 'EXECUTIVE SPACES & LOUNGES' },
+    title: {
+      vi: 'Ốp Tường Kiến Trúc & Vách Gỗ Tiêu Âm',
+      en: 'Architectural Wall Systems & Acoustical Paneling',
+    },
+    desc: {
+      vi: 'Hệ thống vách nan gỗ sồi cong, tủ kệ âm tường tích hợp ánh sáng LED giấu rãnh và cửa giấu khuôn hiện đại.',
+      en: 'Precision fluted oak tambour wall systems, integrated concealed LED channel shelving, and flush-mount hidden door assemblies.',
+    },
+    image: '/images/capabilities/Architectural_Millwork_Grid.png',
+    scope: {
+      vi: 'Thi công vách tiêu âm nan gỗ, module bàn làm việc cá nhân, bàn giám đốc và khu vực quầy pantry bar tiếp khách sang trọng.',
+      en: 'Fluted acoustic wall paneling, executive desking, acoustic partition workstations, and luxury hospitality pantry bars.',
+    },
+    materials: {
+      vi: 'Veneer sồi tự nhiên lạng dày, cốt HDF chống ẩm Black HDF, nẹp nhôm định hình giấu vít, đá cẩm thạch Calacatta.',
+      en: 'Natural architectural oak veneer on Black HDF core, concealed aluminum mounting cleats, Calacatta marble.',
+    },
+    standards: {
+      vi: 'Hệ số tiêu âm NRC 0.75, hoàn thiện sơn PU mờ 5%, phụ kiện ray trượt và bản lề giảm chấn Blum/Hafele.',
+      en: 'Acoustic coefficient NRC 0.75, ultra-matte 5% sheen polyurethane lacquer, Blum concealed soft-close hinges.',
+    },
+    galleryImages: [
+      { url: '/images/capabilities/project_millwork_1_workstation.jpg', caption: { vi: 'Module bàn làm việc nhân viên vách tiêu âm', en: 'Modular Acoustic Workstation System' } },
+      { url: '/images/capabilities/project_millwork_2_executive.jpg', caption: { vi: 'Bàn lãnh đạo gỗ sồi & tủ tài liệu âm tường', en: 'Executive Office Desking & Wall Storage' } },
+      { url: '/images/capabilities/project_millwork_3_pantry.jpg', caption: { vi: 'Quầy bar pantry & tủ rượu tích hợp LED', en: 'Hospitality Pantry Bar with Wine Cooler' } },
+      { url: '/images/capabilities/project_millwork_4_branding.jpg', caption: { vi: 'Sảnh đón thương hiệu Taco Bell & KFC', en: 'Corporate Brand Reception & Cladding' } },
+      { url: '/images/capabilities/Architectural_Millwork_Grid.png', caption: { vi: 'Tổng thể các module mộc kiến trúc hoàn thiện', en: 'Complete Architectural Millwork Master Board' } },
+    ],
+  },
+  {
+    id: 'hotel-suites',
+    client: 'Resort & Luxury Hotel Suites',
+    badge: { vi: 'BUỒNG PHÒNG KHÁCH SẠN 5 SAO', en: '5-STAR HOSPITALITY SUITES' },
+    title: {
+      vi: 'Bàn Chậu Rửa Lavabo Mặt Đá & Đồ Gỗ Buồng Phòng',
+      en: 'Custom Hospitality Vanities & Suite Casegoods',
+    },
+    desc: {
+      vi: 'Tủ lavabo kết hợp đá tự nhiên chống thấm 100%, khung gỗ chịu ẩm cao cấp và phụ kiện đồng mạ chống rỉ sét.',
+      en: 'Heavy natural stone integrated basin tops, moisture-sealed marine-grade subframes, and precision plumbing chases.',
+    },
+    image: '/images/capabilities/Workflow_QC_Dresser_Angle.png',
+    scope: {
+      vi: 'Bộ đồ gỗ buồng phòng hoàn chỉnh: Tủ ngăn kéo 6 hộc mặt đá, tủ đầu giường 2-3 ngăn, bàn trang điểm và tủ chậu lavabo chống ẩm.',
+      en: 'Full guestroom suite casegoods: 6-drawer stone-top dressers, matching nightstands, vanities, and wardrobe assemblies.',
+    },
+    materials: {
+      vi: 'Gỗ sồi chọn lọc, đá cẩm thạch tự nhiên vát cạnh CNC, ray âm giảm chấn inox chống ăn mòn, sơn PU kháng ẩm xuất khẩu.',
+      en: 'Select kiln-dried oak, CNC-chamfered natural marble slabs, corrosion-resistant stainless undermount slides.',
+    },
+    standards: {
+      vi: 'Đạt chuẩn kiểm thử rơi rớt (Drop Test), độ ẩm gỗ < 10–12%, đóng kiện gỗ khử trùng tiêu chuẩn ISPM 15.',
+      en: 'ASTM drop-test certified, moisture content < 12%, ISPM-15 export crating with room-specific labeling.',
+    },
+    galleryImages: [
+      { url: '/images/capabilities/Workflow_QC_Dresser_Front.png', caption: { vi: 'Tủ ngăn kéo buồng phòng khách sạn mặt đá (Mặt trước)', en: 'Suite 6-Drawer Dresser with Marble Top (Front)' } },
+      { url: '/images/capabilities/Workflow_QC_Dresser_Angle.png', caption: { vi: 'Tủ ngăn kéo buồng phòng khách sạn (Góc 3/4 kiểm định QC)', en: 'Suite 6-Drawer Dresser (3/4 QC Angle)' } },
+      { url: '/images/capabilities/Workflow_QC_Nightstand_Front.png', caption: { vi: 'Tủ đầu giường 2 ngăn kéo mặt đá tự nhiên (Mặt trước)', en: 'Suite 2-Drawer Nightstand with Stone Top (Front)' } },
+      { url: '/images/capabilities/Workflow_QC_Nightstand_Side.png', caption: { vi: 'Tủ đầu giường kiểm tra độ khít mộng gỗ (Góc nghiêng)', en: 'Nightstand Side View & Joinery Inspection' } },
+      { url: '/images/capabilities/TopLine_Factory_Facility_Vietnam.png', caption: { vi: 'Khu vực kiểm định chất lượng xuất xưởng tại nhà máy TopLine', en: 'TopLine Vietnam Factory Quality Control Stage' } },
+    ],
+  },
 ];
 
 export const COLLECTIONS_OVERVIEW: CollectionGroup[] = [

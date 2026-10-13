@@ -16,14 +16,17 @@ import ProductDetailModal from './components/ProductDetailModal';
 import RFQModal from './components/RFQModal';
 import PrivacyPolicyModal from './components/PrivacyPolicyModal';
 import TermsModal from './components/TermsModal';
+import ProjectGalleryModal from './components/ProjectGalleryModal';
 import { useSmoothScroll } from './components/3d/useSmoothScroll';
-import { Language, ProductItem } from './types';
+import { Language, ProductItem, ProjectItem } from './types';
 
 export default function App() {
   const [lang, setLang] = useState<Language>('en');
   const [isRFQOpen, setIsRFQOpen] = useState(false);
   const [selectedProductForDetail, setSelectedProductForDetail] =
     useState<ProductItem | null>(null);
+  const [selectedProjectForGallery, setSelectedProjectForGallery] =
+    useState<ProjectItem | null>(null);
   const [rfqProducts, setRfqProducts] = useState<ProductItem[]>([]);
 
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
@@ -73,7 +76,7 @@ export default function App() {
       />
 
       {/* Main Content Container */}
-      <main className="relative z-10">
+      <main>
         {/* Hero Section with Luxury Video Background */}
         <HeroSection
           lang={lang}
@@ -95,7 +98,11 @@ export default function App() {
         />
 
         {/* Architectural Millwork & Commercial Clients (Taco Bell, Five Guys, KFC) */}
-        <MillworkShowcase lang={lang} onOpenRFQ={() => setIsRFQOpen(true)} />
+        <MillworkShowcase
+          lang={lang}
+          onOpenRFQ={() => setIsRFQOpen(true)}
+          onSelectProject={(proj) => setSelectedProjectForGallery(proj)}
+        />
 
         {/* 5-Step Controlled Workflow: Review, Develop, Produce, Inspect, Pack */}
         <WorkflowSection lang={lang} />
@@ -113,6 +120,13 @@ export default function App() {
         lang={lang}
         onClose={() => setSelectedProductForDetail(null)}
         onAddToRFQ={handleAddProductToRFQ}
+      />
+      {/* Project Gallery & Inspection Lightbox Modal */}
+      <ProjectGalleryModal
+        project={selectedProjectForGallery}
+        lang={lang}
+        onClose={() => setSelectedProjectForGallery(null)}
+        onOpenRFQ={() => setIsRFQOpen(true)}
       />
 
       {/* Commercial Project RFQ Modal */}

@@ -44,6 +44,23 @@ export interface CollectionGroup {
   materialsSummary?: { vi: string; en: string };
 }
 
+export interface ProjectGalleryImage {
+  url: string;
+  caption: { vi: string; en: string };
+}
+
+export interface ProjectItem {
+  id: string;
+  client: string;
+  badge: { vi: string; en: string };
+  title: { vi: string; en: string };
+  desc: { vi: string; en: string };
+  image: string;
+  galleryImages: ProjectGalleryImage[];
+  scope: { vi: string; en: string };
+  materials: { vi: string; en: string };
+  standards: { vi: string; en: string };
+}
 export interface WorkflowStep {
   step: string;
   title: { vi: string; en: string };
