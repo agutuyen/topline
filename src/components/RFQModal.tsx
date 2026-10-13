@@ -28,7 +28,7 @@ export default function RFQModal({
     email: '',
     phone: '',
     companyName: '',
-    projectType: 'Khách sạn / Resort (Hospitality)',
+    projectType: lang === 'vi' ? 'Khách sạn / Resort (Hospitality)' : 'Luxury Hotel / Resort (Hospitality)',
     selectedProducts: selectedProducts.map((p) => p.name[lang]),
     notes: '',
   });
@@ -93,7 +93,6 @@ export default function RFQModal({
                 ? `Hồ sơ đã được chuyển tiếp trực tiếp đến Bộ phận Dự án & Ước tính Giá (sales@toplinefurniture.vn). Kỹ sư dự án của TopLine Furniture sẽ liên hệ trong 2–4 giờ làm việc để rà soát bản vẽ.`
                 : `Your inquiry has been logged and routed to our project estimation desk (sales@toplinefurniture.vn). Our engineering team will review your drawings and respond within 24 hours.`}
             </p>
-
             <div className="mt-5 p-4 rounded-xl bg-[#FAF9F6] border border-gray-200/80 text-left text-xs space-y-2">
               <div className="flex justify-between items-center pb-2 border-b border-gray-200">
                 <span className="text-gray-500 font-mono">{lang === 'vi' ? 'Mã hồ sơ:' : 'Reference ID:'}</span>
@@ -101,7 +100,7 @@ export default function RFQModal({
               </div>
               <div className="flex justify-between items-center pt-1">
                 <span className="text-gray-500">{lang === 'vi' ? 'Đơn vị gửi:' : 'Submitter:'}</span>
-                <span className="font-medium text-[#191919]">{formData.fullName} ({formData.companyName || 'Dự án riêng'})</span>
+                <span className="font-medium text-[#191919]">{formData.fullName} ({formData.companyName || (lang === 'vi' ? 'Dự án riêng' : 'Private Project')})</span>
               </div>
               <div className="flex justify-between items-center pt-1">
                 <span className="text-gray-500">{lang === 'vi' ? 'Email tiếp nhận:' : 'Routing Desk:'}</span>
@@ -253,16 +252,16 @@ export default function RFQModal({
                   onChange={(e) => setFormData({ ...formData, projectType: e.target.value })}
                   className="w-full px-3.5 py-2 text-xs sm:text-sm bg-[#F4F3F0] border border-transparent rounded-lg focus:outline-hidden focus:border-[#C5A880] transition-colors"
                 >
-                  <option value="Khách sạn / Resort (Hospitality)">
+                  <option value={lang === 'vi' ? 'Khách sạn / Resort (Hospitality)' : 'Luxury Hotel / Resort (Hospitality)'}>
                     {lang === 'vi' ? 'Khách sạn / Resort (Hospitality)' : 'Luxury Hotel / Resort'}
                   </option>
-                  <option value="Chuỗi nhà hàng F&B / Quầy kệ mộc kiến trúc (Millwork)">
+                  <option value={lang === 'vi' ? 'Chuỗi nhà hàng F&B / Quầy kệ mộc kiến trúc (Millwork)' : 'F&B Chain / Architectural Millwork'}>
                     {lang === 'vi' ? 'Chuỗi nhà hàng F&B / Quầy kệ mộc kiến trúc (Millwork)' : 'F&B Chain / Architectural Millwork'}
                   </option>
-                  <option value="Căn hộ cao cấp / Penthouse">
+                  <option value={lang === 'vi' ? 'Căn hộ cao cấp / Penthouse' : 'Luxury Residential / Penthouse'}>
                     {lang === 'vi' ? 'Căn hộ cao cấp / Penthouse' : 'Luxury Residential / Penthouse'}
                   </option>
-                  <option value="Đơn hàng bán lẻ xuất khẩu (Retail)">
+                  <option value={lang === 'vi' ? 'Đơn hàng bán lẻ xuất khẩu (Retail)' : 'Retail Furniture Brand / Export'}>
                     {lang === 'vi' ? 'Đơn hàng bán lẻ xuất khẩu (Retail Collections)' : 'Retail Furniture Brand / Export'}
                   </option>
                 </select>

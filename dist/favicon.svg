@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160">
+  <rect width="160" height="160" rx="36" fill="#141414" />
+  <g transform="translate(0, 10)">
+    <!-- T - Gold serif letter -->
+    <path
+      d="M20 20 H92 C88 28 85 36 84 46 H76 C76 34 72 30 60 30 H56 V100 C56 108 60 112 70 112 V120 H30 V112 C40 112 44 108 44 100 V30 H40 C28 30 24 34 24 46 H16 C15 36 12 28 20 20 Z"
+      fill="#C5A880"
+    />
+    <!-- L - Interlocking white letter -->
+    <path
+      d="M74 44 C82 32 94 24 108 24 V34 C100 34 94 40 94 50 V102 C94 108 98 112 108 112 H136 C144 112 148 106 150 96 H156 L154 126 H72 V118 C82 118 86 114 86 102 V56 C86 50 82 46 74 44 Z"
+      fill="#FFFFFF"
+    />
+  </g>
+</svg>

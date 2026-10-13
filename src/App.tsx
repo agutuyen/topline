@@ -18,7 +18,7 @@ import TermsModal from './components/TermsModal';
 import { Language, ProductItem } from './types';
 
 export default function App() {
-  const [lang, setLang] = useState<Language>('vi');
+  const [lang, setLang] = useState<Language>('en');
   const [isRFQOpen, setIsRFQOpen] = useState(false);
   const [selectedProductForDetail, setSelectedProductForDetail] =
     useState<ProductItem | null>(null);
@@ -138,19 +138,19 @@ export default function App() {
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-[#0068FF] text-white text-xs font-semibold shadow-lg hover:scale-105 transition-transform"
-          title="Chat Zalo với Giám đốc"
+          title={lang === 'vi' ? 'Chat Zalo với Giám đốc' : 'Direct Line & WhatsApp'}
         >
           <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-          <span>Zalo: 0977 429 979</span>
+          <span>{lang === 'vi' ? 'Zalo: 0977 429 979' : 'WhatsApp / Zalo'}</span>
         </a>
 
         <a
           href="tel:0977429979"
           className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-[#191919] text-[#C5A880] text-xs font-semibold shadow-lg hover:bg-black transition-colors"
-          title="Gọi Hotline"
+          title={lang === 'vi' ? 'Gọi Hotline' : 'Direct Call'}
         >
           <span>📞</span>
-          <span className="font-mono">0977.429.979</span>
+          <span className="font-mono">{lang === 'vi' ? '0977.429.979' : '+84 977 429 979'}</span>
         </a>
       </div>
     </div>

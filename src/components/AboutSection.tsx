@@ -61,7 +61,7 @@ export default function AboutSection({ lang, onOpenRFQ }: AboutSectionProps) {
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                   {lang === 'vi' ? 'DOANH NGHIỆP PHÁP LÝ CHÍNH THỨC' : 'OFFICIAL REGISTERED ENTITY'}
                 </span>
-                <span className="text-xs font-mono text-gray-400">MST: {info.taxId}</span>
+                <span className="text-xs font-mono text-gray-400">{lang === 'vi' ? 'MST' : 'Tax ID'}: {info.taxId}</span>
               </div>
 
               <h4 className="mt-4 font-serif text-xl text-[#191919] font-medium leading-snug">
@@ -88,7 +88,7 @@ export default function AboutSection({ lang, onOpenRFQ }: AboutSectionProps) {
               <div className="pt-3 flex justify-between">
                 <span className="text-[#191919]/60">{lang === 'vi' ? 'Thành viên góp vốn:' : 'Shareholders:'}</span>
                 <span className="font-medium text-[#191919] text-right">
-                  Trần Văn Đương (55%) <br /> Trần Thanh Nhàn (45%)
+                  {lang === 'vi' ? 'Trần Văn Đương (55%)' : 'Tran Van Duong (55%)'} <br /> {lang === 'vi' ? 'Trần Thanh Nhàn (45%)' : 'Tran Thanh Nhan (45%)'}
                 </span>
               </div>
               <div className="pt-3 flex flex-col gap-1">

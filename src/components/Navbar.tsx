@@ -165,7 +165,7 @@ export default function Navbar({ lang, onToggleLang, onOpenRFQ }: NavbarProps) {
                 className="text-sm font-semibold text-[#191919] flex items-center gap-2"
               >
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                Hotline / Zalo: 0977 429 979
+                {lang === 'vi' ? 'Hotline / Zalo: 0977 429 979' : 'Direct Line / WhatsApp: +84 977 429 979'}
               </a>
               <button
                 onClick={() => { setMobileMenuOpen(false); onOpenRFQ(); }}
