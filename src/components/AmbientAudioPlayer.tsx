@@ -15,7 +15,7 @@ export default function AmbientAudioPlayer({ lang }: AmbientAudioPlayerProps) {
   const fadeIntervalRef = useRef<number | null>(null);
 
   // Smooth Volume Ramp Helper
-  const fadeVolume = useCallback((targetVol: number, durationMs: number = 800) => {
+  const fadeVolume = useCallback((targetVol: number, durationMs: number = 600) => {
     const audio = audioRef.current;
     if (!audio) return;
 
@@ -24,7 +24,7 @@ export default function AmbientAudioPlayer({ lang }: AmbientAudioPlayerProps) {
       fadeIntervalRef.current = null;
     }
 
-    const steps = 20;
+    const steps = 15;
     const stepTime = durationMs / steps;
     const startVol = audio.volume;
     const delta = (targetVol - startVol) / steps;
@@ -80,26 +80,26 @@ export default function AmbientAudioPlayer({ lang }: AmbientAudioPlayerProps) {
                 try {
                   localStorage.setItem('topline_ambient_sound', 'on');
                 } catch {}
-              }).catch(() => {});
+                removeUnlockListeners();
+              }).catch(() => {
+                // If gesture was still deemed insufficient, keep listeners alive
+              });
             }
-            removeUnlockListeners();
           };
 
           const removeUnlockListeners = () => {
             window.removeEventListener('pointerdown', unlock);
             window.removeEventListener('touchstart', unlock);
             window.removeEventListener('click', unlock);
-            window.removeEventListener('scroll', unlock);
-            window.removeEventListener('wheel', unlock);
+            document.removeEventListener('click', unlock);
             window.removeEventListener('keydown', unlock);
           };
 
-          window.addEventListener('pointerdown', unlock, { once: true, passive: true });
-          window.addEventListener('touchstart', unlock, { once: true, passive: true });
-          window.addEventListener('click', unlock, { once: true, passive: true });
-          window.addEventListener('scroll', unlock, { once: true, passive: true });
-          window.addEventListener('wheel', unlock, { once: true, passive: true });
-          window.addEventListener('keydown', unlock, { once: true, passive: true });
+          window.addEventListener('pointerdown', unlock, { passive: true });
+          window.addEventListener('touchstart', unlock, { passive: true });
+          window.addEventListener('click', unlock, { passive: true });
+          document.addEventListener('click', unlock, { passive: true });
+          window.addEventListener('keydown', unlock, { passive: true });
         });
     }
   }, []);
@@ -107,7 +107,7 @@ export default function AmbientAudioPlayer({ lang }: AmbientAudioPlayerProps) {
   const pauseSound = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    fadeVolume(0, 400);
+    fadeVolume(0, 300);
     try {
       localStorage.setItem('topline_ambient_sound', 'off');
     } catch {}
@@ -158,8 +158,19 @@ export default function AmbientAudioPlayer({ lang }: AmbientAudioPlayerProps) {
         <source src="/audio/topline-ambient-lounge.ogg" type="audio/ogg" />
       </audio>
 
-      {/* Floating Sound Control Button (Icon Only - Symmetrical with Back to Top) */}
-      <div className="relative group">
+      {/* Floating Sound Control: Pulsing Invite Pill (if muted/waiting) + Round Toggle Button */}
+      <div className="flex items-center gap-2">
+        {!isPlaying && (
+          <button
+            onClick={() => playSound(TARGET_VOLUME)}
+            aria-label={lang === 'vi' ? 'Chạm để bật âm thanh không gian' : 'Tap to play ambient music'}
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#191919]/90 border border-[#C5A880]/60 text-[#C5A880] text-[11px] font-sans font-medium shadow-xl backdrop-blur-xl animate-pulse cursor-pointer hover:bg-[#C5A880] hover:text-[#191919] transition-all whitespace-nowrap"
+          >
+            <span>♫</span>
+            <span>{lang === 'vi' ? 'Bật Âm Thanh' : 'Play Music'}</span>
+          </button>
+        )}
+
         <button
           onClick={toggleSound}
           aria-label={
@@ -170,7 +181,7 @@ export default function AmbientAudioPlayer({ lang }: AmbientAudioPlayerProps) {
           title={
             isPlaying
               ? (lang === 'vi' ? 'Âm thanh không gian: Đang phát (Bấm để tắt)' : 'Ambient Sound: Playing (Click to mute)')
-              : (lang === 'vi' ? 'Âm thanh không gian: Đã tắt (Bấm để bật)' : 'Ambient Sound: Muted (Click to play)')
+              : (lang === 'vi' ? 'Âm thanh không gian: Đang tắt (Bấm để bật)' : 'Ambient Sound: Muted (Click to play)')
           }
           className={`relative w-11 h-11 rounded-full backdrop-blur-xl border transition-all duration-300 shadow-[0_10px_25px_rgba(0,0,0,0.35)] flex items-center justify-center cursor-pointer hover:scale-110 active:scale-95 ${
             isPlaying

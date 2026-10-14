@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowRight, CheckCircle2, PhoneCall, Sparkles, ShieldCheck } from 'lucide-react';
 import { COMPANY_INFO } from '../data/content';
-import { Language } from '../types';
+import { Language, CollectionGroup, ProjectItem } from '../types';
+import { fetchCollections, fetchMillworkProjects } from '../services/api';
 import AmbientVideoBackground from './AmbientVideoBackground';
 
 interface HeroSectionProps {
@@ -19,28 +20,51 @@ export default function HeroSection({
 }: HeroSectionProps) {
   const content = COMPANY_INFO[lang];
   const [activeTab, setActiveTab] = useState<ShowcaseTab>('casegoods');
+  const [liveCollection, setLiveCollection] = useState<CollectionGroup | null>(null);
+  const [liveMillwork, setLiveMillwork] = useState<ProjectItem | null>(null);
+
+  useEffect(() => {
+    // Load live collections & millwork projects from backend
+    fetchCollections().then((cols) => {
+      if (cols && cols.length > 0) {
+        setLiveCollection(cols[0]);
+      }
+    }).catch(() => {});
+
+    fetchMillworkProjects().then((projs) => {
+      if (projs && projs.length > 0) {
+        setLiveMillwork(projs[0]);
+      }
+    }).catch(() => {});
+  }, []);
 
   const tabData = {
     casegoods: {
       badge: lang === 'vi' ? 'HẠNG MỤC BUỒNG PHÒNG' : 'GUESTROOM CASEGOODS',
       standardTag: lang === 'vi' ? 'Chuẩn Khách Sạn 5 Sao' : '5-Star Hospitality Grade',
-      title: lang === 'vi' ? 'Đồ Gỗ Buồng Phòng Khách Sạn & Resort' : 'Luxury Hospitality Casegoods',
-      subtitle: lang === 'vi' ? 'Tiêu chuẩn 5 sao · Khách sạn & Biệt thự cao cấp' : 'Five-Star Standard · Turnkey Guestrooms & Suites',
-      image: '/images/profile/collection-01-warm-wood.png',
+      title: liveCollection?.title?.[lang] || (lang === 'vi' ? 'Đồ Gỗ Buồng Phòng Khách Sạn & Resort' : 'Luxury Hospitality Casegoods'),
+      subtitle: liveCollection?.subtitle?.[lang] || (lang === 'vi' ? 'Tiêu chuẩn 5 sao · Khách sạn & Biệt thự cao cấp' : 'Five-Star Standard · Turnkey Guestrooms & Suites'),
+      image: liveCollection?.overviewImage || '/images/profile/collection-01-warm-wood.png',
       spec: [
-        { label: lang === 'vi' ? 'VẬT LIỆU CHÍNH' : 'PRIMARY MATERIAL', value: 'White Oak & Natural Marble' },
+        {
+          label: lang === 'vi' ? 'VẬT LIỆU CHÍNH' : 'PRIMARY MATERIAL',
+          value: liveCollection?.materialsSummary?.[lang] || (lang === 'vi' ? 'Gỗ Sồi Trắng & Đá Tự Nhiên' : 'White Oak & Natural Marble'),
+        },
         { label: lang === 'vi' ? 'DUNG SAI BOM' : 'BOM TOLERANCE', value: '±1.0 mm (CNC Precision)' },
         { label: lang === 'vi' ? 'TIÊU CHUẨN KIỂM THỬ' : 'TESTING STANDARDS', value: 'BIFMA X5.5 & Drop Test' },
       ],
     },
     millwork: {
-      badge: lang === 'vi' ? 'MỘC KIẾN TRÚC & FIT-OUT' : 'ARCHITECTURAL MILLWORK',
+      badge: liveMillwork?.badge?.[lang] || (lang === 'vi' ? 'MỘC KIẾN TRÚC & FIT-OUT' : 'ARCHITECTURAL MILLWORK'),
       standardTag: lang === 'vi' ? 'Gia Công Chuẩn Khắt Khe' : 'Precision Fit-Out Standard',
-      title: lang === 'vi' ? 'Hệ Ốp Mộc Kiến Trúc & Sảnh Đón' : 'Architectural Millwork & Joinery',
-      subtitle: lang === 'vi' ? 'Vách tiêu âm nan gỗ, quầy bar & lam sóng CNC' : 'Acoustic Paneling, Receptions & Curved CNC Joinery',
-      image: '/images/profile/architectural-millwork.jpg',
+      title: liveMillwork?.title?.[lang] || (lang === 'vi' ? 'Hệ Ốp Mộc Kiến Trúc & Sảnh Đón' : 'Architectural Millwork & Joinery'),
+      subtitle: liveMillwork?.desc?.[lang] || (lang === 'vi' ? 'Vách tiêu âm nan gỗ, quầy bar & lam sóng CNC' : 'Acoustic Paneling, Receptions & Curved CNC Joinery'),
+      image: liveMillwork?.image || '/images/profile/architectural-millwork.jpg',
       spec: [
-        { label: lang === 'vi' ? 'GIA CÔNG KỸ THUẬT' : 'FABRICATION', value: '5-Axis CNC Precision Joinery' },
+        {
+          label: lang === 'vi' ? 'GIA CÔNG KỸ THUẬT' : 'FABRICATION',
+          value: liveMillwork?.materials?.[lang] || '5-Axis CNC Precision Joinery',
+        },
         { label: lang === 'vi' ? 'ĐỘ ẨM SẤY GỖ' : 'KILN MOISTURE', value: '< 10–12% (Export-Ready)' },
         { label: lang === 'vi' ? 'KHUNG LIÊN KẾT' : 'SUB-STRUCTURE', value: 'Concealed Heavy Aluminum' },
       ],
