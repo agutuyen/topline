@@ -6,17 +6,16 @@ interface AmbientAudioPlayerProps {
   lang: Language;
 }
 
-const TARGET_VOLUME = 0.22; // Comfortable, luxurious background volume
+// 0.70 ensures clean, warm, clearly audible background music
+const TARGET_VOLUME = 0.70;
 
 export default function AmbientAudioPlayer({ lang }: AmbientAudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false);
-  const [volume] = useState(TARGET_VOLUME);
   const fadeIntervalRef = useRef<number | null>(null);
 
-  // Smooth Volume Fade Helper
-  const fadeVolume = useCallback((targetVol: number, durationMs: number = 1500) => {
+  // Smooth Volume Ramp Helper
+  const fadeVolume = useCallback((targetVol: number, durationMs: number = 800) => {
     const audio = audioRef.current;
     if (!audio) return;
 
@@ -25,7 +24,7 @@ export default function AmbientAudioPlayer({ lang }: AmbientAudioPlayerProps) {
       fadeIntervalRef.current = null;
     }
 
-    const steps = 30;
+    const steps = 20;
     const stepTime = durationMs / steps;
     const startVol = audio.volume;
     const delta = (targetVol - startVol) / steps;
@@ -50,91 +49,91 @@ export default function AmbientAudioPlayer({ lang }: AmbientAudioPlayerProps) {
     }, stepTime);
   }, []);
 
-  const startPlayingWithFade = useCallback((targetVol = TARGET_VOLUME) => {
+  // Explicit Play Function with Sound Unmuted
+  const playSound = useCallback((targetVol = TARGET_VOLUME) => {
     const audio = audioRef.current;
     if (!audio) return;
 
     audio.muted = false;
-    audio.volume = 0;
+    audio.volume = targetVol;
+    
     const playPromise = audio.play();
     if (playPromise !== undefined) {
       playPromise
         .then(() => {
           setIsPlaying(true);
-          setHasInteracted(true);
-          fadeVolume(targetVol, 1800);
           try {
             localStorage.setItem('topline_ambient_sound', 'on');
           } catch {}
         })
         .catch(() => {
-          // If unmuted autoplay blocked by browser policy on initial cold load:
-          // 1. Play muted first (100% permitted by all browsers)
-          audio.muted = true;
-          audio.play().then(() => {
-            setIsPlaying(true);
-          }).catch(() => {});
+          // If browser Autoplay Policy blocks unmuted sound without user gesture:
+          setIsPlaying(false);
 
-          // 2. Unmute and ramp up volume on first user interaction
-          const unlockAudio = () => {
+          // Setup omni-gesture unlock listener
+          const unlock = () => {
             if (audio) {
               audio.muted = false;
-              fadeVolume(targetVol, 1500);
-              setIsPlaying(true);
-              setHasInteracted(true);
+              audio.volume = targetVol;
+              audio.play().then(() => {
+                setIsPlaying(true);
+                try {
+                  localStorage.setItem('topline_ambient_sound', 'on');
+                } catch {}
+              }).catch(() => {});
             }
-            cleanupListeners();
+            removeUnlockListeners();
           };
 
-          const cleanupListeners = () => {
-            window.removeEventListener('pointerdown', unlockAudio);
-            window.removeEventListener('touchstart', unlockAudio);
-            window.removeEventListener('click', unlockAudio);
-            window.removeEventListener('scroll', unlockAudio);
-            window.removeEventListener('wheel', unlockAudio);
-            window.removeEventListener('mousemove', unlockAudio);
-            window.removeEventListener('keydown', unlockAudio);
+          const removeUnlockListeners = () => {
+            window.removeEventListener('pointerdown', unlock);
+            window.removeEventListener('touchstart', unlock);
+            window.removeEventListener('click', unlock);
+            window.removeEventListener('scroll', unlock);
+            window.removeEventListener('wheel', unlock);
+            window.removeEventListener('keydown', unlock);
           };
 
-          window.addEventListener('pointerdown', unlockAudio, { once: true, passive: true });
-          window.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
-          window.addEventListener('click', unlockAudio, { once: true, passive: true });
-          window.addEventListener('scroll', unlockAudio, { once: true, passive: true });
-          window.addEventListener('wheel', unlockAudio, { once: true, passive: true });
-          window.addEventListener('mousemove', unlockAudio, { once: true, passive: true });
-          window.addEventListener('keydown', unlockAudio, { once: true, passive: true });
+          window.addEventListener('pointerdown', unlock, { once: true, passive: true });
+          window.addEventListener('touchstart', unlock, { once: true, passive: true });
+          window.addEventListener('click', unlock, { once: true, passive: true });
+          window.addEventListener('scroll', unlock, { once: true, passive: true });
+          window.addEventListener('wheel', unlock, { once: true, passive: true });
+          window.addEventListener('keydown', unlock, { once: true, passive: true });
         });
     }
-  }, [fadeVolume]);
+  }, []);
 
-  const pauseWithFade = useCallback(() => {
-    fadeVolume(0, 800);
+  const pauseSound = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    fadeVolume(0, 400);
     try {
       localStorage.setItem('topline_ambient_sound', 'off');
     } catch {}
   }, [fadeVolume]);
 
   const toggleSound = () => {
-    if (isPlaying) {
-      pauseWithFade();
-    } else {
-      startPlayingWithFade(TARGET_VOLUME);
-    }
-  };
-
-  // Auto-play immediately when entering homepage
-  useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
+    if (isPlaying && !audio.paused && !audio.muted) {
+      pauseSound();
+    } else {
+      playSound(TARGET_VOLUME);
+    }
+  };
+
+  // Attempt autoplay immediately upon component mount
+  useEffect(() => {
     let savedPref: string | null = null;
     try {
       savedPref = localStorage.getItem('topline_ambient_sound');
     } catch {}
 
-    // Default to auto-playing sound on entry unless explicitly turned off
+    // Default to playing sound unless explicitly disabled by user
     if (savedPref !== 'off') {
-      startPlayingWithFade(TARGET_VOLUME);
+      playSound(TARGET_VOLUME);
     }
 
     return () => {
@@ -142,7 +141,7 @@ export default function AmbientAudioPlayer({ lang }: AmbientAudioPlayerProps) {
         window.clearInterval(fadeIntervalRef.current);
       }
     };
-  }, [startPlayingWithFade]);
+  }, [playSound]);
 
   return (
     <>
