@@ -19,6 +19,8 @@ import TermsModal from './components/TermsModal';
 import ProjectGalleryModal from './components/ProjectGalleryModal';
 import { useSmoothScroll } from './components/3d/useSmoothScroll';
 import AdminPortal from './components/admin/AdminPortal';
+import BackToTop from './components/BackToTop';
+import AmbientAudioPlayer from './components/AmbientAudioPlayer';
 import { Language, ProductItem, ProjectItem } from './types';
 
 export default function App() {
@@ -213,6 +215,12 @@ export default function App() {
           <span>📞</span>
           <span className="font-mono">{lang === 'vi' ? '0977.429.979' : '+84 977 429 979'}</span>
         </a>
+      </div>
+
+      {/* Floating Control Dock: Ambient Sound & Back to Top */}
+      <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-2.5">
+        <BackToTop lang={lang} />
+        <AmbientAudioPlayer lang={lang} />
       </div>
     </div>
   );
