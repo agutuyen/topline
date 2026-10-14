@@ -50,10 +50,11 @@ export default function AmbientAudioPlayer({ lang }: AmbientAudioPlayerProps) {
     }, stepTime);
   }, []);
 
-  const startPlayingWithFade = useCallback(() => {
+  const startPlayingWithFade = useCallback((targetVol = TARGET_VOLUME) => {
     const audio = audioRef.current;
     if (!audio) return;
 
+    audio.muted = false;
     audio.volume = 0;
     const playPromise = audio.play();
     if (playPromise !== undefined) {
@@ -61,17 +62,50 @@ export default function AmbientAudioPlayer({ lang }: AmbientAudioPlayerProps) {
         .then(() => {
           setIsPlaying(true);
           setHasInteracted(true);
-          fadeVolume(volume, 1800);
+          fadeVolume(targetVol, 1800);
           try {
             localStorage.setItem('topline_ambient_sound', 'on');
           } catch {}
         })
         .catch(() => {
-          // Autoplay blocked by browser policy until interaction
-          setIsPlaying(false);
+          // If unmuted autoplay blocked by browser policy on initial cold load:
+          // 1. Play muted first (100% permitted by all browsers)
+          audio.muted = true;
+          audio.play().then(() => {
+            setIsPlaying(true);
+          }).catch(() => {});
+
+          // 2. Unmute and ramp up volume on first user interaction
+          const unlockAudio = () => {
+            if (audio) {
+              audio.muted = false;
+              fadeVolume(targetVol, 1500);
+              setIsPlaying(true);
+              setHasInteracted(true);
+            }
+            cleanupListeners();
+          };
+
+          const cleanupListeners = () => {
+            window.removeEventListener('pointerdown', unlockAudio);
+            window.removeEventListener('touchstart', unlockAudio);
+            window.removeEventListener('click', unlockAudio);
+            window.removeEventListener('scroll', unlockAudio);
+            window.removeEventListener('wheel', unlockAudio);
+            window.removeEventListener('mousemove', unlockAudio);
+            window.removeEventListener('keydown', unlockAudio);
+          };
+
+          window.addEventListener('pointerdown', unlockAudio, { once: true, passive: true });
+          window.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
+          window.addEventListener('click', unlockAudio, { once: true, passive: true });
+          window.addEventListener('scroll', unlockAudio, { once: true, passive: true });
+          window.addEventListener('wheel', unlockAudio, { once: true, passive: true });
+          window.addEventListener('mousemove', unlockAudio, { once: true, passive: true });
+          window.addEventListener('keydown', unlockAudio, { once: true, passive: true });
         });
     }
-  }, [fadeVolume, volume]);
+  }, [fadeVolume]);
 
   const pauseWithFade = useCallback(() => {
     fadeVolume(0, 800);
@@ -84,11 +118,11 @@ export default function AmbientAudioPlayer({ lang }: AmbientAudioPlayerProps) {
     if (isPlaying) {
       pauseWithFade();
     } else {
-      startPlayingWithFade();
+      startPlayingWithFade(TARGET_VOLUME);
     }
   };
 
-  // Browser Autoplay compliance: Listen to first user gesture to initiate sound
+  // Auto-play immediately when entering homepage
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -98,32 +132,17 @@ export default function AmbientAudioPlayer({ lang }: AmbientAudioPlayerProps) {
       savedPref = localStorage.getItem('topline_ambient_sound');
     } catch {}
 
-    // Default: Attempt to play immediately on mount
+    // Default to auto-playing sound on entry unless explicitly turned off
     if (savedPref !== 'off') {
-      startPlayingWithFade();
+      startPlayingWithFade(TARGET_VOLUME);
     }
 
-    // Fallback for browsers that block unmuted autoplay until user interaction
-    const handleFirstGesture = () => {
-      startPlayingWithFade();
-      window.removeEventListener('pointerdown', handleFirstGesture);
-      window.removeEventListener('scroll', handleFirstGesture);
-      window.removeEventListener('keydown', handleFirstGesture);
-    };
-
-    window.addEventListener('pointerdown', handleFirstGesture, { once: true, passive: true });
-    window.addEventListener('scroll', handleFirstGesture, { once: true, passive: true });
-    window.addEventListener('keydown', handleFirstGesture, { once: true, passive: true });
-
     return () => {
-      window.removeEventListener('pointerdown', handleFirstGesture);
-      window.removeEventListener('scroll', handleFirstGesture);
-      window.removeEventListener('keydown', handleFirstGesture);
       if (fadeIntervalRef.current) {
         window.clearInterval(fadeIntervalRef.current);
       }
     };
-  }, [hasInteracted, startPlayingWithFade]);
+  }, [startPlayingWithFade]);
 
   return (
     <>
@@ -132,6 +151,8 @@ export default function AmbientAudioPlayer({ lang }: AmbientAudioPlayerProps) {
         ref={audioRef}
         loop
         preload="auto"
+        autoPlay
+        playsInline
         className="hidden"
       >
         <source src="/audio/topline-ambient-lounge.mp3" type="audio/mpeg" />
