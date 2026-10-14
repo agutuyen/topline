@@ -98,15 +98,14 @@ export default function AmbientAudioPlayer({ lang }: AmbientAudioPlayerProps) {
       savedPref = localStorage.getItem('topline_ambient_sound');
     } catch {}
 
-    // If user explicitly muted previously, don't auto-start
-    if (savedPref === 'off') {
-      return;
+    // Default: Attempt to play immediately on mount
+    if (savedPref !== 'off') {
+      startPlayingWithFade();
     }
 
+    // Fallback for browsers that block unmuted autoplay until user interaction
     const handleFirstGesture = () => {
-      if (!hasInteracted) {
-        startPlayingWithFade();
-      }
+      startPlayingWithFade();
       window.removeEventListener('pointerdown', handleFirstGesture);
       window.removeEventListener('scroll', handleFirstGesture);
       window.removeEventListener('keydown', handleFirstGesture);
@@ -139,36 +138,37 @@ export default function AmbientAudioPlayer({ lang }: AmbientAudioPlayerProps) {
         <source src="/audio/topline-ambient-lounge.ogg" type="audio/ogg" />
       </audio>
 
-      {/* Floating Sound Control Pill */}
+      {/* Floating Sound Control Button (Icon Only - Symmetrical with Back to Top) */}
       <div className="relative group">
         <button
           onClick={toggleSound}
-          aria-label={isPlaying ? (lang === 'vi' ? 'Tắt âm thanh không gian' : 'Mute ambient sound') : (lang === 'vi' ? 'Bật âm thanh không gian' : 'Play ambient sound')}
-          title={isPlaying ? (lang === 'vi' ? 'Tắt âm thanh không gian' : 'Mute ambient sound') : (lang === 'vi' ? 'Bật âm thanh không gian' : 'Play ambient sound')}
-          className={`flex items-center gap-2.5 px-3.5 py-2 rounded-full backdrop-blur-xl border transition-all duration-300 shadow-[0_10px_25px_rgba(0,0,0,0.35)] cursor-pointer hover:scale-105 active:scale-95 ${
+          aria-label={
             isPlaying
-              ? 'bg-[#191919]/90 border-[#C5A880]/50 text-[#C5A880]'
-              : 'bg-[#191919]/75 border-white/20 text-white/75 hover:text-white hover:border-white/40'
+              ? (lang === 'vi' ? 'Tắt âm thanh không gian' : 'Mute ambient sound')
+              : (lang === 'vi' ? 'Bật âm thanh không gian' : 'Play ambient sound')
+          }
+          title={
+            isPlaying
+              ? (lang === 'vi' ? 'Âm thanh không gian: Đang phát (Bấm để tắt)' : 'Ambient Sound: Playing (Click to mute)')
+              : (lang === 'vi' ? 'Âm thanh không gian: Đã tắt (Bấm để bật)' : 'Ambient Sound: Muted (Click to play)')
+          }
+          className={`relative w-11 h-11 rounded-full backdrop-blur-xl border transition-all duration-300 shadow-[0_10px_25px_rgba(0,0,0,0.35)] flex items-center justify-center cursor-pointer hover:scale-110 active:scale-95 ${
+            isPlaying
+              ? 'bg-[#191919]/90 border-[#C5A880]/60 text-[#C5A880] shadow-[0_0_15px_rgba(197,168,128,0.25)]'
+              : 'bg-[#191919]/80 border-white/20 text-white/60 hover:text-white hover:border-[#C5A880]'
           }`}
         >
           {/* Equalizer Wave / Icon */}
           {isPlaying ? (
-            <div className="flex items-center gap-0.5 h-3.5 px-0.5">
-              <span className="w-0.5 h-2 bg-[#C5A880] rounded-full animate-[pulse_0.8s_ease-in-out_infinite]" />
-              <span className="w-0.5 h-3.5 bg-[#C5A880] rounded-full animate-[pulse_0.6s_ease-in-out_infinite_0.2s]" />
-              <span className="w-0.5 h-2.5 bg-[#C5A880] rounded-full animate-[pulse_0.9s_ease-in-out_infinite_0.4s]" />
-              <span className="w-0.5 h-3 bg-[#C5A880] rounded-full animate-[pulse_0.7s_ease-in-out_infinite_0.1s]" />
+            <div className="flex items-center gap-[3px] h-4 px-0.5" aria-hidden="true">
+              <span className="w-[2.5px] h-2.5 bg-[#C5A880] rounded-full animate-[pulse_0.75s_ease-in-out_infinite]" />
+              <span className="w-[2.5px] h-4 bg-[#C5A880] rounded-full animate-[pulse_0.55s_ease-in-out_infinite_0.15s]" />
+              <span className="w-[2.5px] h-3 bg-[#C5A880] rounded-full animate-[pulse_0.85s_ease-in-out_infinite_0.35s]" />
+              <span className="w-[2.5px] h-3.5 bg-[#C5A880] rounded-full animate-[pulse_0.65s_ease-in-out_infinite_0.1s]" />
             </div>
           ) : (
-            <VolumeX className="w-3.5 h-3.5 text-white/60" />
+            <VolumeX className="w-4 h-4 text-white/65 group-hover:text-[#C5A880] transition-colors" />
           )}
-
-          {/* Sound Label */}
-          <span className="text-xs font-sans font-medium tracking-wide select-none whitespace-nowrap">
-            {isPlaying
-              ? (lang === 'vi' ? 'Âm Thanh Không Gian' : 'Ambient Lounge')
-              : (lang === 'vi' ? 'Bật Âm Thanh' : 'Play Music')}
-          </span>
         </button>
       </div>
     </>

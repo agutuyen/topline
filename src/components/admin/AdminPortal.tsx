@@ -172,7 +172,7 @@ function MultiImageGalleryManager({
               {idx === 0 ? (
                 <div className="absolute top-1.5 left-1.5 z-10 px-2 py-0.5 rounded-sm bg-[#C5A880] text-[#191919] font-bold text-[9px] uppercase tracking-wider flex items-center gap-1 shadow-sm">
                   <Star className="w-2.5 h-2.5 fill-current" />
-                  <span>Ảnh Bìa</span>
+                  <span>Ảnh Đại Diện</span>
                 </div>
               ) : (
                 <div className="absolute top-1.5 left-1.5 z-10 px-1.5 py-0.5 rounded-sm bg-black/70 text-white font-mono text-[9px]">
@@ -187,10 +187,10 @@ function MultiImageGalleryManager({
                     type="button"
                     onClick={() => setAsCover(idx)}
                     className="w-full py-1 px-1.5 rounded bg-[#C5A880] hover:bg-white text-[#191919] text-[10px] font-mono font-bold transition-colors cursor-pointer flex items-center justify-center gap-1"
-                    title="Đặt ảnh này làm ảnh đại diện chính đầu tiên"
+                    title="Chọn ảnh này làm ảnh đại diện chính trên website"
                   >
                     <Star className="w-3 h-3" />
-                    <span>Đặt ảnh bìa</span>
+                    <span>Chọn Làm Ảnh Bìa</span>
                   </button>
                 )}
 
@@ -198,10 +198,10 @@ function MultiImageGalleryManager({
                   type="button"
                   onClick={() => removeImage(idx)}
                   className="w-full py-1 px-1.5 rounded bg-red-900/60 hover:bg-red-800 text-red-200 text-[10px] font-mono transition-colors cursor-pointer flex items-center justify-center gap-1"
-                  title="Xóa ảnh này"
+                  title="Gỡ ảnh này khỏi danh sách"
                 >
                   <Trash2 className="w-3 h-3" />
-                  <span>Xóa ảnh</span>
+                  <span>Gỡ ảnh</span>
                 </button>
               </div>
             </div>
@@ -213,9 +213,9 @@ function MultiImageGalleryManager({
           <label className="aspect-square flex flex-col items-center justify-center p-3 border-2 border-dashed border-white/20 hover:border-[#C5A880] rounded-xl cursor-pointer bg-white/5 hover:bg-white/10 transition-all text-center">
             <Upload className="w-5 h-5 text-[#C5A880] mb-1" />
             <span className="text-[11px] font-mono text-white/80">
-              {uploading ? 'Đang tải...' : '+ Tải thêm ảnh'}
+              {uploading ? 'Đang xử lý...' : '+ Thêm Hình Ảnh'}
             </span>
-            <span className="text-[9px] text-white/40 font-mono mt-0.5">Từ máy tính</span>
+            <span className="text-[9px] text-white/40 font-mono mt-0.5">Tải từ thiết bị</span>
             <input
               type="file"
               multiple
@@ -888,11 +888,11 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
             <div className="flex items-center gap-2">
               <span className="font-serif text-sm font-medium tracking-wider">TopLine Admin Portal</span>
               <span className="px-2 py-0.5 rounded-sm bg-white/10 text-[9px] font-mono text-[#C5A880] uppercase">
-                ECC Architecture
+                Hệ Thống Quản Trị
               </span>
             </div>
-            <span className="text-[10px] text-white/40 font-mono block">
-              Node 24 · SQLite Database Layer
+            <span className="text-[10px] text-white/50 font-sans block">
+              Hệ Thống Quản Trị Trung Tâm · TopLine Furniture
             </span>
           </div>
         </div>
@@ -941,11 +941,11 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
           <div className="w-full max-w-md p-8 rounded-3xl bg-[#181615] border border-white/15 shadow-2xl space-y-6">
             <div className="text-center space-y-2">
               <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#C5A880]">
-                QUẢN TRỊ NỘI THẤT MAY ĐO
+                QUẢN TRỊ TOPLINE
               </span>
               <h2 className="font-serif text-3xl font-normal text-white">Đăng Nhập Hệ Thống</h2>
               <p className="text-xs text-white/60 font-light">
-                Quản lý 29 sản phẩm, 6 bộ sưu tập, dự án mộc kiến trúc và báo giá dự án (RFQ)
+                Cổng thông tin điều hành sản xuất, danh mục sản phẩm và hồ sơ báo giá dự án
               </p>
             </div>
 
@@ -957,7 +957,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
 
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="block text-xs font-mono text-white/70 mb-1">Tài khoản / Email:</label>
+                <label className="block text-xs font-mono text-white/70 mb-1">Tài khoản quản trị:</label>
                 <input
                   type="text"
                   required
@@ -979,17 +979,16 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
               </div>
 
               <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-[11px] font-mono text-white/60">
-                <span>Tài khoản mặc định: </span>
+                <span>Tài khoản nội bộ: </span>
                 <span className="text-[#C5A880] font-bold">admin</span> /{' '}
                 <span className="text-[#C5A880] font-bold">TopLine@2026!</span>
               </div>
-
               <button
                 type="submit"
                 disabled={loggingIn}
                 className="w-full py-3 rounded-xl bg-[#C5A880] hover:bg-white text-[#191919] text-xs font-semibold uppercase tracking-wider transition-all duration-300 cursor-pointer shadow-lg disabled:opacity-50"
               >
-                {loggingIn ? 'Đang xác thực...' : 'Đăng Nhập Quản Trị'}
+                {loggingIn ? 'Đang xác thực...' : 'Đăng Nhập Hệ Thống'}
               </button>
             </form>
           </div>
@@ -1009,7 +1008,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                 }`}
               >
                 <LayoutDashboard className="w-4 h-4" />
-                <span>Tổng Quan (Overview)</span>
+                <span>Bảng Điều Hành Tổng Quan</span>
               </button>
 
               <button
@@ -1022,7 +1021,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
               >
                 <div className="flex items-center gap-2.5">
                   <FileText className="w-4 h-4" />
-                  <span>Báo Giá (RFQs)</span>
+                  <span>Hồ Sơ Báo Giá (RFQ)</span>
                 </div>
                 {stats && stats.rfqs.pending > 0 && (
                   <span className="w-5 h-5 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center font-mono">
@@ -1040,7 +1039,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                 }`}
               >
                 <Package className="w-4 h-4" />
-                <span>Sản Phẩm (29 SKU)</span>
+                <span>Danh Mục Sản Phẩm</span>
               </button>
 
               <button
@@ -1052,7 +1051,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                 }`}
               >
                 <Layers className="w-4 h-4" />
-                <span>Bộ Sưu Tập (6 BST)</span>
+                <span>Bộ Sưu Tập Thiết Kế</span>
               </button>
 
               {/* NEW: Millwork & Commercial Projects Tab */}
@@ -1077,13 +1076,13 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                 }`}
               >
                 <Mail className="w-4 h-4" />
-                <span>Liên Hệ Khách</span>
+                <span>Hộp Thư Khách Hàng</span>
               </button>
             </div>
 
             <div className="p-4 border-t border-white/10 text-[11px] font-mono text-white/40 space-y-1">
-              <div>Pháp nhân: TOPLINE HOSPITALITY</div>
-              <div>MST: 3703519683</div>
+              <div>Công Ty TNHH Nội Thất Top Line</div>
+              <div>Mã số thuế: 3703519683</div>
             </div>
           </aside>
 
@@ -1093,20 +1092,20 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/10">
               <div>
                 <h1 className="font-serif text-2xl sm:text-3xl font-normal text-white">
-                  {activeTab === 'overview' && 'Bảng Điều Khiển Tổng Quan'}
+                  {activeTab === 'overview' && 'Bảng Điều Hành Tổng Quan'}
                   {activeTab === 'rfqs' && 'Quản Lý Hồ Sơ Báo Giá Dự Án (RFQ)'}
-                  {activeTab === 'products' && 'Quản Lý & Chỉnh Sửa 29 Sản Phẩm (Đa Ảnh)'}
-                  {activeTab === 'collections' && 'Quản Lý 6 Bộ Sưu Tập Thiết Kế'}
-                  {activeTab === 'millwork' && 'Mộc Kiến Trúc & Thương Hiệu Quốc Tế'}
-                  {activeTab === 'contacts' && 'Hộp Thư Liên Hệ Khách Hàng'}
+                  {activeTab === 'products' && 'Danh Mục Sản Phẩm & Hồ Sơ Kỹ Thuật'}
+                  {activeTab === 'collections' && 'Bộ Sưu Tập Nội Thất Nghỉ Dưỡng'}
+                  {activeTab === 'millwork' && 'Hồ Sơ Mộc Kiến Trúc & Công Trình Chuỗi'}
+                  {activeTab === 'contacts' && 'Hộp Thư Tư Vấn & Liên Hệ Khách Hàng'}
                 </h1>
                 <span className="text-xs text-white/50 font-light">
-                  {activeTab === 'overview' && 'Theo dõi tiến độ báo giá, năng lực sản xuất và thông báo'}
-                  {activeTab === 'rfqs' && 'Rà soát bản vẽ kỹ thuật CAD/DWG/BOQ và phân loại trạng thái'}
-                  {activeTab === 'products' && 'Hỗ trợ 1 sản phẩm nhiều ảnh, ảnh đầu tiên làm ảnh bìa, tải ảnh từ máy tính'}
-                  {activeTab === 'collections' && 'Chỉnh sửa thông điệp thiết kế, hình ảnh tổng thể và vật liệu đại diện'}
-                  {activeTab === 'millwork' && 'Quản lý thông tin, vật liệu, tiêu chuẩn và thư viện ảnh chi tiết từng công trình'}
-                  {activeTab === 'contacts' && 'Tin nhắn trao đổi trực tiếp từ khách hàng'}
+                  {activeTab === 'overview' && 'Theo dõi tiến độ hồ sơ báo giá, tình trạng sản phẩm và yêu cầu từ khách hàng'}
+                  {activeTab === 'rfqs' && 'Tiếp nhận bản vẽ kỹ thuật CAD/DWG, khối lượng BOQ và cập nhật tiến trình phản hồi'}
+                  {activeTab === 'products' && 'Quản lý hình ảnh thực tế, thông số quy cách và trạng thái hiển thị từng sản phẩm'}
+                  {activeTab === 'collections' && 'Thông điệp thiết kế, hình ảnh phối cảnh và vật liệu chủ đạo từng bộ sưu tập'}
+                  {activeTab === 'millwork' && 'Thông số hoàn thiện, vật liệu chỉ định và thư viện hình ảnh chi tiết từng dự án'}
+                  {activeTab === 'contacts' && 'Thông tin trao đổi, yêu cầu tư vấn vật liệu và đề xuất dự án từ khách hàng'}
                 </span>
               </div>
 
@@ -1140,26 +1139,26 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                     <span className="text-[11px] font-mono text-white/50 uppercase">Tổng Hồ Sơ Báo Giá</span>
                     <div className="font-serif text-3xl font-medium text-[#C5A880]">{stats.rfqs.total}</div>
                     <span className="text-[11px] text-amber-400 font-mono block">
-                      {stats.rfqs.pending} hồ sơ chờ xử lý
+                      {stats.rfqs.pending} hồ sơ đang xử lý
                     </span>
                   </div>
 
                   <div className="p-5 rounded-2xl bg-[#181615] border border-white/10 space-y-1">
-                    <span className="text-[11px] font-mono text-white/50 uppercase">Sản Phẩm Đang Hoạt Động</span>
+                    <span className="text-[11px] font-mono text-white/50 uppercase">Sản Phẩm Đang Hiển Thị</span>
                     <div className="font-serif text-3xl font-medium text-white">{stats.products.published}</div>
-                    <span className="text-[11px] text-white/50 font-mono block">Trên tổng số 29 SKU</span>
+                    <span className="text-[11px] text-white/50 font-mono block">Đang hoạt động trên website</span>
                   </div>
 
                   <div className="p-5 rounded-2xl bg-[#181615] border border-white/10 space-y-1">
-                    <span className="text-[11px] font-mono text-white/50 uppercase">Bộ Sưu Tập Chính Thức</span>
+                    <span className="text-[11px] font-mono text-white/50 uppercase">Bộ Sưu Tập Thiết Kế</span>
                     <div className="font-serif text-3xl font-medium text-[#C5A880]">6</div>
-                    <span className="text-[11px] text-white/50 font-mono block">Cho phép chỉnh sửa</span>
+                    <span className="text-[11px] text-white/50 font-mono block">Đồng bộ dữ liệu kỹ thuật</span>
                   </div>
 
                   <div className="p-5 rounded-2xl bg-[#181615] border border-white/10 space-y-1">
-                    <span className="text-[11px] font-mono text-white/50 uppercase">Liên Hệ Chưa Đọc</span>
+                    <span className="text-[11px] font-mono text-white/50 uppercase">Thư Tư Vấn Chưa Đọc</span>
                     <div className="font-serif text-3xl font-medium text-emerald-400">{stats.contacts.unread || 0}</div>
-                    <span className="text-[11px] text-white/50 font-mono block">Tổng: {stats.contacts.total} thư</span>
+                    <span className="text-[11px] text-white/50 font-mono block">Tổng cộng: {stats.contacts.total} thư tiếp nhận</span>
                   </div>
                 </div>
 
@@ -1180,10 +1179,10 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                       <thead>
                         <tr className="border-b border-white/10 text-white/50 font-mono uppercase text-[10px]">
                           <th className="pb-3">Mã Hồ Sơ</th>
-                          <th className="pb-3">Khách Hàng / Đơn Vị</th>
-                          <th className="pb-3">Loại Hình</th>
-                          <th className="pb-3">Trạng Thái</th>
-                          <th className="pb-3">Thời Gian</th>
+                          <th className="pb-3">Khách Hàng / Doanh Nghiệp</th>
+                          <th className="pb-3">Loại Hình Dự Án</th>
+                          <th className="pb-3">Tiến Trình</th>
+                          <th className="pb-3">Ngày Tiếp Nhận</th>
                           <th className="pb-3 text-right">Thao Tác</th>
                         </tr>
                       </thead>
@@ -1193,12 +1192,12 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                             <td className="py-3 font-mono font-bold text-[#C5A880]">{r.trackingCode}</td>
                             <td className="py-3">
                               <span className="font-medium text-white block">{r.fullName}</span>
-                              <span className="text-[11px] text-white/50">{r.companyName || 'Dự án riêng'}</span>
+                              <span className="text-[11px] text-white/50">{r.companyName || 'Khách hàng cá nhân'}</span>
                             </td>
                             <td className="py-3 font-mono capitalize">{r.projectType}</td>
                             <td className="py-3">
                               <span
-                                className={`px-2 py-0.5 rounded-sm text-[10px] font-mono uppercase ${
+                                className={`px-2.5 py-0.5 rounded-sm text-[10px] font-mono uppercase font-semibold ${
                                   r.status === 'pending'
                                     ? 'bg-amber-900/40 text-amber-300 border border-amber-500/30'
                                     : r.status === 'reviewing'
@@ -1208,7 +1207,13 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                                     : 'bg-emerald-900/40 text-emerald-300 border border-emerald-500/30'
                                 }`}
                               >
-                                {r.status}
+                                {r.status === 'pending'
+                                  ? 'Tiếp nhận mới'
+                                  : r.status === 'reviewing'
+                                  ? 'Đang rà soát'
+                                  : r.status === 'quoted'
+                                  ? 'Đã gửi báo giá'
+                                  : 'Đã ký hợp đồng'}
                               </span>
                             </td>
                             <td className="py-3 text-white/50 font-mono text-[11px]">{r.createdAt}</td>
@@ -1221,7 +1226,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                                 }}
                                 className="px-2.5 py-1 rounded bg-white/10 hover:bg-[#C5A880] hover:text-[#191919] font-mono text-[11px] transition-colors cursor-pointer"
                               >
-                                Xem chi tiết
+                                Xem Hồ Sơ
                               </button>
                             </td>
                           </tr>
@@ -1238,29 +1243,34 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
               <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
                   <div className="flex items-center gap-2 overflow-x-auto text-xs font-mono">
-                    {['all', 'pending', 'reviewing', 'quoted', 'contracted'].map((st) => (
+                    {[
+                      { id: 'all', label: 'Tất cả' },
+                      { id: 'pending', label: 'Tiếp nhận mới' },
+                      { id: 'reviewing', label: 'Đang rà soát' },
+                      { id: 'quoted', label: 'Đã gửi báo giá' },
+                      { id: 'contracted', label: 'Đã ký hợp đồng' },
+                    ].map((st) => (
                       <button
-                        key={st}
+                        key={st.id}
                         onClick={() => {
-                          setRfqFilterStatus(st);
+                          setRfqFilterStatus(st.id);
                           setRfqPage(1);
                         }}
-                        className={`px-3 py-1.5 rounded-lg border transition-colors cursor-pointer uppercase text-[10px] ${
-                          rfqFilterStatus === st
+                        className={`px-3 py-1.5 rounded-lg border transition-colors cursor-pointer text-xs ${
+                          rfqFilterStatus === st.id
                             ? 'bg-[#C5A880] text-[#191919] font-bold border-[#C5A880]'
                             : 'border-white/15 text-white/70 hover:bg-white/5'
                         }`}
                       >
-                        {st}
+                        {st.label}
                       </button>
                     ))}
                   </div>
-
                   <div className="relative w-full sm:w-64">
                     <Search className="w-3.5 h-3.5 text-white/40 absolute left-3 top-2.5" />
                     <input
                       type="text"
-                      placeholder="Tìm mã RFQ, tên, số ĐT..."
+                      placeholder="Tìm mã hồ sơ, tên khách hàng, số điện thoại..."
                       value={rfqSearch}
                       onChange={(e) => {
                         setRfqSearch(e.target.value);
@@ -1310,7 +1320,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                           <td className="p-4 font-mono font-bold text-[#C5A880]">{r.trackingCode}</td>
                           <td className="p-4">
                             <span className="font-semibold text-white block">{r.fullName}</span>
-                            <span className="text-[11px] text-white/50">{r.companyName || 'Khách riêng'}</span>
+                            <span className="text-[11px] text-white/50">{r.companyName || 'Khách hàng cá nhân'}</span>
                           </td>
                           <td className="p-4 font-mono">
                             <div className="text-white">{r.phone}</div>
@@ -1326,11 +1336,11 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                               onChange={(e) => handleUpdateRfqStatus(r.id, e.target.value)}
                               className="px-2 py-1 rounded bg-black/40 border border-white/20 text-[11px] font-mono uppercase focus:outline-hidden"
                             >
-                              <option value="pending">🟡 Chờ xử lý</option>
-                              <option value="reviewing">🔵 Đang rà soát</option>
-                              <option value="quoted">🟣 Đã báo giá</option>
-                              <option value="contracted">🟢 Chốt hợp đồng</option>
-                              <option value="rejected">🔴 Không khả thi</option>
+                              <option value="pending">🟡 Tiếp nhận mới</option>
+                              <option value="reviewing">🔵 Đang rà soát bản vẽ</option>
+                              <option value="quoted">🟣 Đã gửi báo giá</option>
+                              <option value="contracted">🟢 Đã ký hợp đồng</option>
+                              <option value="rejected">🔴 Tạm dừng / Từ chối</option>
                             </select>
                           </td>
                           <td className="p-4 text-white/50 font-mono text-[11px]">{r.createdAt}</td>
@@ -1339,7 +1349,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                               onClick={() => setSelectedRfq(r)}
                               className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-[#C5A880] hover:text-[#191919] font-mono text-xs transition-colors cursor-pointer"
                             >
-                              Xem Chi Tiết
+                              Xem Hồ Sơ
                             </button>
                           </td>
                         </tr>
@@ -1381,7 +1391,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                 <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
                   <div className="flex items-center gap-2 overflow-x-auto text-xs font-mono">
                     {[
-                      { id: 'all', label: 'Tất cả (29)' },
+                      { id: 'all', label: 'Tất cả' },
                       { id: 'warm-wood', label: '01. Gỗ Ấm' },
                       { id: 'black-contemporary', label: '02. Đen Kiến Trúc' },
                       { id: 'sculptural', label: '03. Điêu Khắc' },
@@ -1410,7 +1420,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                     <Search className="w-3.5 h-3.5 text-white/40 absolute left-3 top-2.5" />
                     <input
                       type="text"
-                      placeholder="Tìm SKU, tên, vật liệu..."
+                      placeholder="Tìm theo mã SKU, tên sản phẩm, vật liệu..."
                       value={productSearch}
                       onChange={(e) => {
                         setProductSearch(e.target.value);
@@ -1425,7 +1435,7 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                   <table className="w-full text-left text-xs">
                     <thead>
                       <tr className="border-b border-white/10 bg-black/40 text-white/50 font-mono uppercase text-[10px]">
-                        <th className="p-4">Ảnh Bìa</th>
+                        <th className="p-4">Ảnh Đại Diện</th>
                         <th className="p-4 cursor-pointer hover:text-white" onClick={() => toggleProductSort('sku')}>
                           <div className="flex items-center gap-1">
                             <span>SKU</span>
@@ -1483,23 +1493,23 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                                   : 'bg-red-900/40 text-red-300 border border-red-500/30'
                               }`}
                             >
-                              {p.isPublished !== false ? 'Hiển thị' : 'Ẩn'}
+                              {p.isPublished !== false ? 'Đang hiển thị' : 'Đang ẩn'}
                             </button>
                           </td>
                           <td className="p-4 text-right space-x-2">
                             <button
                               onClick={() => openEditProduct(p)}
                               className="px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-[#C5A880] hover:text-[#191919] font-mono text-xs transition-colors cursor-pointer inline-flex items-center gap-1"
-                              title="Chỉnh sửa chi tiết & quản lý nhiều ảnh"
+                              title="Chỉnh sửa thông số & thư viện ảnh"
                             >
                               <Edit3 className="w-3.5 h-3.5" />
-                              <span>Sửa</span>
+                              <span>Chỉnh Sửa</span>
                             </button>
 
                             <button
                               onClick={() => handleDeleteProduct(p.id, p.sku)}
                               className="p-1.5 rounded bg-red-900/30 hover:bg-red-800 text-red-300 transition-colors cursor-pointer inline-flex items-center"
-                              title="Xóa"
+                              title="Gỡ bỏ"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -1767,14 +1777,14 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
               </div>
 
               <div>
-                <label className="block text-white/70 mb-1">Mật khẩu mới (ít nhất 8 ký tự) *:</label>
+                <label className="block text-white/70 mb-1">Mật khẩu mới (tối thiểu 8 ký tự) *:</label>
                 <input
                   type="password"
                   required
                   minLength={8}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Mật khẩu mới an toàn"
+                  placeholder="Nhập mật khẩu mới an toàn"
                   className="w-full px-3.5 py-2.5 rounded-xl bg-black/40 border border-white/15 text-white focus:border-[#C5A880]"
                 />
               </div>
@@ -1798,14 +1808,14 @@ export default function AdminPortal({ isOpen, onClose }: AdminPortalProps) {
                   onClick={() => setIsPasswordModalOpen(false)}
                   className="px-4 py-2 rounded-xl border border-white/20 text-white/70 hover:bg-white/10 text-xs transition-colors cursor-pointer"
                 >
-                  Hủy
+                  Đóng
                 </button>
                 <button
                   type="submit"
                   disabled={isChangingPassword}
                   className="px-5 py-2.5 rounded-xl bg-[#C5A880] hover:bg-white text-[#191919] font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer shadow-md disabled:opacity-50"
                 >
-                  {isChangingPassword ? 'Đang lưu...' : 'Lưu Mật Khẩu'}
+                  {isChangingPassword ? 'Đang cập nhật...' : 'Cập Nhật Mật Khẩu'}
                 </button>
               </div>
             </form>
