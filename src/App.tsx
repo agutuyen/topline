@@ -195,7 +195,7 @@ export default function App() {
       />
 
       {/* Floating Quick Action Contacts (Hotline & Zalo) */}
-      <div className="fixed bottom-6 left-6 z-40 flex flex-col gap-2.5">
+      <div className="fixed bottom-6 left-6 z-50 flex flex-col gap-2.5">
         <a
           href="https://zalo.me/0977429979"
           target="_blank"
@@ -218,7 +218,7 @@ export default function App() {
       </div>
 
       {/* Floating Control Dock: Ambient Sound & Back to Top */}
-      <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-2.5">
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2.5">
         <BackToTop lang={lang} />
         <AmbientAudioPlayer lang={lang} />
       </div>
