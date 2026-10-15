@@ -13,11 +13,11 @@ export default function CapabilitiesSection({ lang, onOpenRFQ }: CapabilitiesSec
     <section id="capabilities" className="py-12 md:py-16 bg-[#FAF9F6] text-[#191919] relative overflow-hidden border-t border-gray-200/50 scroll-mt-20 md:scroll-mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
         {/* Section Header with smooth entrance */}
-        <Reveal className="text-center max-w-3xl mx-auto mb-8 md:mb-10">
-          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-normal tracking-tight text-[#191919]">
+        <Reveal className="text-center max-w-4xl lg:max-w-5xl mx-auto mb-8 md:mb-10">
+          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-normal tracking-tight text-[#191919] text-balance">
             {lang === 'vi' ? 'Giải Pháp Nội Thất Cho Từng Nhu Cầu' : 'Tailored Furniture Solutions for Every Need'}
           </h2>
-          <p className="mt-4 text-sm sm:text-base text-[#191919]/70 font-light leading-relaxed">
+          <p className="mt-4 text-sm sm:text-base text-[#191919]/70 font-light leading-relaxed max-w-3xl mx-auto text-balance">
             {lang === 'vi'
               ? 'Ba nhóm năng lực sản xuất chuyên sâu đáp ứng từ buồng phòng khách sạn nghỉ dưỡng, hệ ốp mộc kiến trúc phức tạp đến các bộ sưu tập xuất khẩu cao cấp.'
               : 'Three specialized contract manufacturing disciplines engineered for turnkey hospitality suites, complex architectural millwork, and export retail furniture.'}

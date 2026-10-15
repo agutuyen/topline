@@ -11,11 +11,11 @@ export default function WorkflowSection({ lang }: WorkflowSectionProps) {
     <section id="workflow" className="py-12 md:py-16 bg-[#F4F3F0] text-[#191919] relative overflow-hidden scroll-mt-20 md:scroll-mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
         {/* Section Header with smooth entrance */}
-        <Reveal className="text-center max-w-3xl mx-auto">
-          <h2 className="mt-3 font-serif text-3xl sm:text-4xl md:text-5xl font-normal tracking-tight text-[#191919]">
+        <Reveal className="text-center max-w-4xl lg:max-w-5xl mx-auto">
+          <h2 className="mt-3 font-serif text-3xl sm:text-4xl md:text-5xl font-normal tracking-tight text-[#191919] text-balance">
             {lang === 'vi' ? 'Quy Trình Phát Triển Và Sản Xuất' : 'Development & Manufacturing Workflow'}
           </h2>
-          <p className="mt-4 text-sm sm:text-base text-[#191919]/75 font-light leading-relaxed">
+          <p className="mt-4 text-sm sm:text-base text-[#191919]/75 font-light leading-relaxed max-w-3xl mx-auto text-balance">
             {lang === 'vi'
               ? 'Quy trình kiểm soát toàn diện từ tiếp nhận bản vẽ kỹ thuật đến khi đóng kiện xuất xưởng: đảm bảo độ chính xác của mộng gỗ, độ khít mối ghép và độ phẳng mặt đá trước khi bàn giao.'
               : 'A structured 5-stage contract manufacturing protocol: ensuring joinery precision, moisture stability, and stone surface alignment prior to export dispatch.'}
