@@ -97,8 +97,8 @@ export default function HeroSection({
       <AmbientVideoBackground overlayOpacity={0.42} />
 
       {/* Main Hero Grid */}
-      <div className="relative z-10 flex-1 flex flex-col justify-center max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 pt-28 sm:pt-32 pb-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+      <div className="relative z-10 flex-1 flex flex-col justify-center max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 pb-8 sm:pb-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left Column: Authoritative Editorial Master */}
           <div className="lg:col-span-7 xl:col-span-7 space-y-6">
             {/* Top Provenance Micro-Pill */}

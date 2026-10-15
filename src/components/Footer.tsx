@@ -20,10 +20,10 @@ export default function Footer({
   const info = COMPANY_INFO[lang];
 
   return (
-    <footer id="contact" className="bg-[#0D0D0D] text-white pt-20 pb-12 border-t border-white/10">
+    <footer id="contact" className="bg-[#0D0D0D] text-white pt-12 md:pt-16 pb-8 md:pb-10 border-t border-white/10 scroll-mt-20 md:scroll-mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
         {/* Main Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 pb-16 border-b border-white/10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10 pb-10 md:pb-12 border-b border-white/10">
           {/* Brand Identity & Summary (4 cols) */}
           <div className="lg:col-span-4 flex flex-col justify-between">
             <div>
@@ -149,7 +149,7 @@ export default function Footer({
         </div>
 
         {/* Bottom Legal Copyright */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-white/40 gap-4">
+        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-[11px] text-white/40 gap-3">
           <div>
             © {new Date().getFullYear()} {info.officialName}. All rights reserved.
           </div>

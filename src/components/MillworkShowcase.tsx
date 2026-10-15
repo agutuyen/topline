@@ -17,10 +17,10 @@ export default function MillworkShowcase({
   onSelectProject,
 }: MillworkShowcaseProps) {
   return (
-    <section id="clients" className="py-20 md:py-28 bg-[#121212] text-white relative">
+    <section id="clients" className="py-12 md:py-16 bg-[#121212] text-white relative scroll-mt-20 md:scroll-mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
         {/* Section Header with smooth entrance */}
-        <Reveal className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-12 border-b border-white/10">
+        <Reveal className="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 pb-6 md:pb-8 border-b border-white/10">
           <div>
             <h2 className="mt-3 font-serif text-3xl sm:text-4xl md:text-5xl font-normal tracking-tight text-white">
               {lang === 'vi' ? 'Mộc Kiến Trúc & Thương Hiệu Quốc Tế' : 'Architectural Fit-Out at Scale'}
@@ -42,7 +42,7 @@ export default function MillworkShowcase({
         </Reveal>
 
         {/* Commercial Client Partner Logos Strip */}
-        <div className="py-8 border-b border-white/10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 text-center">
+        <div className="py-5 md:py-6 border-b border-white/10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6 text-center">
           {COMMERCIAL_CLIENTS.map((item, idx) => (
             <div
               key={idx}
@@ -59,7 +59,7 @@ export default function MillworkShowcase({
         </div>
 
         {/* Millwork Project Cards with Interactive Gallery Triggers */}
-        <StaggerContainer className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <StaggerContainer className="mt-8 md:mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
           {MILLWORK_PROJECTS.map((proj) => (
             <StaggerItem key={proj.id} className="h-full">
               <div className="luxury-card luxury-card-dark group h-full">

@@ -10,10 +10,10 @@ interface CapabilitiesSectionProps {
 
 export default function CapabilitiesSection({ lang, onOpenRFQ }: CapabilitiesSectionProps) {
   return (
-    <section id="capabilities" className="py-24 md:py-32 bg-[#FAF9F6] text-[#191919] relative overflow-hidden border-t border-gray-200/60">
+    <section id="capabilities" className="py-12 md:py-16 bg-[#FAF9F6] text-[#191919] relative overflow-hidden border-t border-gray-200/50 scroll-mt-20 md:scroll-mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
         {/* Section Header with smooth entrance */}
-        <Reveal className="text-center max-w-3xl mx-auto mb-16">
+        <Reveal className="text-center max-w-3xl mx-auto mb-8 md:mb-10">
           <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-normal tracking-tight text-[#191919]">
             {lang === 'vi' ? 'Giải Pháp Nội Thất Cho Từng Nhu Cầu' : 'Tailored Furniture Solutions for Every Need'}
           </h2>
@@ -25,7 +25,7 @@ export default function CapabilitiesSection({ lang, onOpenRFQ }: CapabilitiesSec
         </Reveal>
 
         {/* 3 Core Sectors Cards with staggered cascading entrance */}
-        <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+        <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
           {CORE_SECTORS.map((sector) => (
             <StaggerItem key={sector.id} className="h-full">
               <div className="luxury-card h-full">
@@ -71,7 +71,7 @@ export default function CapabilitiesSection({ lang, onOpenRFQ }: CapabilitiesSec
                   {/* RFQ Action Button */}
                   <button
                     onClick={onOpenRFQ}
-                    className="mt-8 w-full py-2.5 px-4 rounded-lg bg-[#FAF9F6] hover:bg-[#191919] hover:text-white text-[#191919] text-xs font-semibold tracking-wider uppercase transition-colors duration-200 cursor-pointer flex items-center justify-center gap-1.5"
+                    className="mt-6 w-full py-2.5 px-4 rounded-lg bg-[#FAF9F6] hover:bg-[#191919] hover:text-white text-[#191919] text-xs font-semibold tracking-wider uppercase transition-colors duration-200 cursor-pointer flex items-center justify-center gap-1.5"
                   >
                     <span>{lang === 'vi' ? 'Báo Giá Mảng Này' : 'Inquire This Sector'}</span>
                     <ArrowRight className="w-3.5 h-3.5" />

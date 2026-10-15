@@ -58,10 +58,10 @@ export default function CollectionsExplorer({
   );
 
   return (
-    <section id="collections" className="py-20 md:py-28 bg-[#FAF9F6] text-[#191919]">
+    <section id="collections" className="py-12 md:py-16 bg-[#FAF9F6] text-[#191919] border-t border-gray-200/50 scroll-mt-20 md:scroll-mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
         {/* Section Header with smooth entrance */}
-        <Reveal className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-10 border-b border-gray-200">
+        <Reveal className="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 pb-6 md:pb-8 border-b border-gray-200">
           <div>
             <h2 className="mt-2 font-serif text-3xl sm:text-4xl md:text-5xl font-normal tracking-tight text-[#191919]">
               {lang === 'vi' ? 'Bộ Sưu Tập Nội Thất' : 'Furniture Collections'}
@@ -86,7 +86,7 @@ export default function CollectionsExplorer({
         </Reveal>
 
         {/* Category Filter Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto py-6 no-scrollbar">
+        <div className="flex items-center gap-2 overflow-x-auto py-4 md:py-5 no-scrollbar">
           {categories.map((cat) => (
             <button
               key={cat.id}
@@ -103,7 +103,7 @@ export default function CollectionsExplorer({
         </div>
         {/* Collection Overview Banner (When a specific collection is filtered) */}
         {activeCollectionMeta && (
-          <div className="mb-10 bg-white rounded-2xl border border-gray-200/90 overflow-hidden shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          <div className="mb-6 md:mb-8 bg-white rounded-2xl border border-gray-200/90 overflow-hidden shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
             <div className="lg:col-span-7 p-6 sm:p-8 flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2">

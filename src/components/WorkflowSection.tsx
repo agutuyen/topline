@@ -8,7 +8,7 @@ interface WorkflowSectionProps {
 
 export default function WorkflowSection({ lang }: WorkflowSectionProps) {
   return (
-    <section id="workflow" className="py-20 md:py-28 bg-[#F4F3F0] text-[#191919] relative overflow-hidden">
+    <section id="workflow" className="py-12 md:py-16 bg-[#F4F3F0] text-[#191919] relative overflow-hidden scroll-mt-20 md:scroll-mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
         {/* Section Header with smooth entrance */}
         <Reveal className="text-center max-w-3xl mx-auto">
@@ -23,7 +23,7 @@ export default function WorkflowSection({ lang }: WorkflowSectionProps) {
         </Reveal>
 
         {/* 5-Step Process Timeline with staggered entrance */}
-        <StaggerContainer className="mt-16 grid grid-cols-1 md:grid-cols-5 gap-6 relative">
+        <StaggerContainer className="mt-8 md:mt-10 grid grid-cols-1 md:grid-cols-5 gap-4 sm:gap-5 relative">
           {/* Connector Line behind steps on desktop */}
           <div className="hidden md:block absolute top-12 left-10 right-10 h-0.5 bg-gray-300 z-0" />
 
@@ -56,8 +56,8 @@ export default function WorkflowSection({ lang }: WorkflowSectionProps) {
         </StaggerContainer>
 
         {/* Value Proposition Callout Banner */}
-        <Reveal delay={0.2} className="mt-16">
-          <div className="bg-[#191919] text-white rounded-2xl p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl">
+        <Reveal delay={0.2} className="mt-8 md:mt-10">
+          <div className="bg-[#191919] text-white rounded-2xl p-6 sm:p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 shadow-xl">
             <div className="max-w-2xl">
               <span className="text-[11px] font-mono uppercase tracking-widest text-[#C5A880]">
                 {lang === 'vi' ? 'TIÊU CHUẨN XUẤT KHẨU VIỆT NAM' : 'EXPORT QUALITY GUARANTEE'}

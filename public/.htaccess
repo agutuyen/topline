@@ -9,13 +9,24 @@
   # 2. Route all API calls to native PHP API engine
   RewriteRule ^api/v1/(.*)$ api/index.php [QSA,L]
   RewriteRule ^api/(.*)$ api/index.php [QSA,L]
+  RewriteRule ^dist/api/(.*)$ api/index.php [QSA,L]
 
-  # 3. SPA Fallback
+  # 3. Don't rewrite if request is already targeting dist/
+  RewriteCond %{REQUEST_URI} ^/dist/ [NC]
+  RewriteRule ^ - [L]
+
+  # 4. If the requested file or directory exists in dist/, serve it from dist/
+  RewriteCond %{DOCUMENT_ROOT}/dist/$1 -f [OR]
+  RewriteCond %{DOCUMENT_ROOT}/dist/$1 -d
+  RewriteRule ^(.*)$ /dist/$1 [L]
+
+  # 5. Otherwise, route all requests to /dist/index.html (SPA Fallback)
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^ index.html [L]
+  RewriteRule ^(.*)$ /dist/index.html [L]
 </IfModule>
 
+# Security Headers (Harden HTTP response)
 <IfModule mod_headers.c>
   Header always set X-Content-Type-Options "nosniff"
   Header always set X-Frame-Options "SAMEORIGIN"
@@ -24,6 +35,7 @@
   Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
 </IfModule>
 
+# MIME Types Configuration
 <IfModule mod_mime.c>
   AddType text/javascript .js
   AddType text/javascript .mjs
@@ -34,4 +46,9 @@
   AddType image/jpeg .jpg .jpeg
   AddType video/mp4 .mp4
   AddType application/x-httpd-php .php
+</IfModule>
+
+# Gzip & Deflate Compression
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css application/xml application/xhtml+xml application/rss+xml application/javascript application/x-javascript application/json
 </IfModule>

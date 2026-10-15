@@ -35,7 +35,7 @@ export default function AboutSection({ lang, onOpenRFQ }: AboutSectionProps) {
   ];
 
   return (
-    <section id="about" className="py-20 md:py-28 bg-[#F4F3F0] text-[#191919] relative overflow-hidden">
+    <section id="about" className="py-12 md:py-16 bg-[#F4F3F0] text-[#191919] relative overflow-hidden scroll-mt-20 md:scroll-mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
         {/* Section Header with smooth entrance */}
         <Reveal className="max-w-4xl">
@@ -50,7 +50,7 @@ export default function AboutSection({ lang, onOpenRFQ }: AboutSectionProps) {
         </Reveal>
 
         {/* 4 Architectural Metric Pillars with staggered entrance */}
-        <StaggerContainer className="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <StaggerContainer className="mt-7 md:mt-8 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
           {stats.map((stat, i) => (
             <StaggerItem key={i}>
               <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-200/90 shadow-2xs flex flex-col justify-between h-full">
@@ -71,7 +71,7 @@ export default function AboutSection({ lang, onOpenRFQ }: AboutSectionProps) {
         </StaggerContainer>
 
         {/* 2-Column Perfectly Balanced Facility & Legal Identity Grid */}
-        <StaggerContainer className="mt-10 md:mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+        <StaggerContainer className="mt-7 md:mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-stretch">
           {/* Left Card: Manufacturing Facility Details */}
           <StaggerItem className="h-full">
             <div className="luxury-card h-full">
