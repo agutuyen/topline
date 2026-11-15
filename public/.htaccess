@@ -2,37 +2,34 @@
   RewriteEngine On
   RewriteBase /
 
-  # 1. Block access to hidden configuration and raw database files
+  # 1. Security: Block sensitive files
   RewriteRule (^|/)\.(git|env|cache|htaccess) - [F,L]
   RewriteRule \.(db|sqlite|sqlite3|sql|log|bak|swp)$ - [F,L]
 
-  # 2. Route all API calls to native PHP API engine
-  RewriteRule ^api/v1/(.*)$ api/index.php [QSA,L]
-  RewriteRule ^api/(.*)$ api/index.php [QSA,L]
-  RewriteRule ^dist/api/(.*)$ api/index.php [QSA,L]
-
-  # 3. Don't rewrite if request is already targeting dist/
-  RewriteCond %{REQUEST_URI} ^/dist/ [NC]
+  # 2. If the requested file or directory exists in this folder, serve it directly
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
   RewriteRule ^ - [L]
 
-  # 4. If the requested file or directory exists in dist/, serve it from dist/
-  RewriteCond %{DOCUMENT_ROOT}/dist/$1 -f [OR]
-  RewriteCond %{DOCUMENT_ROOT}/dist/$1 -d
-  RewriteRule ^(.*)$ /dist/$1 [L]
+  # 3. Route API requests if accessed through dist
+  RewriteRule ^api/v1/(.*)$ ../api/index.php [QSA,L]
+  RewriteRule ^api/(.*)$ ../api/index.php [QSA,L]
 
-  # 5. Otherwise, route all requests to /dist/index.html (SPA Fallback)
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^(.*)$ /dist/index.html [L]
+  # 4. SPA Fallback:
+  # If DocumentRoot is dist, serve index.html
+  RewriteCond %{DOCUMENT_ROOT}/index.html -f
+  RewriteRule ^ index.html [L]
+
+  # If DocumentRoot is parent, serve /dist/index.html
+  RewriteRule ^ /dist/index.html [L]
 </IfModule>
 
-# Security Headers (Harden HTTP response)
+# Security Headers
 <IfModule mod_headers.c>
   Header always set X-Content-Type-Options "nosniff"
   Header always set X-Frame-Options "SAMEORIGIN"
   Header always set X-XSS-Protection "1; mode=block"
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
-  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
 </IfModule>
 
 # MIME Types Configuration
@@ -45,10 +42,26 @@
   AddType image/png .png
   AddType image/jpeg .jpg .jpeg
   AddType video/mp4 .mp4
-  AddType application/x-httpd-php .php
+  AddType application/json .json
+  AddType application/xml .xml
+  AddType text/xml .xml
 </IfModule>
 
-# Gzip & Deflate Compression
+# Compression
 <IfModule mod_deflate.c>
-  AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css application/xml application/xhtml+xml application/rss+xml application/javascript application/x-javascript application/json
+  AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css application/xml application/xhtml+xml application/rss+xml application/javascript application/x-javascript application/json image/svg+xml
+</IfModule>
+
+# Caching
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType application/xml "access plus 1 hour"
+  ExpiresByType text/xml "access plus 1 hour"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 6 months"
+  ExpiresByType image/webp "access plus 6 months"
+  ExpiresByType image/jpeg "access plus 6 months"
+  ExpiresByType image/png "access plus 6 months"
 </IfModule>

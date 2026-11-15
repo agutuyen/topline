@@ -131,6 +131,35 @@ if ($route === '/health' || $route === '/api/health') {
     exit;
 }
 
+// ── SEO SITEMAP & ROBOTS FALLBACK ──
+if ($route === '/sitemap.xml' || $route === '/sitemap') {
+    header('Content-Type: application/xml; charset=UTF-8');
+    $files = [$baseDir . '/sitemap.xml', $baseDir . '/dist/sitemap.xml', $baseDir . '/public/sitemap.xml'];
+    foreach ($files as $f) {
+        if (file_exists($f)) {
+            readfile($f);
+            exit;
+        }
+    }
+    http_response_code(404);
+    echo '<?xml version="1.0" encoding="UTF-8"?><error>Sitemap not found</error>';
+    exit;
+}
+
+if ($route === '/robots.txt') {
+    header('Content-Type: text/plain; charset=UTF-8');
+    $files = [$baseDir . '/robots.txt', $baseDir . '/dist/robots.txt', $baseDir . '/public/robots.txt'];
+    foreach ($files as $f) {
+        if (file_exists($f)) {
+            readfile($f);
+            exit;
+        }
+    }
+    http_response_code(404);
+    echo "User-agent: *\nAllow: /\n";
+    exit;
+}
+
 // ── AUTH ROUTES ──
 // POST /auth/login
 if ($route === '/auth/login' && $method === 'POST') {

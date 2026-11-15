@@ -18,3 +18,4 @@ Allow: /
 User-agent: Bingbot
 Allow: /
 Crawl-delay: 5
+
