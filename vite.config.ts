@@ -6,9 +6,15 @@ import {defineConfig} from 'vite';
 export default defineConfig(() => {
   return {
     plugins: [react(), tailwindcss()],
+    // Build assets with paths relative to dist/ root so they resolve correctly
+    // whether the site is served from / with htaccess rewrite or from /dist/ directly.
+    base: './',
+    build: {
+      sourcemap: false,
+    },
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': path.resolve(import.meta.dirname, '.'),
       },
     },
     server: {

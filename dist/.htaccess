@@ -2,31 +2,63 @@
   RewriteEngine On
   RewriteBase /
 
-  # 1. Block access to hidden configuration and raw database files
+  # ══════════════════════════════════════════
+  # 0. SEO: Force HTTPS + www canonical redirect
+  # ══════════════════════════════════════════
+  # Uncomment the block below once SSL is active:
+  # RewriteCond %{HTTPS} off
+  # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+  # ══════════════════════════════════════════
+  # 1. Security: Block sensitive files
+  # ══════════════════════════════════════════
   RewriteRule (^|/)\.(git|env|cache|htaccess) - [F,L]
   RewriteRule \.(db|sqlite|sqlite3|sql|log|bak|swp)$ - [F,L]
 
-  # 2. Route all API calls to native PHP API engine
+  # ══════════════════════════════════════════
+  # 2. API routing → PHP backend
+  # ══════════════════════════════════════════
   RewriteRule ^api/v1/(.*)$ api/index.php [QSA,L]
   RewriteRule ^api/(.*)$ api/index.php [QSA,L]
   RewriteRule ^dist/api/(.*)$ api/index.php [QSA,L]
 
-  # 3. Don't rewrite if request is already targeting dist/
+  # ══════════════════════════════════════════
+  # 3. SEO: Serve robots.txt and sitemap.xml from dist/
+  # ══════════════════════════════════════════
+  RewriteRule ^robots\.txt$ /dist/robots.txt [L]
+  RewriteRule ^sitemap\.xml$ /dist/sitemap.xml [L]
+
+  # ══════════════════════════════════════════
+  # 4. SEO: Prevent /dist/ from being a visible URL (avoid duplicate content)
+  # ══════════════════════════════════════════
+  RewriteCond %{THE_REQUEST} \s/dist/index\.html [NC]
+  RewriteRule ^ / [R=301,L]
+  RewriteCond %{THE_REQUEST} \s/dist/\s [NC]
+  RewriteRule ^ / [R=301,L]
+
+  # ══════════════════════════════════════════
+  # 5. Serve static assets from dist/ (JS, CSS, images, etc.)
+  # ══════════════════════════════════════════
+  # Don't rewrite if request is already targeting dist/
   RewriteCond %{REQUEST_URI} ^/dist/ [NC]
   RewriteRule ^ - [L]
 
-  # 4. If the requested file or directory exists in dist/, serve it from dist/
+  # If the requested file exists in dist/, serve it
   RewriteCond %{DOCUMENT_ROOT}/dist/$1 -f [OR]
   RewriteCond %{DOCUMENT_ROOT}/dist/$1 -d
   RewriteRule ^(.*)$ /dist/$1 [L]
 
-  # 5. Otherwise, route all requests to /dist/index.html (SPA Fallback)
+  # ══════════════════════════════════════════
+  # 6. SPA Fallback — route all other requests to dist/index.html
+  # ══════════════════════════════════════════
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^(.*)$ /dist/index.html [L]
 </IfModule>
 
-# Security Headers (Harden HTTP response)
+# ══════════════════════════════════════════
+# Security Headers
+# ══════════════════════════════════════════
 <IfModule mod_headers.c>
   Header always set X-Content-Type-Options "nosniff"
   Header always set X-Frame-Options "SAMEORIGIN"
@@ -35,7 +67,9 @@
   Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
 </IfModule>
 
-# MIME Types Configuration
+# ══════════════════════════════════════════
+# MIME Types
+# ══════════════════════════════════════════
 <IfModule mod_mime.c>
   AddType text/javascript .js
   AddType text/javascript .mjs
@@ -45,10 +79,59 @@
   AddType image/png .png
   AddType image/jpeg .jpg .jpeg
   AddType video/mp4 .mp4
+  AddType application/json .json
+  AddType application/xml .xml
   AddType application/x-httpd-php .php
+  AddType application/manifest+json .webmanifest
 </IfModule>
 
-# Gzip & Deflate Compression
+# ══════════════════════════════════════════
+# Gzip / Deflate Compression
+# ══════════════════════════════════════════
 <IfModule mod_deflate.c>
-  AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css application/xml application/xhtml+xml application/rss+xml application/javascript application/x-javascript application/json
+  AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css
+  AddOutputFilterByType DEFLATE application/xml application/xhtml+xml application/rss+xml
+  AddOutputFilterByType DEFLATE application/javascript application/x-javascript application/json
+  AddOutputFilterByType DEFLATE image/svg+xml
 </IfModule>
+
+# ══════════════════════════════════════════
+# Browser Caching (SEO: improves PageSpeed score)
+# ══════════════════════════════════════════
+<IfModule mod_expires.c>
+  ExpiresActive On
+
+  # HTML — always revalidate
+  ExpiresByType text/html "access plus 0 seconds"
+
+  # CSS & JS with content hash in filename — cache aggressively
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType text/javascript "access plus 1 year"
+
+  # Images
+  ExpiresByType image/jpeg "access plus 6 months"
+  ExpiresByType image/png "access plus 6 months"
+  ExpiresByType image/webp "access plus 6 months"
+  ExpiresByType image/svg+xml "access plus 6 months"
+
+  # Video
+  ExpiresByType video/mp4 "access plus 6 months"
+
+  # Fonts
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType font/woff "access plus 1 year"
+  ExpiresByType application/font-woff2 "access plus 1 year"
+
+  # JSON & XML
+  ExpiresByType application/json "access plus 0 seconds"
+  ExpiresByType application/xml "access plus 0 seconds"
+</IfModule>
+
+# ══════════════════════════════════════════
+# ETag (disable to avoid cache validation overhead on shared hosting)
+# ══════════════════════════════════════════
+<IfModule mod_headers.c>
+  Header unset ETag
+</IfModule>
+FileETag None
