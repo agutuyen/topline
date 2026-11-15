@@ -1,0 +1,18 @@
+{
+  "short_name": "TopLine",
+  "name": "TopLine Hospitality Furniture",
+  "description": "Nhà sản xuất nội thất cao cấp may đo theo yêu cầu — Custom Furniture, Made to Scale",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#FAF9F6",
+  "theme_color": "#C5A880",
+  "display": "standalone",
+  "orientation": "portrait"
+}

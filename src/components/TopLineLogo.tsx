@@ -65,11 +65,11 @@ export default function TopLineLogo({
   return (
     <div className={`flex flex-col items-center text-center ${className}`}>
       <div className="scale-125 mb-3">{MonogramSvg}</div>
-      <h1
-        className={`font-serif text-2xl md:text-3xl tracking-[0.25em] font-normal uppercase ${textColor}`}
+      <span
+        className={`block font-serif text-2xl md:text-3xl tracking-[0.25em] font-normal uppercase ${textColor}`}
       >
         TOP LINE
-      </h1>
+      </span>
       <div className="w-16 h-px bg-[#C5A880] my-2" />
       <p
         className={`text-[10px] md:text-xs tracking-[0.3em] uppercase font-sans font-medium text-[#C5A880]`}

@@ -3,7 +3,7 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 
-  <!-- Homepage -->
+  <!-- Canonical Homepage -->
   <url>
     <loc>https://toplinefurniture.vn/</loc>
     <xhtml:link rel="alternate" hreflang="vi" href="https://toplinefurniture.vn/"/>
@@ -12,70 +12,55 @@
     <lastmod>2026-11-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+
+    <!-- Key Furniture & Project Images for Google Image Indexing -->
     <image:image>
       <image:loc>https://toplinefurniture.vn/images/profile/collection-01-warm-wood.png</image:loc>
-      <image:title>TopLine Furniture - Collection 01: Warm Wood &amp; Dark Stone</image:title>
+      <image:title>TopLine Furniture - Bộ Sưu Tập 01: Gỗ Ấm và Đá Đen (Warm Wood &amp; Dark Stone)</image:title>
+      <image:caption>Nội thất gỗ sồi kết hợp đá Dark Emperador Marble may đo cho buồng phòng khách sạn 5 sao</image:caption>
     </image:image>
-  </url>
 
-  <!-- SPA Sections (deep links for Google) -->
-  <url>
-    <loc>https://toplinefurniture.vn/#about</loc>
-    <lastmod>2026-11-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://toplinefurniture.vn/#capabilities</loc>
-    <lastmod>2026-11-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://toplinefurniture.vn/images/capabilities/Hospitality_Clients_TacoBell_FiveGuys_KFC.png</image:loc>
-      <image:title>TopLine - Dự Án Chuỗi Nhà Hàng Quốc Tế Taco Bell, Five Guys, KFC</image:title>
-    </image:image>
-  </url>
-
-  <url>
-    <loc>https://toplinefurniture.vn/#collections</loc>
-    <lastmod>2026-11-15</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
     <image:image>
       <image:loc>https://toplinefurniture.vn/images/profile/collection-02-black-contemporary.png</image:loc>
-      <image:title>TopLine - Collection 02: Black Contemporary Furniture</image:title>
+      <image:title>TopLine Furniture - Bộ Sưu Tập 02: Đen Kiến Trúc (Black Contemporary)</image:title>
+      <image:caption>Nội thất phòng ngủ phong cách kiến trúc đương đại sơn đen mờ cao cấp</image:caption>
     </image:image>
+
     <image:image>
       <image:loc>https://toplinefurniture.vn/images/profile/collection-03-sculptural-stone.png</image:loc>
-      <image:title>TopLine - Collection 03: Sculptural Stone &amp; Wood</image:title>
+      <image:title>TopLine Furniture - Bộ Sưu Tập 03: Điêu Khắc Đá &amp; Gỗ (Sculptural Stone &amp; Wood)</image:title>
+      <image:caption>Bàn console và bàn trà nghệ thuật uốn cong kết hợp đá Calacatta</image:caption>
     </image:image>
-  </url>
 
-  <url>
-    <loc>https://toplinefurniture.vn/#clients</loc>
-    <lastmod>2026-11-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://toplinefurniture.vn/images/profile/collection-04-approved.png</image:loc>
+      <image:title>TopLine Furniture - Bộ Sưu Tập 04: Bàn Ăn &amp; Tạo Điểm Nhấn (Dining &amp; Accent Collection)</image:title>
+      <image:caption>Bàn ăn chữ nhật mặt đá tự nhiên chân lam gỗ sồi 8 chỗ ngồi</image:caption>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://toplinefurniture.vn/images/capabilities/Hospitality_Clients_TacoBell_FiveGuys_KFC.png</image:loc>
+      <image:title>TopLine - Dự Án Mộc Kiến Trúc Chuỗi F&amp;B Quốc Tế Taco Bell, Five Guys, KFC</image:title>
+      <image:caption>Gia công module quầy order, bàn ăn thương mại và vách nan gỗ tiêu âm</image:caption>
+    </image:image>
+
     <image:image>
       <image:loc>https://toplinefurniture.vn/images/capabilities/Architectural_Millwork_Grid.png</image:loc>
-      <image:title>TopLine - Architectural Millwork &amp; Commercial Projects</image:title>
+      <image:title>TopLine - Ốp Tường Kiến Trúc &amp; Vách Gỗ Tiêu Âm (Architectural Millwork)</image:title>
+      <image:caption>Hệ vách ốp nan sồi tambour, quầy pantry bar và hệ tủ kệ âm tường</image:caption>
     </image:image>
-  </url>
 
-  <url>
-    <loc>https://toplinefurniture.vn/#workflow</loc>
-    <lastmod>2026-11-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
+    <image:image>
+      <image:loc>https://toplinefurniture.vn/images/capabilities/TopLine_Factory_Facility_Vietnam.png</image:loc>
+      <image:title>TopLine Furniture Manufacturing Facility Vietnam</image:title>
+      <image:caption>Nhà xưởng sản xuất nội thất xuất khẩu TopLine tại Việt Nam</image:caption>
+    </image:image>
 
-  <url>
-    <loc>https://toplinefurniture.vn/#contact</loc>
-    <lastmod>2026-11-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://toplinefurniture.vn/images/capabilities/Workflow_QC_Dresser_Angle.png</image:loc>
+      <image:title>TopLine QC &amp; Inspection Stage - 6-Drawer Dresser with Marble Top</image:title>
+      <image:caption>Kiểm tra chất lượng thành phẩm mộng gỗ và độ khít mặt đá trước khi đóng kiện</image:caption>
+    </image:image>
   </url>
 
 </urlset>
-

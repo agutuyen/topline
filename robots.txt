@@ -1,21 +1,23 @@
 # TopLine Hospitality Furniture — Robots.txt
-# https://toplinefurniture.vn
+# Official Website: https://toplinefurniture.vn
 
 User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /dist/api/
 Disallow: /uploads/rfq/
-Disallow: /#admin
 
-# Sitemap location
+# Search Engine Sitemap Location
 Sitemap: https://toplinefurniture.vn/sitemap.xml
 
-# Crawl-delay for polite crawling
+# Friendly crawl rules for search indexers
 User-agent: Googlebot
 Allow: /
+
+User-agent: Googlebot-Image
+Allow: /images/
+Allow: /uploads/products/
 
 User-agent: Bingbot
 Allow: /
 Crawl-delay: 5
-
